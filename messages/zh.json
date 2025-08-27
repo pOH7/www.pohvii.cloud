@@ -1,0 +1,11 @@
+{
+  "HomePage": {
+    "title": "欢迎",
+    "description": "这是主页"
+  },
+  "Navigation": {
+    "home": "首页",
+    "about": "关于",
+    "contact": "联系"
+  }
+}
