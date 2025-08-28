@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-const locales = ['en', 'zh'];
-const defaultLocale = 'en';
+const locales = ["en", "zh"];
+const defaultLocale = "en";
 
 // Get the preferred locale
 function getLocale(request: NextRequest): string {
@@ -14,17 +14,19 @@ function getLocale(request: NextRequest): string {
   // Redirect if there is no locale
   if (pathnameIsMissingLocale) {
     // Get preferred locale from headers
-    const acceptLanguage = request.headers.get('accept-language');
+    const acceptLanguage = request.headers.get("accept-language");
     let preferredLocale = defaultLocale;
-    
+
     if (acceptLanguage) {
-      const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0].trim());
+      const languages = acceptLanguage
+        .split(",")
+        .map((lang) => lang.split(";")[0].trim());
       for (const lang of languages) {
-        if (lang.startsWith('zh')) {
-          preferredLocale = 'zh';
+        if (lang.startsWith("zh")) {
+          preferredLocale = "zh";
           break;
-        } else if (lang.startsWith('en')) {
-          preferredLocale = 'en';
+        } else if (lang.startsWith("en")) {
+          preferredLocale = "en";
           break;
         }
       }
@@ -37,22 +39,23 @@ function getLocale(request: NextRequest): string {
 }
 
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  
-  // Check if there's a locale in the pathname
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  // Check if there is any supported locale in the pathname
+  const { pathname } = request.nextUrl;
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
+  if (pathnameHasLocale) return;
+
   // Redirect if there is no locale
-  if (pathnameIsMissingLocale) {
-    const locale = getLocale(request);
-    const newPath = `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`;
-    return NextResponse.redirect(new URL(newPath, request.url));
-  }
+  const locale = getLocale(request);
+  request.nextUrl.pathname = `/${locale}${pathname}`;
+  // e.g. incoming request is /products
+  // The new URL is now /en-US/products
+  return NextResponse.redirect(request.nextUrl);
 }
 
 export const config = {
-  // Matcher ignoring `/_next/` and `/api/`
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
+  // Matcher ignoring `/_next/`, `/api/`, and static assets
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|images/).*)"],
 };
