@@ -5,10 +5,15 @@
   },
   "Navigation": {
     "home": "Home",
+    "blog": "Blog",
+    "notes": "Notes",
     "about": "About",
     "contact": "Contact"
   },
   "Header": {
+    "name": "Léon Zhang",
+    "tagline": "Full Stack Developer",
+    "cta": "Hire Me",
     "toggleMenu": "Toggle menu",
     "toggleTheme": "Toggle theme",
     "selectLanguage": "Select language",
