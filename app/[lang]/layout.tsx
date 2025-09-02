@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
+import { BackToTop } from "@/components/back-to-top";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
@@ -23,7 +24,18 @@ export default async function LangLayout({
   return (
     <html lang={lang} suppressHydrationWarning>
       <body>
-        <NextTopLoader />
+        <NextTopLoader
+          color="var(--primary-red)"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="cubic-bezier(0.4, 0, 0.2, 1)"
+          speed={200}
+          shadow="0 0 10px var(--primary-red), 0 0 20px rgba(237, 37, 78, 0.3)"
+          zIndex={1031}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -32,6 +44,7 @@ export default async function LangLayout({
         >
           <Header dictionary={dictionary} lang={lang} />
           <main>{children}</main>
+          <BackToTop />
         </ThemeProvider>
       </body>
     </html>

@@ -17,10 +17,12 @@ export default async function HomePage({
             {dictionary.HomePage.title}
           </h1>
           <p className="text-lg mb-8">{dictionary.HomePage.description}</p>
-          <p className="text-muted-foreground mb-8">
-            ✅ Language route is working with native Next.js i18n! Current
-            language: {lang}
-          </p>
+          {Array.from({ length: 30 }, (_, index) => (
+            <p key={index} className="text-muted-foreground mb-8">
+              ✅ Language route is working with native Next.js i18n! Current
+              language: {lang} (Instance {index + 1})
+            </p>
+          ))}
 
           <div className="flex justify-center gap-4">
             <Link
