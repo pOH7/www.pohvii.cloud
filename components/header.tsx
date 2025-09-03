@@ -117,7 +117,10 @@ export function Header({ dictionary, lang }: HeaderProps) {
                   <ChevronDown className="h-3 w-3 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0">
+              <DropdownMenuContent
+                align="end"
+                className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0"
+              >
                 {languages.map((language) => (
                   <DropdownMenuItem
                     key={language.code}
@@ -159,8 +162,8 @@ export function Header({ dictionary, lang }: HeaderProps) {
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
             <ThemeToggle />
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="icon"
               onClick={() => setIsSheetOpen(!isSheetOpen)}
             >
@@ -170,8 +173,18 @@ export function Header({ dictionary, lang }: HeaderProps) {
                   animate={{ rotate: 0, opacity: 1 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </motion.div>
               ) : (
@@ -187,7 +200,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
             </Button>
           </div>
         </div>
-        
+
         {/* Mobile Menu Overlay */}
         <AnimatePresence>
           {isSheetOpen && (
@@ -198,74 +211,77 @@ export function Header({ dictionary, lang }: HeaderProps) {
               transition={{ duration: 0.2 }}
               className="lg:hidden absolute top-full left-0 right-0 bg-background border-t border-border shadow-lg z-50"
             >
-            <div className="px-4 py-6 space-y-4">
-              {navigationItems.map((item, index) => (
+              <div className="px-4 py-6 space-y-4">
+                {navigationItems.map((item, index) => (
+                  <motion.div
+                    key={item.key}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.2 }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsSheetOpen(false)}
+                      className={`block py-2 text-lg font-medium transition-colors hover:text-primary text-foreground`}
+                    >
+                      {dictionary.Navigation[item.key]}
+                    </Link>
+                  </motion.div>
+                ))}
+
+                {/* Mobile Controls */}
                 <motion.div
-                  key={item.key}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.2 }}
-                >
-                  <Link
-                    href={item.href}
-                    onClick={() => setIsSheetOpen(false)}
-                    className={`block py-2 text-lg font-medium transition-colors hover:text-primary text-foreground`}
-                  >
-                    {dictionary.Navigation[item.key]}
-                  </Link>
-                </motion.div>
-              ))}
-
-              {/* Mobile Controls */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navigationItems.length * 0.1, duration: 0.2 }}
-                className="pt-4 space-y-4"
-              >
-                <div className="text-sm font-medium text-muted-foreground mb-2">
-                  {dictionary.Header.language}
-                </div>
-                <div className="space-y-2">
-                  {languages.map((language) => (
-                    <Button
-                      key={language.code}
-                      variant={lang === language.code ? "default" : "ghost"}
-                      className="w-full justify-start"
-                      onClick={() => {
-                        handleLanguageChange(language.code);
-                        setIsSheetOpen(false);
-                      }}
-                    >
-                      <span className="mr-3">{language.flag}</span>
-                      {language.name}
-                    </Button>
-                  ))}
-                </div>
-
-                <hr className="border-border my-4" />
-                
-                {/* Mobile CTA */}
-                <Button
-                  asChild
-                  className="w-full bg-primary hover:bg-accent hover:text-accent-foreground font-semibold py-3 text-lg"
-                  style={{
-                    background: "var(--primary)",
-                    color: "var(--primary-foreground)",
+                  transition={{
+                    delay: navigationItems.length * 0.1,
+                    duration: 0.2,
                   }}
+                  className="pt-4 space-y-4"
                 >
-                  <a
-                    href="https://linkedin.com/in/léon-zhang"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setIsSheetOpen(false)}
+                  <div className="text-sm font-medium text-muted-foreground mb-2">
+                    {dictionary.Header.language}
+                  </div>
+                  <div className="space-y-2">
+                    {languages.map((language) => (
+                      <Button
+                        key={language.code}
+                        variant={lang === language.code ? "default" : "ghost"}
+                        className="w-full justify-start"
+                        onClick={() => {
+                          handleLanguageChange(language.code);
+                          setIsSheetOpen(false);
+                        }}
+                      >
+                        <span className="mr-3">{language.flag}</span>
+                        {language.name}
+                      </Button>
+                    ))}
+                  </div>
+
+                  <hr className="border-border my-4" />
+
+                  {/* Mobile CTA */}
+                  <Button
+                    asChild
+                    className="w-full bg-primary hover:bg-accent hover:text-accent-foreground font-semibold py-3 text-lg"
+                    style={{
+                      background: "var(--primary)",
+                      color: "var(--primary-foreground)",
+                    }}
                   >
-                    {dictionary.Header.cta}
-                  </a>
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
+                    <a
+                      href="https://linkedin.com/in/léon-zhang"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsSheetOpen(false)}
+                    >
+                      {dictionary.Header.cta}
+                    </a>
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

@@ -21,10 +21,10 @@ interface BackToTopProps {
   scrollDuration?: number;
 }
 
-export function BackToTop({ 
-  threshold = 300, 
+export function BackToTop({
+  threshold = 300,
   className,
-  scrollDuration = 800 
+  scrollDuration = 800,
 }: BackToTopProps) {
   const [isVisible, setIsVisible] = React.useState(false);
   const [scrollProgress, setScrollProgress] = React.useState(0);
@@ -32,9 +32,10 @@ export function BackToTop({
   React.useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const documentHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
       const progress = (scrollY / documentHeight) * 100;
-      
+
       setIsVisible(scrollY > threshold);
       setScrollProgress(Math.min(progress, 100));
     };
@@ -52,7 +53,7 @@ export function BackToTop({
     };
 
     window.addEventListener("scroll", throttledHandleScroll, { passive: true });
-    
+
     // Check initial position
     handleScroll();
 
@@ -68,12 +69,13 @@ export function BackToTop({
     const animateScroll = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / scrollDuration, 1);
-      
+
       // Ease-in-out cubic function
-      const easeInOutCubic = progress < 0.5 
-        ? 4 * progress * progress * progress 
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-      
+      const easeInOutCubic =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
       const currentPosition = startPosition * (1 - easeInOutCubic);
       window.scrollTo(0, currentPosition);
 
@@ -124,7 +126,7 @@ export function BackToTop({
             strokeDashoffset={`${2 * Math.PI * 20 * (1 - scrollProgress / 100)}`}
           />
         </svg>
-        
+
         {/* Back to top button */}
         <Button
           onClick={scrollToTop}
@@ -133,7 +135,7 @@ export function BackToTop({
             "size-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200",
             "bg-primary hover:bg-primary/90 text-primary-foreground",
             "hover:scale-105 active:scale-95",
-            "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
+            "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           )}
           aria-label="Back to top"
         >

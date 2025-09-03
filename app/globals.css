@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -301,4 +302,214 @@
 @keyframes toploader-pulse {
   0%, 100% { opacity: 1; transform: scaleY(1); }
   50% { opacity: 0.8; transform: scaleY(1.1); }
+}
+
+/* Enhanced Blog Article Styles */
+.blog-article-content {
+  @apply prose prose-lg max-w-none;
+  
+  /* Custom prose colors using CSS variables */
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--muted-foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--muted-foreground);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-code: var(--primary);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--muted);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+}
+
+.blog-article-content h2,
+.blog-article-content h3 {
+  /* Align with JS headerOffset (96px) to avoid off-by-one section selection */
+  scroll-margin-top: 96px;
+}
+
+.blog-article-content code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm;
+  
+  &::before,
+  &::after {
+    content: none;
+  }
+}
+
+.blog-article-content pre {
+  @apply bg-muted rounded-lg;
+}
+
+.blog-article-content pre code {
+  @apply bg-transparent;
+}
+
+.blog-article-content blockquote {
+  @apply border-l-primary;
+}
+
+.blog-article-content img {
+  @apply rounded-lg shadow-md;
+}
+
+/* Table of Contents specific styles */
+.toc-item {
+  @apply transition-all duration-200;
+  border-left: 2px solid transparent;
+}
+
+.toc-item:hover {
+  @apply translate-x-1 text-primary;
+}
+
+.toc-item.active {
+  @apply border-l-primary bg-accent text-accent-foreground translate-x-1;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  @apply h-1 rounded-full bg-primary transition-all duration-100 ease-out;
+}
+
+/* Comment card animations */
+.comment-card {
+  @apply bg-card border border-border rounded-lg p-4 mb-4;
+  transition: all 0.2s ease-out;
+}
+
+.comment-card:hover {
+  @apply -translate-y-0.5 shadow-md;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Utterances Comments Customization */
+.utterances-container {
+  @apply w-full;
+  /* Container styling that creates a frame around the iframe */
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.utterances-container:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--ring);
+}
+
+.utterances {
+  @apply w-full max-w-none;
+  color-scheme: var(--color-scheme, light);
+}
+
+/* The iframe itself - we can only control the frame, not the content */
+.utterances-frame {
+  @apply w-full border-0 rounded-lg;
+  min-height: 200px;
+  background: transparent !important;
+  /* Remove any default iframe styling */
+}
+
+/* Dark mode adjustments for utterances */
+.dark .utterances {
+  color-scheme: dark;
+}
+
+.dark .utterances-container {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .utterances-container:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+/* Custom loading state for utterances */
+.utterances-container:has(.utterances-frame) {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.utterances-container:not(:has(.utterances-frame))::before {
+  content: "💬 Loading comments...";
+  @apply block text-center text-muted-foreground py-12 animate-pulse text-lg;
+  background: var(--muted);
+  border-radius: var(--radius-lg);
+  margin: 1rem 0;
+}
+
+/* Wrapper approach - add styling around the iframe */
+.utterances-container:has(.utterances-frame) {
+  position: relative;
+}
+
+.utterances-container:has(.utterances-frame)::before {
+  content: '';
+  position: absolute;
+  inset: -1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.utterances-container:has(.utterances-frame):hover::before {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--ring);
+}
+
+/* Enhanced responsive design */
+@media (max-width: 768px) {
+  .utterances-container {
+    margin: 0 -1rem;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .utterances-container,
+  .utterances-container::before {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .utterances-container {
+    border-width: 2px;
+  }
 }
