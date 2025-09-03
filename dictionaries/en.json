@@ -18,5 +18,10 @@
     "toggleTheme": "Toggle theme",
     "selectLanguage": "Select language",
     "language": "Language"
+  },
+  "NotFound": {
+    "title": "404",
+    "message": "The page you’re looking for could not be found.",
+    "cta": "Go back home"
   }
 }

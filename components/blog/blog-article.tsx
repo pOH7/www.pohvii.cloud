@@ -22,7 +22,7 @@ export interface BlogPost {
   author: string;
   category: string;
   tags: string[];
-  content: string;
+  content?: string;
 }
 
 export interface BlogArticleProps {
@@ -30,6 +30,7 @@ export interface BlogArticleProps {
   relatedPosts?: BlogPost[];
   lang?: string;
   utterancesRepo?: string;
+  children?: React.ReactNode;
 }
 
 export function BlogArticle({
@@ -37,6 +38,7 @@ export function BlogArticle({
   relatedPosts = [],
   lang = "en",
   utterancesRepo = "pOH7/www.pohvii.cloud",
+  children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const { readingProgress, activeSection, tocItems, scrollToSection } =
@@ -107,8 +109,13 @@ export function BlogArticle({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
             className="blog-article-content mb-12"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          >
+            {children ? (
+              children
+            ) : post.content ? (
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            ) : null}
+          </motion.div>
 
           {/* Article Footer */}
           <motion.footer

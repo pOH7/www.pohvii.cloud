@@ -36,7 +36,7 @@ export function UtterancesComments({
     // If an iframe already exists in the document (e.g., from a previous pass
     // in dev), remove it to ensure a single instance only.
     const orphanIframes = document.querySelectorAll(
-      ".utterances, .utterances-frame",
+      ".utterances, .utterances-frame"
     );
     orphanIframes.forEach((el) => el.remove());
 
@@ -52,7 +52,7 @@ export function UtterancesComments({
 
     // Append script to container
     containerRef.current.appendChild(script);
-  }, [repo, issueTerm, label]);
+  }, [repo, issueTerm, label, utterancesTheme]);
 
   // Handle theme changes for existing utterances
   useEffect(() => {

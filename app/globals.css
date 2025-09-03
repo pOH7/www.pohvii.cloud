@@ -358,6 +358,44 @@
   @apply rounded-lg shadow-md;
 }
 
+/* Heading anchor tweaks: remove underline, show link icon on hover */
+.blog-article-content h2 > a.heading-anchor,
+.blog-article-content h3 > a.heading-anchor,
+.blog-article-content h4 > a.heading-anchor,
+.blog-article-content h5 > a.heading-anchor,
+.blog-article-content h6 > a.heading-anchor {
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+
+.blog-article-content h2 > a.heading-anchor::after,
+.blog-article-content h3 > a.heading-anchor::after,
+.blog-article-content h4 > a.heading-anchor::after,
+.blog-article-content h5 > a.heading-anchor::after,
+.blog-article-content h6 > a.heading-anchor::after {
+  content: "🔗";
+  opacity: 0;
+  margin-left: 0.375rem; /* 6px */
+  font-size: 0.875em;
+  line-height: 1;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(-1px);
+}
+
+.blog-article-content h2:hover > a.heading-anchor::after,
+.blog-article-content h3:hover > a.heading-anchor::after,
+.blog-article-content h4:hover > a.heading-anchor::after,
+.blog-article-content h5:hover > a.heading-anchor::after,
+.blog-article-content h6:hover > a.heading-anchor::after,
+.blog-article-content h2 > a.heading-anchor:hover::after,
+.blog-article-content h3 > a.heading-anchor:hover::after,
+.blog-article-content h4 > a.heading-anchor:hover::after,
+.blog-article-content h5 > a.heading-anchor:hover::after,
+.blog-article-content h6 > a.heading-anchor:hover::after {
+  opacity: 0.7;
+}
+
 /* Table of Contents specific styles */
 .toc-item {
   @apply transition-all duration-200;

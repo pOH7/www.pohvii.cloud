@@ -7,98 +7,36 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  ArrowRight,
-  Folder,
-  Tag,
-  TrendingUp,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Calendar, ArrowRight, Folder, Tag, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getAllPosts } from "@/lib/blog";
 
-export default function BlogPage() {
-  const featuredPosts = [
-    {
-      slug: "building-modern-web-apps-with-react-and-nextjs",
-      title: "Building Modern Web Apps with React and Next.js",
-      description:
-        "Complete guide to modern web development covering React fundamentals, Next.js features, and best practices for building scalable applications.",
-      image:
-        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=400&fit=crop",
-      date: "Jan 15, 2024",
-      tags: ["React", "Next.js"],
-    },
-    {
-      slug: "css-grid-mastery-advanced-layout-techniques",
-      title: "CSS Grid Mastery: Advanced Layout Techniques",
-      description:
-        "Learn advanced CSS Grid techniques for creating beautiful, responsive layouts that work across all devices and browsers.",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop",
-      date: "Jan 10, 2024",
-      tags: ["CSS", "Layout"],
-    },
-  ];
+export default async function BlogPage({
+  params,
+}: {
+  params: { lang: string };
+}) {
+  const { lang } = params;
 
-  const recentPosts = [
-    {
-      slug: "javascript-fundamentals",
-      title: "JavaScript Fundamentals",
-      description: "Master the core concepts of JavaScript programming",
-      image:
-        "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=200&fit=crop",
-      date: "Jan 8",
-      tag: "JavaScript",
-    },
-    {
-      slug: "design-systems-in-practice",
-      title: "Design Systems in Practice",
-      description: "Building scalable design systems for teams",
-      image:
-        "https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=400&h=200&fit=crop",
-      date: "Jan 5",
-      tag: "Design",
-    },
-    {
-      slug: "web-performance-optimization",
-      title: "Web Performance Optimization",
-      description: "Speed up your website with proven techniques",
-      image:
-        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop",
-      date: "Jan 3",
-      tag: "Performance",
-    },
-    {
-      slug: "typescript-advanced-tips",
-      title: "TypeScript Advanced Tips",
-      description: "Advanced TypeScript techniques for better code",
-      image:
-        "https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?w=400&h=200&fit=crop",
-      date: "Dec 28",
-      tag: "TypeScript",
-    },
-    {
-      slug: "nodejs-backend-development",
-      title: "Node.js Backend Development",
-      description: "Building APIs with Express and MongoDB",
-      image:
-        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=200&fit=crop",
-      date: "Dec 25",
-      tag: "Node.js",
-    },
-    {
-      slug: "react-design-patterns",
-      title: "React Design Patterns",
-      description: "Best practices for React apps and components",
-      image:
-        "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=200&fit=crop",
-      date: "Dec 22",
-      tag: "React",
-    },
-  ];
+  const all = await getAllPosts(lang);
+  const featuredPosts = all.slice(0, 2).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    image: p.image,
+    date: p.date,
+    tags: p.tags?.slice(0, 2) ?? [],
+  }));
+
+  const recentPosts = all.slice(2, 8).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    image: p.image,
+    date: p.date,
+    tag: p.tags?.[0] ?? "",
+  }));
 
   const categories = [
     { name: "Web Development", count: 15 },
@@ -189,7 +127,7 @@ export default function BlogPage() {
                     ))}
                   </div>
                 </div>
-                <Link href={`/blog/${post.slug}`}>
+                <Link href={`/${lang}/blog/${post.slug}`}>
                   <Button className="flex items-center gap-2">
                     Read More <ArrowRight className="w-4 h-4" />
                   </Button>
@@ -247,7 +185,7 @@ export default function BlogPage() {
                         {post.tag}
                       </Badge>
                     </div>
-                    <Link href={`/blog/${post.slug}`}>
+                    <Link href={`/${lang}/blog/${post.slug}`}>
                       <Button size="sm" className="flex items-center gap-1">
                         Read <ArrowRight className="w-3 h-3" />
                       </Button>

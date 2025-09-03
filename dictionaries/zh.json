@@ -18,5 +18,10 @@
     "notes": "笔记",
     "about": "关于",
     "contact": "联系"
+  },
+  "NotFound": {
+    "title": "404",
+    "message": "未找到您要访问的页面。",
+    "cta": "返回首页"
   }
 }
