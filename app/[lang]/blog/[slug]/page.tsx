@@ -41,6 +41,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     title: mdx.meta.title,
     description: mdx.meta.description,
     image: mdx.meta.image ?? "",
+    video: mdx.meta.video,
     date: mdx.meta.date,
     readTime: mdx.meta.readTime,
     author: mdx.meta.author ?? "",

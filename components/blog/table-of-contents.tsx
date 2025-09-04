@@ -72,7 +72,7 @@ export function TableOfContents({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <List className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold">Table of Contents</h3>
+                    <h3 className="font-semibold">In this article</h3>
                   </div>
                   <Button
                     variant="ghost"
@@ -132,7 +132,7 @@ export function TableOfContents({
         <Card className="p-6 gap-0">
           <div className="flex items-center gap-2">
             <List className="w-4 h-4 text-primary" />
-            <h3 className="font-semibold">Table of Contents</h3>
+            <h3 className="font-semibold">In this article</h3>
           </div>
 
           {/* Progress Bar */}

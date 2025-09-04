@@ -16,6 +16,7 @@ export interface BlogPost {
   title: string;
   description: string;
   image: string;
+  video?: string; // Optional video URL
   date: string;
   readTime: string;
   author: string;
@@ -51,7 +52,7 @@ export function BlogArticle({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Back Button */}
+      {/* Back Button - Full Width */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,22 +69,26 @@ export function BlogArticle({
         </Link>
       </motion.div>
 
+      {/* Article Header - Full Width */}
+      <div className="w-full px-4 md:px-8 max-w-6xl mx-auto mb-8">
+        <ArticleHeader
+          title={post.title}
+          description={post.description}
+          image={post.image}
+          video={post.video}
+          date={post.date}
+          readTime={post.readTime}
+          author={post.author}
+          category={post.category}
+          tags={post.tags}
+          onScrollToComments={scrollToComments}
+        />
+      </div>
+
+      {/* Content Area with Sidebar - Two Column Layout */}
       <div className="flex max-w-6xl mx-auto px-4 md:px-8 gap-8">
         {/* Main Article Content */}
         <article className="flex-1 max-w-4xl">
-          {/* Article Header with Hero Image */}
-          <ArticleHeader
-            title={post.title}
-            description={post.description}
-            image={post.image}
-            date={post.date}
-            readTime={post.readTime}
-            author={post.author}
-            category={post.category}
-            tags={post.tags}
-            onScrollToComments={scrollToComments}
-          />
-
           {/* Article Content */}
           <motion.div
             ref={contentRef}
@@ -100,7 +105,7 @@ export function BlogArticle({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="border-t border-border pt-8"
+            className="border-t border-border pt-8 mb-12"
           >
             <div className="flex items-center gap-2 mb-6">
               <Folder className="w-4 h-4 text-primary" />
@@ -121,18 +126,6 @@ export function BlogArticle({
               </Link>
             </div>
           </motion.footer>
-
-          {/* Comments Section */}
-          <div id="comments">
-            <UtterancesComments
-              repo={utterancesRepo}
-              issueTerm="pathname"
-              label="comment"
-            />
-          </div>
-
-          {/* Related Posts */}
-          <RelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
         </article>
 
         {/* Table of Contents - Sticky Sidebar */}
@@ -142,6 +135,22 @@ export function BlogArticle({
           readingProgress={readingProgress}
           onItemClick={scrollToSection}
         />
+      </div>
+
+      {/* Comments Section - Full Width */}
+      <div className="w-full px-4 md:px-8 max-w-6xl mx-auto">
+        <div id="comments">
+          <UtterancesComments
+            repo={utterancesRepo}
+            issueTerm="pathname"
+            label="comment"
+          />
+        </div>
+      </div>
+
+      {/* Related Posts - Full Width */}
+      <div className="w-full px-4 md:px-8 max-w-6xl mx-auto">
+        <RelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
       </div>
     </div>
   );

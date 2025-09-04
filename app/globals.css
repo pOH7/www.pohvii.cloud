@@ -369,30 +369,33 @@
   position: relative;
 }
 
-.blog-article-content h2 > a.heading-anchor::after,
-.blog-article-content h3 > a.heading-anchor::after,
-.blog-article-content h4 > a.heading-anchor::after,
-.blog-article-content h5 > a.heading-anchor::after,
-.blog-article-content h6 > a.heading-anchor::after {
-  content: "🔗";
+.blog-article-content h2 > a.heading-anchor::before,
+.blog-article-content h3 > a.heading-anchor::before,
+.blog-article-content h4 > a.heading-anchor::before,
+.blog-article-content h5 > a.heading-anchor::before,
+.blog-article-content h6 > a.heading-anchor::before {
+  content: "#";
   opacity: 0;
-  margin-left: 0.375rem; /* 6px */
+  position: absolute;
+  left: -1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 0.875em;
+  font-weight: bold;
   line-height: 1;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  transform: translateY(-1px);
+  transition: opacity 0.2s ease;
 }
 
-.blog-article-content h2:hover > a.heading-anchor::after,
-.blog-article-content h3:hover > a.heading-anchor::after,
-.blog-article-content h4:hover > a.heading-anchor::after,
-.blog-article-content h5:hover > a.heading-anchor::after,
-.blog-article-content h6:hover > a.heading-anchor::after,
-.blog-article-content h2 > a.heading-anchor:hover::after,
-.blog-article-content h3 > a.heading-anchor:hover::after,
-.blog-article-content h4 > a.heading-anchor:hover::after,
-.blog-article-content h5 > a.heading-anchor:hover::after,
-.blog-article-content h6 > a.heading-anchor:hover::after {
+.blog-article-content h2:hover > a.heading-anchor::before,
+.blog-article-content h3:hover > a.heading-anchor::before,
+.blog-article-content h4:hover > a.heading-anchor::before,
+.blog-article-content h5:hover > a.heading-anchor::before,
+.blog-article-content h6:hover > a.heading-anchor::before,
+.blog-article-content h2 > a.heading-anchor:hover::before,
+.blog-article-content h3 > a.heading-anchor:hover::before,
+.blog-article-content h4 > a.heading-anchor:hover::before,
+.blog-article-content h5 > a.heading-anchor:hover::before,
+.blog-article-content h6 > a.heading-anchor:hover::before {
   opacity: 0.7;
 }
 

@@ -2,7 +2,14 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Calendar, Clock, User, MessageCircle, Folder } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  User,
+  MessageCircle,
+  Folder,
+  Play,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,6 +17,7 @@ export interface ArticleHeaderProps {
   title: string;
   description: string;
   image: string;
+  video?: string; // Optional video URL
   date: string;
   readTime: string;
   author: string;
@@ -22,6 +30,7 @@ export function ArticleHeader({
   title,
   description,
   image,
+  video,
   date,
   readTime,
   author,
@@ -31,24 +40,7 @@ export function ArticleHeader({
 }: ArticleHeaderProps) {
   return (
     <>
-      {/* Hero Image */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="aspect-[16/9] overflow-hidden rounded-lg mb-8 group"
-      >
-        <Image
-          src={image}
-          alt={title}
-          width={1200}
-          height={600}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          priority
-        />
-      </motion.div>
-
-      {/* Article Header */}
+      {/* Article Header - Now above hero content */}
       <motion.header
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -131,7 +123,7 @@ export function ArticleHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="flex items-center gap-3 pb-8 border-b border-border"
+          className="flex items-center gap-3 mb-6"
         >
           <Button
             variant="outline"
@@ -144,6 +136,44 @@ export function ArticleHeader({
           </Button>
         </motion.div>
       </motion.header>
+
+      {/* Hero Content - Image or Video */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="aspect-[16/9] overflow-hidden rounded-lg mb-8 group relative"
+      >
+        {video ? (
+          <div className="relative w-full h-full">
+            <video
+              src={video}
+              poster={image}
+              controls
+              className="w-full h-full object-cover"
+              preload="metadata"
+            >
+              Your browser does not support the video tag.
+            </video>
+            {/* Optional custom play button overlay */}
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <Play className="w-16 h-16 text-white drop-shadow-lg" />
+            </div>
+          </div>
+        ) : (
+          <Image
+            src={image}
+            alt={title}
+            width={1200}
+            height={600}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            priority
+          />
+        )}
+      </motion.div>
+
+      {/* Bottom border separator */}
+      <div className="border-b border-border mb-8" />
     </>
   );
 }
