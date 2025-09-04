@@ -2,15 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import {
-  Calendar,
-  Clock,
-  User,
-  Share,
-  BookmarkPlus,
-  MessageCircle,
-  Folder,
-} from "lucide-react";
+import { Calendar, Clock, User, MessageCircle, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,8 +15,6 @@ export interface ArticleHeaderProps {
   author: string;
   category: string;
   tags: string[];
-  onShare?: () => void;
-  onBookmark?: () => void;
   onScrollToComments?: () => void;
 }
 
@@ -37,8 +27,6 @@ export function ArticleHeader({
   author,
   category,
   tags,
-  onShare,
-  onBookmark,
   onScrollToComments,
 }: ArticleHeaderProps) {
   return (
@@ -145,24 +133,6 @@ export function ArticleHeader({
           transition={{ delay: 0.7 }}
           className="flex items-center gap-3 pb-8 border-b border-border"
         >
-          <Button
-            variant="outline"
-            size="sm"
-            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
-            onClick={onShare}
-          >
-            <Share className="w-4 h-4" />
-            Share
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
-            onClick={onBookmark}
-          >
-            <BookmarkPlus className="w-4 h-4" />
-            Reading List
-          </Button>
           <Button
             variant="outline"
             size="sm"

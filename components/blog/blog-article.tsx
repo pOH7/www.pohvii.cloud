@@ -3,14 +3,13 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Share, Folder } from "lucide-react";
+import { ArrowLeft, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArticleHeader } from "./article-header";
 import { TableOfContents } from "./table-of-contents";
 import { UtterancesComments } from "./utterances-comments";
 import { RelatedPosts } from "./related-posts";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
-import { useSharing } from "@/hooks/use-sharing";
 
 export interface BlogPost {
   slug: string;
@@ -22,7 +21,6 @@ export interface BlogPost {
   author: string;
   category: string;
   tags: string[];
-  content?: string;
 }
 
 export interface BlogArticleProps {
@@ -43,20 +41,6 @@ export function BlogArticle({
   const contentRef = useRef<HTMLDivElement>(null);
   const { readingProgress, activeSection, tocItems, scrollToSection } =
     useReadingProgress(contentRef);
-  const { share } = useSharing();
-
-  const handleShare = () => {
-    share({
-      title: post.title,
-      text: post.description,
-      url: window.location.href,
-    });
-  };
-
-  const handleBookmark = () => {
-    // In a real app, this would save to user's reading list
-    console.log("Bookmarked:", post.title);
-  };
 
   const scrollToComments = () => {
     const commentsSection = document.getElementById("comments");
@@ -97,8 +81,6 @@ export function BlogArticle({
             author={post.author}
             category={post.category}
             tags={post.tags}
-            onShare={handleShare}
-            onBookmark={handleBookmark}
             onScrollToComments={scrollToComments}
           />
 
@@ -110,11 +92,7 @@ export function BlogArticle({
             transition={{ delay: 0.8 }}
             className="blog-article-content mb-12"
           >
-            {children ? (
-              children
-            ) : post.content ? (
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
-            ) : null}
+            {children}
           </motion.div>
 
           {/* Article Footer */}
@@ -141,15 +119,6 @@ export function BlogArticle({
                   All Posts
                 </Button>
               </Link>
-
-              <Button
-                variant="outline"
-                className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
-                onClick={handleShare}
-              >
-                <Share className="w-4 h-4" />
-                Share Article
-              </Button>
             </div>
           </motion.footer>
 
