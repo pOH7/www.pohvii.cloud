@@ -9,7 +9,7 @@ export interface TOCItem {
 }
 
 export function useReadingProgress(
-  contentRef: React.RefObject<HTMLDivElement>
+  contentRef: React.RefObject<HTMLDivElement | null>
 ) {
   const [readingProgress, setReadingProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("");
