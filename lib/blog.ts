@@ -17,10 +17,15 @@ export interface BlogFrontmatter {
   image?: string;
 }
 
-export interface BlogMeta extends BlogFrontmatter {
+export interface BlogMeta
+  extends Omit<BlogFrontmatter, "image" | "author" | "category" | "tags"> {
   slug: string;
   lang: string;
   readTime: string;
+  image: string;
+  author: string;
+  category: string;
+  tags: string[];
 }
 
 const contentDir = path.join(process.cwd(), "content", "blog");

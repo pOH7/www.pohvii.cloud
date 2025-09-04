@@ -14,4 +14,3 @@ export type { UtterancesCommentsProps } from "./utterances-comments";
 
 export { RelatedPosts } from "./related-posts";
 export type { RelatedPostsProps } from "./related-posts";
-

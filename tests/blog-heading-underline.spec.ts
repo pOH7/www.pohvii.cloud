@@ -36,15 +36,27 @@ test.describe("Blog heading anchor styling", () => {
       (el) => getComputedStyle(el as HTMLElement, "::after").content
     );
 
-    await introAnchor.hover();
-
-    const afterOpacity = await introAnchor.evaluate(
-      (el) => getComputedStyle(el as HTMLElement, "::after").opacity
+    // Hover the H2 (many styles key off the parent heading hover state)
+    const heading = page.locator(
+      'h2:has-text("Introduction to Modern Web Development")'
     );
+    await heading.hover();
 
-    // Expect the icon content to be set and opacity to increase on hover
+    // Wait for the transition to settle using polling for robustness
+    await expect
+      .poll(
+        async () => {
+          const opacity = await introAnchor.evaluate(
+            (el) => getComputedStyle(el as HTMLElement, "::after").opacity
+          );
+          return parseFloat(opacity);
+        },
+        { timeout: 2000 }
+      )
+      .toBeGreaterThan(0.5);
+
+    // Expect the icon content to be set and low opacity before hover
     expect(beforeContent.replaceAll('"', "")).toContain("🔗");
     expect(parseFloat(beforeOpacity)).toBeLessThan(0.1);
-    expect(parseFloat(afterOpacity)).toBeGreaterThan(0.5);
   });
 });
