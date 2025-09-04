@@ -90,7 +90,7 @@ export function BackToTop({
   return (
     <div
       className={cn(
-        "fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out",
+        "fixed bottom-6 right-6 z-30 transition-all duration-300 ease-out",
         isVisible
           ? "translate-y-0 opacity-100 scale-100"
           : "translate-y-4 opacity-0 scale-90 pointer-events-none",

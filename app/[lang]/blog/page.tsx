@@ -17,7 +17,7 @@ export default async function BlogPage({
 }: {
   params: { lang: string };
 }) {
-  const { lang } = params;
+  const { lang } = await params;
 
   const all = await getAllPosts(lang);
   const featuredPosts = all.slice(0, 2).map((p) => ({
