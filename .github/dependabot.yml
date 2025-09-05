@@ -1,0 +1,64 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    assignees:
+      - "pOH7"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      # Group Next.js related updates
+      nextjs:
+        patterns:
+          - "next*"
+          - "@types/react*"
+          - "react*"
+          - "eslint-config-next"
+      # Group UI/styling dependencies  
+      ui:
+        patterns:
+          - "@radix-ui/*"
+          - "tailwind*"
+          - "@tailwindcss/*"
+          - "class-variance-authority"
+          - "clsx"
+          - "tailwind-merge"
+          - "framer-motion"
+          - "lucide-react"
+      # Group development tools
+      dev-tools:
+        patterns:
+          - "eslint*"
+          - "prettier"
+          - "@playwright/*"
+          - "typescript"
+      # Group MDX/content processing
+      content:
+        patterns:
+          - "*mdx*"
+          - "gray-matter"
+          - "rehype-*"
+          - "remark-*"
+          - "reading-time"
+    ignore:
+      # Skip major version updates for stable dependencies
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
