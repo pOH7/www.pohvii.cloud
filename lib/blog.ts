@@ -15,10 +15,14 @@ export interface BlogFrontmatter {
   category?: string;
   tags?: string[];
   image?: string;
+  video?: string;
 }
 
 export interface BlogMeta
-  extends Omit<BlogFrontmatter, "image" | "author" | "category" | "tags"> {
+  extends Omit<
+    BlogFrontmatter,
+    "image" | "author" | "category" | "tags" | "video"
+  > {
   slug: string;
   lang: string;
   readTime: string;
@@ -26,6 +30,7 @@ export interface BlogMeta
   author: string;
   category: string;
   tags: string[];
+  video?: string;
 }
 
 const contentDir = path.join(process.cwd(), "content", "blog");
@@ -78,6 +83,7 @@ export async function getPostBySlug(lang: string, slug: string) {
     category: fm.category ?? "",
     tags: fm.tags ?? [],
     image: fm.image ?? "",
+    ...(fm.video && { video: fm.video }),
     readTime: readingTime(content).text,
   };
 
@@ -136,6 +142,7 @@ export async function getAllPosts(lang: string): Promise<BlogMeta[]> {
       category: fm.category ?? "",
       tags: fm.tags ?? [],
       image: fm.image ?? "",
+      ...(fm.video && { video: fm.video }),
       readTime: readingTime(content).text,
     });
   }

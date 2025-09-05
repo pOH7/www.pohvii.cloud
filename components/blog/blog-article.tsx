@@ -75,7 +75,7 @@ export function BlogArticle({
           title={post.title}
           description={post.description}
           image={post.image}
-          video={post.video}
+          {...(post.video && { video: post.video })}
           date={post.date}
           readTime={post.readTime}
           author={post.author}
