@@ -197,12 +197,14 @@ export default async function BlogPage({
 
             {/* View All Posts Button */}
             <div className="text-center">
-              <Button
-                size="lg"
-                className="flex items-center gap-2 mx-auto animate-pulse-subtle"
-              >
-                View All Posts <ArrowRight className="w-4 h-4" />
-              </Button>
+              <Link href={`/${lang}/blog/all`}>
+                <Button
+                  size="lg"
+                  className="flex items-center gap-2 mx-auto animate-pulse-subtle"
+                >
+                  View All Posts <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </div>
 

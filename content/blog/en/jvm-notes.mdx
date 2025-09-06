@@ -1,0 +1,44 @@
+---
+title: JVM Notes — Generations and Tuning
+description: Quick notes on JVM memory generations, GC survivor spaces, metaspace, and common tuning flags.
+date: 2025-09-06
+author: "Léon Zhang"
+category: Java
+tags:
+  - JVM
+  - GC
+  - Performance
+  - Java
+image: https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=600&fit=crop
+---
+
+## 分代垃圾回收模型（Generational GC）
+
+- 新生代（Young Generation）
+  - Eden 区：对象初始分配的区域。
+  - 两个 Survivor 区（From/To）：Minor GC（复制算法）时用于存活对象的复制与年龄晋升。
+  - 每次 GC 后，存活对象在两个 Survivor 之间来回复制，年龄达到阈值后晋升到老年代。
+  - 参见：`SurvivorRatio`
+- 老年代（Old Generation）
+  - 参见：`-XX:MaxTenuringThreshold`（对象晋升年龄阈值）
+- 永久代（PermGen）/ 元空间（Metaspace，Java 8+）
+  - 元空间使用本地内存（Native Memory），如 `-XX:MetaspaceSize`
+- 方法区（Method Area）
+- 直接内存（Direct Memory）
+
+## 调优（Tuning）
+
+### SurvivorRatio
+定义 Eden 与单个 Survivor 的大小比例。
+
+示例：当 `-XX:SurvivorRatio=8` 时，新生代被分为 8 份 Eden + 1 份 S0 + 1 份 S1。
+
+### NewRatio（新生代与老年代的比例）
+`-XX:NewRatio`：新生代与老年代的比例。
+
+示例：`-XX:NewRatio=2` 表示老年代是新生代的 2 倍。
+
+### `-Xmn`（新生代大小）
+
+### `-XX:MaxTenuringThreshold`（对象晋升年龄阈值）
+

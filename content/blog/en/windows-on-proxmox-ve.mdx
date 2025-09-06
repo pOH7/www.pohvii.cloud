@@ -1,0 +1,119 @@
+---
+title: Installing Windows on Proxmox VE (PVE)
+description: Step-by-step guide for installing Windows 11 on Proxmox with VirtIO drivers, recommended VM settings, and troubleshooting.
+date: 2025-09-06
+author: "Léon Zhang"
+category: Infrastructure
+tags:
+  - Proxmox
+  - Windows
+  - VirtIO
+  - Virtualization
+image: https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&h=600&fit=crop
+---
+
+# Installing Windows on Proxmox VE (PVE)
+
+This guide covers the process of installing Windows 11 on Proxmox Virtual Environment using VirtIO drivers for optimal performance.
+
+## Prerequisites
+
+### Required Files
+1. Windows 11 ISO — download using crystalfetch
+2. VirtIO Drivers ISO — https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
+
+### Documentation Reference
+- Official PVE Windows VirtIO Drivers guide: https://pve.proxmox.com/wiki/Windows_VirtIO_Drivers
+
+## Step 1: Download Required Files
+
+### Download Windows 11 ISO
+Use crystalfetch to download the Windows 11 ISO:
+```bash
+# Install crystalfetch if not already installed
+# Then download Windows 11 ISO
+crystalfetch --windows-11
+```
+
+### Download VirtIO Drivers
+```bash
+wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
+```
+
+## Step 2: Create Virtual Machine
+
+### VM Configuration
+1. Create new VM in Proxmox web interface
+2. OS Type: Microsoft Windows 11/2022
+3. Machine: q35
+4. BIOS: OVMF (UEFI)
+5. Add EFI Disk: Yes
+6. TPM: Add TPM State (for Windows 11 requirements)
+
+### Hardware Configuration
+- CPU: Host type recommended for best performance
+- Memory: Minimum 4GB, recommended 8GB+
+- Storage: VirtIO SCSI controller
+- Network: VirtIO (paravirtualized)
+
+## Step 3: Attach ISOs
+
+1. CD/DVD Drive 1: Windows 11 ISO
+2. CD/DVD Drive 2: VirtIO drivers ISO (virtio-win.iso)
+
+## Step 4: Install Windows
+
+### Boot Process
+1. Start VM and boot from Windows ISO
+2. When Windows installer asks for drivers (disk not found):
+   - Browse to VirtIO drivers ISO
+   - Navigate to appropriate folder (e.g., `amd64/w11` for Windows 11 x64)
+   - Install storage drivers (VirtIO SCSI)
+
+### Driver Installation Order
+1. Storage drivers — During Windows installation
+2. Network drivers — After Windows installation
+3. Balloon driver — For memory management
+4. Guest agent — For VM integration
+
+## Step 5: Post-Installation Setup
+
+### Install Remaining VirtIO Drivers
+```text
+D:\guest-agent\qemu-ga-x86_64.msi    # Guest agent
+D:\Balloon\w11\amd64\                # Memory balloon
+D:\NetKVM\w11\amd64\                 # Network adapter
+```
+
+### Performance Optimizations
+1. Enable VirtIO drivers for all devices
+2. Install QEMU Guest Agent
+3. Configure Windows for virtualized environment
+4. Disable unnecessary Windows services
+
+## Troubleshooting
+
+### Common Issues
+- No disk found during install: Load VirtIO storage drivers
+- No network after install: Install VirtIO network drivers
+- Poor performance: Ensure VirtIO drivers are properly installed
+- TPM required error: Add TPM State to VM hardware
+
+### Driver Locations
+VirtIO drivers are organized by:
+- OS version: w10, w11, 2k19, 2k22
+- Architecture: amd64, x86
+- Component: NetKVM, viostor, vioscsi, etc.
+
+## Best Practices
+1. Always use VirtIO drivers for best performance
+2. Install guest agent for proper VM management
+3. Use UEFI firmware for modern Windows versions
+4. Enable TPM for Windows 11 compliance
+5. Regular driver updates from virtio-win repository
+
+## References
+
+- Proxmox VE Windows VirtIO Drivers
+- VirtIO Drivers Download
+

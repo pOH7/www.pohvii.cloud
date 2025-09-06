@@ -1,0 +1,220 @@
+---
+title: Git LFS (Large File Storage)
+description: Practical guide to installing, configuring, and using Git LFS for managing large binary assets efficiently, with tips for tracking, workflow, partial clones, and troubleshooting.
+date: 2025-09-06
+author: "Léon Zhang"
+category: Version Control
+tags:
+  - Git
+  - Git LFS
+  - DevOps
+  - Large Files
+image: https://images.unsplash.com/photo-1556157382-97eda2d62296?w=1200&h=600&fit=crop
+---
+
+# Git LFS (Large File Storage)
+
+Git LFS allows you to store large files outside your Git repository while keeping lightweight references in your repo.
+
+## Installation
+
+### macOS
+```bash
+brew install git-lfs
+```
+
+### Other platforms
+Download from: https://git-lfs.github.io/
+
+## Initial Setup
+
+```bash
+# Initialize Git LFS in your repository
+git lfs install
+
+# OR: Initialize with --skip-smudge to avoid automatic downloads
+git lfs install --skip-smudge
+
+# For local repository only (doesn't affect global git config)
+git lfs install --local --skip-smudge
+```
+
+### Skip Smudge Behavior
+- `--skip-smudge` prevents automatic downloading of LFS files during clone/pull
+- Requires manual `git lfs pull` to download actual file content
+- Useful for large repositories where you only need specific files
+
+## Tracking Files
+
+### Track specific file types
+```bash
+git lfs track "*.psd"
+git lfs track "*.zip"
+git lfs track "*.mp4"
+git lfs track "*.mov"
+git lfs track "*.avi"
+```
+
+### Track files in directories
+```bash
+# Track all .ts files in public/videos/ and subdirectories
+git lfs track "public/videos/**/*.ts"
+
+# Track all files in a directory
+git lfs track "assets/**"
+```
+
+### View current tracking
+```bash
+# List all tracked patterns
+git lfs track
+```
+
+## Workflow
+
+### 1. Configure tracking and commit .gitattributes
+```bash
+git lfs track "*.zip"
+git add .gitattributes
+git commit -m "Configure Git LFS tracking"
+```
+
+### 2. Add large files normally
+```bash
+git add large-file.zip
+git commit -m "Add large file"
+```
+
+### 3. Push to remote
+```bash
+# Regular push
+git push origin main
+
+# Push all LFS objects (useful for migration or ensuring all objects are uploaded)
+git lfs push --all origin
+```
+
+## Common Commands
+
+| Command | Description |
+|---------|-------------|
+| `git lfs install` | Initialize Git LFS |
+| `git lfs install --skip-smudge` | Initialize without auto-downloads |
+| `git lfs track "pattern"` | Track files matching pattern |
+| `git lfs track` | List tracked patterns |
+| `git lfs ls-files` | List LFS files in repository |
+| `git lfs push --all origin` | Push all LFS objects to remote |
+| `git lfs clone <url>` | Clone repository with LFS files |
+| `git lfs pull` | Download all LFS files |
+| `git lfs pull --include="filename"` | Download specific file |
+| `git lfs pointer --file="filename"` | Show pointer for file |
+| `git lfs status` | Show LFS file status |
+
+## Partial Clone (Without LFS Files)
+
+Clone repository structure without downloading LFS files:
+
+```bash
+# Skip LFS file content during clone
+export GIT_LFS_SKIP_SMUDGE=1
+git clone --filter=blob:none /your/git/repo/url
+```
+
+This creates a partial clone with:
+- All Git history and metadata
+- LFS pointer files instead of actual content
+- Significantly faster clone for large repositories
+
+## File Patterns
+
+| Pattern | Description |
+|---------|-------------|
+| `*.ext` | All files with extension |
+| `path/**` | All files in directory recursively |
+| `path/**/*.ext` | Specific extension in directory tree |
+| `large-file.zip` | Specific file |
+
+## GitHub Limits
+
+- **Free**: 1GB storage + 1GB bandwidth/month
+- **Paid**: Additional storage and bandwidth available
+
+## Advanced Operations
+
+### Download Specific Files
+```bash
+# Download single file
+git lfs pull --include="large-file.zip"
+
+# Download multiple files with pattern
+git lfs pull --include="*.pdf"
+```
+
+### Convert File to Pointer
+```bash
+# Show pointer content for a file
+git lfs pointer --file="large-file.zip"
+
+# Convert file back to pointer manually
+git lfs pointer --file="large-file.zip" > large-file.zip.pointer
+rm large-file.zip
+mv large-file.zip.pointer large-file.zip
+git add large-file.zip
+```
+
+### Pointer File Format
+LFS pointer files contain:
+```
+version https://git-lfs.github.com/spec/v1
+oid sha256:abc123...
+size 1234567
+```
+
+### Manual LFS Object Cleanup
+```bash
+# Find LFS object location using OID from pointer file
+cat filename | grep oid | cut -d ":" -f 2
+find .git/lfs/objects | grep <oid>
+
+# Remove LFS object (file becomes unavailable)
+rm .git/lfs/objects/<path>/<oid>
+```
+
+## Troubleshooting
+
+### LFS objects not pushed
+```bash
+git lfs push --all origin
+```
+
+### Check what's using LFS
+```bash
+git lfs ls-files
+```
+
+### Download missing LFS files
+```bash
+git lfs pull
+```
+
+### Download after skip-smudge clone
+```bash
+# If cloned with --skip-smudge, manually download needed files
+git lfs pull --include="filename"
+```
+
+### Migrate existing large files to LFS
+```bash
+git lfs migrate import --include="*.zip,*.psd"
+```
+
+## Best Practices
+
+- Track large binary files (images, videos, archives)
+- Don't track text files or code with LFS
+- Commit .gitattributes after configuring tracking
+- Use `git lfs push --all origin` after initial setup
+- Consider `--skip-smudge` for large repos to avoid unnecessary downloads
+- Use `git lfs pull --include` to download only needed files
+- Clone with `git lfs clone` for faster LFS file download (if you need all files)
+

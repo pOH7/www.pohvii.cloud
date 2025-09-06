@@ -1,0 +1,40 @@
+---
+title: Java Thread Pool Essentials
+description: Key parameters and behaviors of Java thread pools, including sizing strategy, queues, factories, and rejection policies.
+date: 2025-09-06
+author: "Léon Zhang"
+category: Java
+tags:
+  - Java
+  - Concurrency
+  - ThreadPool
+  - Executors
+image: https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?w=1200&h=600&fit=crop
+---
+
+## 线程池核心要点（Thread Pool）
+
+1. **corePoolSize（核心线程数）**
+   - 线程池长期维持的最小线程数量（即使线程空闲）。
+   - 当提交的任务数超过核心线程数时，任务会被放入工作队列。
+   ```
+   corePoolSize = CPU核心数 × (1 + 线程等待时间/线程执行时间)
+   ```
+2. **maximumPoolSize（最大线程数）**
+   - 线程池允许创建的最大线程数量。
+   - 当工作队列满且线程数未达到最大线程数时，会创建新线程执行任务。
+3. **keepAliveTime（线程空闲时间）**
+   - 当线程数超过核心线程数时，多余的空闲线程在终止前等待新任务的最长时间。
+4. **unit（时间单位）**
+   - `keepAliveTime` 的时间单位（如 `TimeUnit.SECONDS`）。
+5. **workQueue（任务队列）**
+   - 用于存储待执行任务的阻塞队列，常见类型：
+     - `ArrayBlockingQueue`：有界队列，需指定容量。
+     - `LinkedBlockingQueue`：无界队列（默认容量为 `Integer.MAX_VALUE`），可能导致 OOM。
+     - `SynchronousQueue`：不存储任务，每个插入操作必须等待另一个线程的移除操作。
+     - `PriorityBlockingQueue`：优先级队列，按任务优先级执行。
+6. **threadFactory（线程工厂）**
+   - 用于创建线程的工厂，可自定义线程名称、优先级等。
+7. **handler（拒绝策略）**
+   - 当工作队列满且线程数达到最大线程数时，对新提交任务的处理方式。
+

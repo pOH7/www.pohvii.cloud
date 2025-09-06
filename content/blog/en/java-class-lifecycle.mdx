@@ -1,0 +1,73 @@
+---
+title: Java Class Lifecycle
+description: Notes on the Java class loading process including loading, verification, preparation, resolution, initialization, usage, and unloading.
+date: 2025-09-06
+author: "Léon Zhang"
+category: Java
+tags:
+  - Java
+  - JVM
+  - ClassLoader
+  - Lifecycle
+image: https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop
+---
+
+## Java 类生命周期（Class LifeCycle）
+
+### 1. 加载（Loading）
+
+- 作用：通过类的全限定名（如`java.lang.String`）查找并加载字节码文件（如`.class`文件），创建对应的`Class`对象。
+- 关键点：
+  - 类加载器（如 Bootstrap、Extension、Application ClassLoader）负责定位和加载字节码。
+  - 字节码来源可以是本地文件、网络、动态生成（如反射或 ASM）等。
+
+### 2. 验证（Verification）
+
+- 作用：确保加载的字节码符合 JVM 规范，防止恶意或错误代码。
+- 验证内容：
+  - 文件格式验证：如魔数（`0xCAFEBABE`）、版本号是否正确。
+  - 元数据验证：检查类的继承关系、方法签名等是否合法。
+  - 字节码验证：确保指令序列安全，如类型转换是否合理。
+  - 符号引用验证：校验符号引用（如方法名）是否存在且可访问。
+
+### 3. 准备（Preparation）
+
+- 作用：为类的静态变量分配内存，并设置初始值（如`int`为 0，`boolean`为`false`）。
+- 注意点：
+  - 静态常量（`static final`）会直接赋值为代码中指定的值（如`static final int A = 10`）。
+  - 实例变量在此阶段不分配内存，而是在对象实例化时随对象一起分配。
+
+### 4. 解析（Resolution）
+
+- 作用：将符号引用（如类名、方法名）替换为直接引用（如内存地址、偏移量）。
+- 解析内容：
+  - 类或接口的解析。
+  - 字段解析（如访问`obj.field`）。
+  - 方法解析（如调用`obj.method()`）。
+- 解析时机：JVM 规范允许解析阶段在类初始化后延迟进行（惰性解析）。
+
+多态
+```java
+Parent p = new Child();
+p.method(); // 静态解析确定调用 Parent 的方法，但运行时动态分派到 Child 的重写方法
+```
+
+### 5. 初始化（Initialization）
+
+- 作用：执行类的初始化代码，包括静态变量赋值和静态代码块（`static {}`）。
+- 触发时机：当类被主动使用时（如首次实例化、调用静态方法、访问静态变量等）。
+- 执行顺序：
+  1. 父类的静态变量赋值和静态代码块（按代码顺序执行）。
+  2. 子类的静态变量赋值和静态代码块。
+
+### 6. 使用（Using）
+
+- 作用：类初始化完成后，可被程序主动调用（如创建实例、调用方法）。
+
+### 7. 卸载（Unloading）
+
+- 条件：当类的`Class`对象不再被引用，且加载该类的类加载器被 GC 回收时，类会被卸载。
+- 注意：
+  - Bootstrap 类加载器加载的类（如`java.lang`包）不会被卸载。
+  - 自定义类加载器加载的类可能被卸载，需谨慎管理。
+

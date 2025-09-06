@@ -1,0 +1,50 @@
+---
+title: Java Thread Lifecycle
+description: A concise overview of Java thread states with transitions and practical notes.
+date: 2025-09-06
+author: "Léon Zhang"
+category: Java
+tags:
+  - Java
+  - Concurrency
+  - Threads
+  - JVM
+image: https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?w=1200&h=600&fit=crop
+---
+
+## Java 线程生命周期（Thread LifeCycle）
+
+- NEW（新建）  
+  线程对象已创建，但尚未调用 `start()` 方法。此时线程尚未与操作系统线程关联。
+- RUNNABLE（可运行）  
+  线程已启动（调用 `start()`），正在 JVM 中运行，但可能正在等待操作系统的 CPU 时间片。包含两种子状态：
+  - Running：线程正在执行。
+  - Ready：线程准备执行，等待 CPU 调度。
+- BLOCKED（阻塞）  
+  线程因等待获取锁（如进入 `synchronized` 块 / 方法）而暂时暂停执行。
+- WAITING（无限等待）  
+  线程调用以下方法后进入无限等待状态，必须等待其他线程显式唤醒：
+  - `Object.wait()`
+  - `Thread.join()`
+  - `LockSupport.park()`
+- TIMED_WAITING（计时等待）  
+  线程调用以下带超时参数的方法后进入计时等待状态，超时后自动唤醒：
+  - `Thread.sleep(long millis)`
+  - `Object.wait(long timeout)`
+  - `Thread.join(long millis)`
+  - `LockSupport.parkNanos()` / `parkUntil()`
+- TERMINATED（终止）  
+  线程的 `run()` 方法执行完毕或因异常终止，线程生命周期结束，不可再次启动。
+
+```
+NEW → RUNNABLE → TERMINATED
+         ↓        ↑
+     BLOCKED      |
+     ↓            |
+  (WAITING / TIMED WAITING)
+```
+
+## References
+
+- `java.lang.Thread.State`
+

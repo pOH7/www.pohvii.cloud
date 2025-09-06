@@ -15,8 +15,7 @@
       "mcp__playwright-extension__browser_resize",
       "mcp__playwright-extension__browser_snapshot",
       "mcp__playwright-extension__browser_take_screenshot",
-      "mcp__playwright-extension__browser_evaluate",
-      "Bash(pnpm build:*)"
+      "mcp__playwright-extension__browser_evaluate"
     ],
     "deny": [],
     "ask": []
