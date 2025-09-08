@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
+import { TopBar } from "@/components/top-bar";
 import { BackToTop } from "@/components/back-to-top";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
@@ -42,6 +43,7 @@ export default async function LangLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <TopBar />
           <Header dictionary={dictionary} lang={lang} />
           <main>{children}</main>
           <BackToTop />

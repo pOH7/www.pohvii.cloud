@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -15,133 +16,66 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Calendar, ArrowRight, Clock } from "lucide-react";
+import { Calendar, ArrowRight, Clock, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getAllPosts } from "@/lib/blog";
 import { TagLinksFooter } from "@/components/footer";
-import { getFeaturedPosts, getAllPosts } from "@/lib/blog";
 
 const POSTS_PER_PAGE = 10;
 
-export default async function BlogPage({
+export default async function TagPage({
   params,
 }: {
-  params: { lang: string };
+  params: { lang: string; tagName: string };
 }) {
-  const { lang } = await params;
-  const currentPage = 1;
+  const { lang, tagName } = await params;
+  const decodedTagName = decodeURIComponent(tagName);
 
-  // Get featured posts
-  const featuredPosts = (await getFeaturedPosts(lang, 2)).map((p) => ({
-    slug: p.slug,
-    title: p.title,
-    description: p.description,
-    image: p.image,
-    date: p.date,
-    tags: p.tags?.slice(0, 2) ?? [],
-  }));
-
-  // Get all posts for pagination
+  // Get all posts and filter by tag
   const allPosts = await getAllPosts(lang);
-  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
-  const paginatedPosts = allPosts.slice(
-    (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE
+  const taggedPosts = allPosts.filter((post) =>
+    post.tags.some((tag) => tag.toLowerCase() === decodedTagName.toLowerCase())
   );
 
-  // Generate tag links for footer
+  // If no posts found for this tag, return 404
+  if (taggedPosts.length === 0) {
+    notFound();
+  }
+
+  const totalPages = Math.ceil(taggedPosts.length / POSTS_PER_PAGE);
+  const currentPage = 1;
+  const paginatedPosts = taggedPosts.slice(0, POSTS_PER_PAGE);
+
+  // Generate other tag links for footer
   const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)))
     .filter(Boolean)
+    .filter((tag) => tag.toLowerCase() !== decodedTagName.toLowerCase())
     .slice(0, 10);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Featured Posts Section */}
+      {/* Header Section */}
       <section className="w-full py-12 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Tag className="w-6 h-6 text-primary" />
+            <Badge variant="secondary" className="text-lg px-3 py-1">
+              {decodedTagName}
+            </Badge>
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-2 animate-fade-in-up">
-            Blog
+            Articles about {decodedTagName}
           </h1>
           <p className="text-muted-foreground animate-fade-in-up stagger-1">
-            Discover my latest articles and tutorials
+            {taggedPosts.length} article{taggedPosts.length !== 1 ? "s" : ""}{" "}
+            found
           </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {featuredPosts.map((post, index) => (
-            <Card
-              key={post.slug}
-              className={`blog-card-hover group overflow-hidden animate-fade-in-up stagger-${index + 2}`}
-            >
-              <div className="aspect-video overflow-hidden">
-                <Image
-                  src={
-                    post.image ||
-                    `https://placehold.co/800x400/ed254e/ffffff?text=${encodeURIComponent(post.title)}`
-                  }
-                  alt={post.title}
-                  width={800}
-                  height={400}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl leading-tight">
-                  {post.title}
-                </CardTitle>
-                <CardDescription className="leading-relaxed">
-                  {post.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {post.date}
-                  </span>
-                  <div className="flex gap-2">
-                    {post.tags.map((tag) => (
-                      <Link
-                        key={tag}
-                        href={`/${lang}/tag/${encodeURIComponent(tag)}`}
-                      >
-                        <Badge
-                          variant="secondary"
-                          className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                        >
-                          {tag}
-                        </Badge>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                <Button asChild className="flex items-center gap-2 group">
-                  <Link
-                    href={`/${lang}/blog/${post.slug}`}
-                    className="inline-flex"
-                  >
-                    Read More
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </section>
 
-      {/* All Posts Section */}
+      {/* Posts List - One per line */}
       <section className="w-full px-4 md:px-8 max-w-7xl mx-auto pb-16">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2 animate-slide-in-up">
-            All Posts
-          </h2>
-          <p className="text-muted-foreground animate-slide-in-up stagger-1">
-            {allPosts.length} articles available
-          </p>
-        </div>
-
-        {/* Posts List - One per line */}
         <div className="space-y-6 mb-16">
           {paginatedPosts.map((post, index) => (
             <Card
@@ -201,7 +135,11 @@ export default async function BlogPage({
                         href={`/${lang}/tag/${encodeURIComponent(tag)}`}
                       >
                         <Badge
-                          variant="outline"
+                          variant={
+                            tag.toLowerCase() === decodedTagName.toLowerCase()
+                              ? "default"
+                              : "outline"
+                          }
                           className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
                         >
                           #{tag}
@@ -210,15 +148,12 @@ export default async function BlogPage({
                     ))}
                   </div>
 
-                  <Button asChild className="flex items-center gap-2 group">
-                    <Link
-                      href={`/${lang}/blog/${post.slug}`}
-                      className="inline-flex"
-                    >
+                  <Link href={`/${lang}/blog/${post.slug}`}>
+                    <Button className="flex items-center gap-2 group">
                       Read More
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
+                    </Button>
+                  </Link>
                 </CardContent>
               </div>
             </Card>
@@ -239,24 +174,14 @@ export default async function BlogPage({
 
                 {/* Page numbers */}
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let pageNumber;
-                  if (totalPages <= 5) {
-                    pageNumber = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNumber = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    pageNumber = currentPage - 2 + i;
-                  }
-
+                  const pageNumber = i + 1;
                   return (
                     <PaginationItem key={pageNumber}>
                       <PaginationLink
                         href={
                           pageNumber === 1
-                            ? `/${lang}/blog`
-                            : `/${lang}/blog/page/${pageNumber}`
+                            ? `/${lang}/tag/${encodeURIComponent(tagName)}`
+                            : `/${lang}/tag/${encodeURIComponent(tagName)}/page/${pageNumber}`
                         }
                         isActive={currentPage === pageNumber}
                         className="hover:scale-110 transition-transform"
@@ -269,9 +194,15 @@ export default async function BlogPage({
 
                 <PaginationItem>
                   <PaginationNext
-                    href={totalPages > 1 ? `/${lang}/blog/page/2` : "#"}
+                    href={
+                      currentPage < totalPages
+                        ? `/${lang}/tag/${encodeURIComponent(tagName)}/page/2`
+                        : "#"
+                    }
                     className={
-                      totalPages === 1 ? "pointer-events-none opacity-50" : ""
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
                     }
                   />
                 </PaginationItem>
@@ -281,16 +212,32 @@ export default async function BlogPage({
         )}
       </section>
 
-      {/* Footer with Tag Links */}
+      {/* Footer with Related Tag Links */}
       <TagLinksFooter allTags={allTags} lang={lang} />
     </div>
   );
 }
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: {
+  params: { lang: string; tagName: string };
+}) {
+  const { tagName } = await params;
+  const decodedTagName = decodeURIComponent(tagName);
   return {
-    title: "Blog | Léon Zhang",
-    description:
-      "Discover my latest articles and tutorials about web development, React, TypeScript, and more.",
+    title: `${decodedTagName} Articles | Léon Zhang`,
+    description: `Discover all articles about ${decodedTagName}. Learn about web development, programming, and more.`,
   };
+}
+
+export async function generateStaticParams() {
+  // Generate static params for common tags
+  // This will pre-generate pages for the most common tags
+  const allPosts = await getAllPosts("en"); // Default to English for static generation
+  const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
+
+  return allTags.map((tag) => ({
+    tagName: encodeURIComponent(tag),
+  }));
 }

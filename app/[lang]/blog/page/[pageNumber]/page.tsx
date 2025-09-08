@@ -1,3 +1,4 @@
+import { notFound, redirect } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -18,32 +19,38 @@ import {
 import { Calendar, ArrowRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getAllPosts } from "@/lib/blog";
 import { TagLinksFooter } from "@/components/footer";
-import { getFeaturedPosts, getAllPosts } from "@/lib/blog";
 
 const POSTS_PER_PAGE = 10;
 
-export default async function BlogPage({
+export default async function BlogPaginationPage({
   params,
 }: {
-  params: { lang: string };
+  params: { lang: string; pageNumber: string };
 }) {
-  const { lang } = await params;
-  const currentPage = 1;
+  const { lang, pageNumber } = await params;
+  const currentPage = parseInt(pageNumber, 10);
 
-  // Get featured posts
-  const featuredPosts = (await getFeaturedPosts(lang, 2)).map((p) => ({
-    slug: p.slug,
-    title: p.title,
-    description: p.description,
-    image: p.image,
-    date: p.date,
-    tags: p.tags?.slice(0, 2) ?? [],
-  }));
+  // Validate page number
+  if (isNaN(currentPage) || currentPage < 1) {
+    notFound();
+  }
+
+  // Redirect page 1 to /blog
+  if (currentPage === 1) {
+    redirect(`/${lang}/blog`);
+  }
 
   // Get all posts for pagination
   const allPosts = await getAllPosts(lang);
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+
+  // Check if page number is valid
+  if (currentPage > totalPages) {
+    notFound();
+  }
+
   const paginatedPosts = allPosts.slice(
     (currentPage - 1) * POSTS_PER_PAGE,
     currentPage * POSTS_PER_PAGE
@@ -56,92 +63,20 @@ export default async function BlogPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Featured Posts Section */}
+      {/* Header Section */}
       <section className="w-full py-12 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-2 animate-fade-in-up">
-            Blog
+            Blog - Page {currentPage}
           </h1>
           <p className="text-muted-foreground animate-fade-in-up stagger-1">
-            Discover my latest articles and tutorials
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {featuredPosts.map((post, index) => (
-            <Card
-              key={post.slug}
-              className={`blog-card-hover group overflow-hidden animate-fade-in-up stagger-${index + 2}`}
-            >
-              <div className="aspect-video overflow-hidden">
-                <Image
-                  src={
-                    post.image ||
-                    `https://placehold.co/800x400/ed254e/ffffff?text=${encodeURIComponent(post.title)}`
-                  }
-                  alt={post.title}
-                  width={800}
-                  height={400}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl leading-tight">
-                  {post.title}
-                </CardTitle>
-                <CardDescription className="leading-relaxed">
-                  {post.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {post.date}
-                  </span>
-                  <div className="flex gap-2">
-                    {post.tags.map((tag) => (
-                      <Link
-                        key={tag}
-                        href={`/${lang}/tag/${encodeURIComponent(tag)}`}
-                      >
-                        <Badge
-                          variant="secondary"
-                          className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                        >
-                          {tag}
-                        </Badge>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                <Button asChild className="flex items-center gap-2 group">
-                  <Link
-                    href={`/${lang}/blog/${post.slug}`}
-                    className="inline-flex"
-                  >
-                    Read More
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* All Posts Section */}
-      <section className="w-full px-4 md:px-8 max-w-7xl mx-auto pb-16">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2 animate-slide-in-up">
-            All Posts
-          </h2>
-          <p className="text-muted-foreground animate-slide-in-up stagger-1">
             {allPosts.length} articles available
           </p>
         </div>
+      </section>
 
-        {/* Posts List - One per line */}
+      {/* Posts List - One per line */}
+      <section className="w-full px-4 md:px-8 max-w-7xl mx-auto pb-16">
         <div className="space-y-6 mb-16">
           {paginatedPosts.map((post, index) => (
             <Card
@@ -210,15 +145,12 @@ export default async function BlogPage({
                     ))}
                   </div>
 
-                  <Button asChild className="flex items-center gap-2 group">
-                    <Link
-                      href={`/${lang}/blog/${post.slug}`}
-                      className="inline-flex"
-                    >
+                  <Link href={`/${lang}/blog/${post.slug}`}>
+                    <Button className="flex items-center gap-2 group">
                       Read More
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
+                    </Button>
+                  </Link>
                 </CardContent>
               </div>
             </Card>
@@ -232,8 +164,16 @@ export default async function BlogPage({
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    href="#"
-                    className="pointer-events-none opacity-50"
+                    href={
+                      currentPage > 1
+                        ? currentPage === 2
+                          ? `/${lang}/blog`
+                          : `/${lang}/blog/page/${currentPage - 1}`
+                        : "#"
+                    }
+                    className={
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }
                   />
                 </PaginationItem>
 
@@ -269,9 +209,15 @@ export default async function BlogPage({
 
                 <PaginationItem>
                   <PaginationNext
-                    href={totalPages > 1 ? `/${lang}/blog/page/2` : "#"}
+                    href={
+                      currentPage < totalPages
+                        ? `/${lang}/blog/page/${currentPage + 1}`
+                        : "#"
+                    }
                     className={
-                      totalPages === 1 ? "pointer-events-none opacity-50" : ""
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
                     }
                   />
                 </PaginationItem>
@@ -287,10 +233,15 @@ export default async function BlogPage({
   );
 }
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: {
+  params: { lang: string; pageNumber: string };
+}) {
+  const { pageNumber } = await params;
+  const page = parseInt(pageNumber, 10);
   return {
-    title: "Blog | Léon Zhang",
-    description:
-      "Discover my latest articles and tutorials about web development, React, TypeScript, and more.",
+    title: `Blog - Page ${page} | Léon Zhang`,
+    description: `Browse blog articles - Page ${page}. Discover articles about web development, React, TypeScript, and more.`,
   };
 }
