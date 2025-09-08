@@ -20,6 +20,7 @@ import { Calendar, ArrowRight, Clock, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
+import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 
 const POSTS_PER_PAGE = 10;
@@ -261,4 +262,29 @@ export function generateMetadata({
     title: `${decodedTagName} Articles - Page ${pageNumber} | Léon Zhang`,
     description: `Discover articles about ${decodedTagName} - Page ${pageNumber}. Learn about web development, programming, and more.`,
   };
+}
+
+export async function generateStaticParams() {
+  const params: { lang: string; tagName: string; pageNumber: string }[] = [];
+  for (const lang of supportedLangs) {
+    const allPosts = await getAllPosts(lang);
+    const tagCounts = new Map<string, number>();
+    for (const post of allPosts) {
+      for (const tag of post.tags || []) {
+        const key = tag;
+        tagCounts.set(key, (tagCounts.get(key) || 0) + 1);
+      }
+    }
+    for (const [tag, count] of tagCounts) {
+      const totalPages = Math.ceil(count / POSTS_PER_PAGE) || 1;
+      for (let page = 2; page <= totalPages; page++) {
+        params.push({
+          lang,
+          tagName: encodeURIComponent(tag),
+          pageNumber: String(page),
+        });
+      }
+    }
+  }
+  return params;
 }

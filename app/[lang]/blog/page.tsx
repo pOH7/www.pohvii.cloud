@@ -20,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { TagLinksFooter } from "@/components/footer";
 import { getFeaturedPosts, getAllPosts } from "@/lib/blog";
+import { supportedLangs } from "@/lib/i18n";
 
 const POSTS_PER_PAGE = 10;
 
@@ -293,4 +294,8 @@ export function generateMetadata() {
     description:
       "Discover my latest articles and tutorials about web development, React, TypeScript, and more.",
   };
+}
+
+export async function generateStaticParams() {
+  return supportedLangs.map((lang) => ({ lang }));
 }

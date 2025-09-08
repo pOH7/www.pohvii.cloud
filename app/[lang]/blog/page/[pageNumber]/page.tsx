@@ -20,6 +20,7 @@ import { Calendar, ArrowRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
+import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 
 const POSTS_PER_PAGE = 10;
@@ -244,4 +245,16 @@ export async function generateMetadata({
     title: `Blog - Page ${page} | Léon Zhang`,
     description: `Browse blog articles - Page ${page}. Discover articles about web development, React, TypeScript, and more.`,
   };
+}
+
+export async function generateStaticParams() {
+  const allParams: { lang: string; pageNumber: string }[] = [];
+  for (const lang of supportedLangs) {
+    const allPosts = await getAllPosts(lang);
+    const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE) || 1;
+    for (let page = 2; page <= totalPages; page++) {
+      allParams.push({ lang, pageNumber: String(page) });
+    }
+  }
+  return allParams;
 }

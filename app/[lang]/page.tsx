@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getDictionary } from "./dictionaries";
+import { supportedLangs } from "@/lib/i18n";
 
 export default async function HomePage({
   params,
@@ -42,4 +43,8 @@ export default async function HomePage({
       </div>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  return supportedLangs.map((lang) => ({ lang }));
 }

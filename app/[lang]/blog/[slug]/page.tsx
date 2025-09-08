@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { BlogArticle, type BlogPost } from "@/components/blog";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
+import { supportedLangs } from "@/lib/i18n";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx-components";
 import remarkGfm from "remark-gfm";
@@ -77,4 +78,15 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       />
     </BlogArticle>
   );
+}
+
+export async function generateStaticParams() {
+  const params: { lang: string; slug: string }[] = [];
+  for (const lang of supportedLangs) {
+    const posts = await getAllPosts(lang);
+    for (const post of posts) {
+      params.push({ lang, slug: post.slug });
+    }
+  }
+  return params;
 }

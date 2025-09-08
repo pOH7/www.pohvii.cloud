@@ -20,6 +20,7 @@ import { Calendar, ArrowRight, Clock, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
+import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 
 const POSTS_PER_PAGE = 10;
@@ -232,12 +233,13 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  // Generate static params for common tags
-  // This will pre-generate pages for the most common tags
-  const allPosts = await getAllPosts("en"); // Default to English for static generation
-  const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
-
-  return allTags.map((tag) => ({
-    tagName: encodeURIComponent(tag),
-  }));
+  const params: { lang: string; tagName: string }[] = [];
+  for (const lang of supportedLangs) {
+    const allPosts = await getAllPosts(lang);
+    const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
+    for (const tag of allTags) {
+      params.push({ lang, tagName: encodeURIComponent(tag) });
+    }
+  }
+  return params;
 }

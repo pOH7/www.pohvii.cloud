@@ -1,5 +1,6 @@
 import Tag from "@/components/blog/tag";
 import { getAllTags } from "@/lib/blog";
+import { supportedLangs } from "@/lib/i18n";
 
 export default async function TagsPage({
   params,
@@ -55,4 +56,8 @@ export function generateMetadata() {
       type: "website",
     },
   };
+}
+
+export async function generateStaticParams() {
+  return supportedLangs.map((lang) => ({ lang }));
 }
