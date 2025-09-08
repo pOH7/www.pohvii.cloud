@@ -39,8 +39,19 @@ function getLocale(request: NextRequest): string {
 }
 
 export function middleware(request: NextRequest) {
-  // Check if there is any supported locale in the pathname
   const { pathname } = request.nextUrl;
+
+  // Ignore API, Next internals, well-known, and any file with an extension
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/.well-known") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  // Check if there is any supported locale in the pathname
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
@@ -56,8 +67,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Matcher ignoring `/_next/`, `/api/`, static assets, and SEO files
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|images|sitemap.xml|robots.txt).*)",
-  ],
+  // Match all paths; filtering happens inside middleware for simplicity
+  matcher: ["/:path*"],
 };

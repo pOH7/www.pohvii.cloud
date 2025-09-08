@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -56,13 +57,17 @@ export function Header({ dictionary, lang }: HeaderProps) {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base font-mono transition-all duration-200"
-              style={{
-                backgroundColor: "var(--primary-red)",
-                fontFamily: "'JetBrains Mono', monospace",
-              }}
+              className="w-10 h-10 rounded-full overflow-hidden transition-all duration-200"
             >
-              LZ
+              <Image
+                src="/android-chrome-192x192.png"
+                alt="Site logo"
+                width={40}
+                height={40}
+                className="w-10 h-10 object-cover"
+                priority
+                unoptimized
+              />
             </motion.div>
             <div className="flex flex-col">
               <h1
