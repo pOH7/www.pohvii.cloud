@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Globe, ChevronDown } from "lucide-react";
+import { Menu, Globe } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Dictionary } from "../app/[lang]/dictionaries";
@@ -37,15 +39,18 @@ interface HeaderProps {
 export function Header({ dictionary, lang }: HeaderProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const handleLanguageChange = (newLang: string) => {
     if (newLang === lang) return;
 
+    // Set cookie for language preference (following next-intl pattern)
+    document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
+    
+    // Navigate to new locale path
     const path = pathname.replace(`/${lang}`, `/${newLang}`);
-
-    // Use replace instead of push to avoid back/forward issues
-    // and window.location for instant navigation without flash
-    window.location.href = path;
+    router.push(path);
+    router.refresh();
   };
 
   return (
@@ -110,58 +115,29 @@ export function Header({ dictionary, lang }: HeaderProps) {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* Language Selector */}
+            {/* Language Picker */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10">
-                  <Globe className="h-4 w-4 mr-2" />
-                  {languages.find((language) => language.code === lang)?.flag}
-                  <span className="ml-1 hidden sm:inline">
-                    {languages.find((language) => language.code === lang)?.name}
-                  </span>
-                  <ChevronDown className="h-3 w-3 ml-2" />
+                <Button variant="outline" size="icon" className="h-10 w-10">
+                  <Globe className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-0"
-              >
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Language</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {languages.map((language) => (
-                  <DropdownMenuItem
+                  <DropdownMenuCheckboxItem
                     key={language.code}
+                    checked={lang === language.code}
                     onClick={() => handleLanguageChange(language.code)}
-                    className={`flex w-full items-center ${
-                      lang === language.code
-                        ? "bg-accent text-accent-foreground"
-                        : ""
-                    }`}
                   >
-                    <span className="mr-3">{language.flag}</span>
                     {language.name}
-                  </DropdownMenuItem>
+                  </DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
             <ThemeToggle />
-
-            {/* CTA Button */}
-            <Button
-              asChild
-              className="bg-primary hover:bg-accent hover:text-accent-foreground font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-              style={{
-                background: "var(--primary)",
-                color: "var(--primary-foreground)",
-              }}
-            >
-              <a
-                href="https://linkedin.com/in/léon-zhang"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {dictionary.Header.cta}
-              </a>
-            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -258,32 +234,11 @@ export function Header({ dictionary, lang }: HeaderProps) {
                           setIsSheetOpen(false);
                         }}
                       >
-                        <span className="mr-3">{language.flag}</span>
                         {language.name}
                       </Button>
                     ))}
                   </div>
 
-                  <hr className="border-border my-4" />
-
-                  {/* Mobile CTA */}
-                  <Button
-                    asChild
-                    className="w-full bg-primary hover:bg-accent hover:text-accent-foreground font-semibold py-3 text-lg"
-                    style={{
-                      background: "var(--primary)",
-                      color: "var(--primary-foreground)",
-                    }}
-                  >
-                    <a
-                      href="https://linkedin.com/in/léon-zhang"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setIsSheetOpen(false)}
-                    >
-                      {dictionary.Header.cta}
-                    </a>
-                  </Button>
                 </motion.div>
               </div>
             </motion.div>
