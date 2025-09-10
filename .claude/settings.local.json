@@ -17,7 +17,11 @@
       "mcp__playwright-extension__browser_take_screenshot",
       "mcp__playwright-extension__browser_evaluate",
       "mcp__playwright__browser_navigate",
-      "mcp__playwright-extension__browser_hover"
+      "mcp__playwright-extension__browser_hover",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_press_key"
     ],
     "deny": [],
     "ask": []

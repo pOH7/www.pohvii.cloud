@@ -120,6 +120,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="h-10 w-10">
                   <Globe className="h-4 w-4" />
+                  <span className="sr-only">Select language</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -142,6 +143,30 @@ export function Header({ dictionary, lang }: HeaderProps) {
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
+            {/* Mobile Language Picker */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="h-10 w-10">
+                  <Globe className="h-4 w-4" />
+                  <span className="sr-only">Select language</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuLabel className="text-xs">Language</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {languages.map((language) => (
+                  <DropdownMenuCheckboxItem
+                    key={language.code}
+                    checked={lang === language.code}
+                    onClick={() => handleLanguageChange(language.code)}
+                    className="text-sm"
+                  >
+                    {language.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <ThemeToggle />
             <Button
               variant="outline"
@@ -210,36 +235,6 @@ export function Header({ dictionary, lang }: HeaderProps) {
                   </motion.div>
                 ))}
 
-                {/* Mobile Controls */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    delay: navigationItems.length * 0.1,
-                    duration: 0.2,
-                  }}
-                  className="pt-4 space-y-4"
-                >
-                  <div className="text-sm font-medium text-muted-foreground mb-2">
-                    {dictionary.Header.language}
-                  </div>
-                  <div className="space-y-2">
-                    {languages.map((language) => (
-                      <Button
-                        key={language.code}
-                        variant={lang === language.code ? "default" : "ghost"}
-                        className="w-full justify-start"
-                        onClick={() => {
-                          handleLanguageChange(language.code);
-                          setIsSheetOpen(false);
-                        }}
-                      >
-                        {language.name}
-                      </Button>
-                    ))}
-                  </div>
-
-                </motion.div>
               </div>
             </motion.div>
           )}
