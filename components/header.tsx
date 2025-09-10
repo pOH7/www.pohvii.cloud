@@ -46,7 +46,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
 
     // Set cookie for language preference (following next-intl pattern)
     document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
-    
+
     // Navigate to new locale path
     const path = pathname.replace(`/${lang}`, `/${newLang}`);
     router.push(path);
@@ -152,7 +152,9 @@ export function Header({ dictionary, lang }: HeaderProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuLabel className="text-xs">Language</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-xs">
+                  Language
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {languages.map((language) => (
                   <DropdownMenuCheckboxItem
@@ -234,7 +236,6 @@ export function Header({ dictionary, lang }: HeaderProps) {
                     </Link>
                   </motion.div>
                 ))}
-
               </div>
             </motion.div>
           )}
