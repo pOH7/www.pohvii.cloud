@@ -129,15 +129,15 @@ export function TableOfContents({
         transition={{ delay: 0.5 }}
         className="w-72 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto hidden lg:block"
       >
-        <Card className="p-6 gap-0">
-          <div className="flex items-center gap-2">
-            <List className="w-4 h-4 text-primary" />
-            <h3 className="font-semibold">In this article</h3>
+        <Card className="p-3 gap-0">
+          <div className="flex items-center gap-2 mb-2">
+            <List className="w-3 h-3 text-primary" />
+            <h3 className="font-medium text-xs">In this article</h3>
           </div>
 
           {/* Progress Bar */}
           <div
-            className="w-full bg-muted rounded-full my-3"
+            className="w-full bg-muted rounded-full mb-2"
             style={{ height: "1px" }}
           >
             <div
@@ -148,7 +148,7 @@ export function TableOfContents({
           </div>
 
           {/* TOC Navigation */}
-          <nav className="space-y-2 text-sm">
+          <nav className="space-y-0.5 text-xs">
             {items.map((item, index) => (
               <motion.button
                 key={item.id}
@@ -156,8 +156,8 @@ export function TableOfContents({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
                 onClick={() => onItemClick(item.id)}
-                className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent ${
-                  item.level === 3 ? "pl-6 text-xs" : ""
+                className={`block w-full text-left py-0.5 px-1.5 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent leading-tight ${
+                  item.level === 3 ? "pl-3 text-[10px]" : "text-[11px]"
                 } ${
                   activeSection === item.id
                     ? "border-l-primary bg-accent text-accent-foreground translate-x-1"
