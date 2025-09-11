@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { List, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -22,6 +22,45 @@ export function TableOfContents({
 }: TableOfContentsProps) {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  // Refs to the scrollable containers (not the inner nav)
+  const desktopScrollRef = useRef<HTMLDivElement>(null);
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+
+  // Keep the active item centered within scrollable TOC containers
+  useEffect(() => {
+    const centerActive = (container: HTMLDivElement | null) => {
+      if (!container) return;
+      if (container.scrollHeight <= container.clientHeight) return;
+      const target = container.querySelector<HTMLElement>(
+        `[data-id="${CSS.escape(activeSection)}"]`
+      );
+      if (!target) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const topWithin = targetRect.top - containerRect.top;
+      const bandTop = container.clientHeight * 0.3;
+      const bandBottom = container.clientHeight * 0.7;
+
+      // If already roughly in the center band, avoid nudging to keep things smooth
+      if (topWithin > bandTop && topWithin < bandBottom) return;
+
+      // Compute delta from current position to center within the container
+      const targetCenter = topWithin + targetRect.height / 2;
+      const delta = targetCenter - container.clientHeight / 2;
+      container.scrollTo({
+        top: container.scrollTop + delta,
+        behavior: "smooth",
+      });
+    };
+
+    // Defer to next frame to avoid layout thrash during animations
+    const raf = requestAnimationFrame(() => {
+      centerActive(desktopScrollRef.current);
+      if (isMobileOpen) centerActive(mobileScrollRef.current);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [activeSection, isMobileOpen]);
 
   const handleItemClick = (id: string) => {
     onItemClick(id);
@@ -66,6 +105,7 @@ export function TableOfContents({
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 500 }}
               className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl max-h-[80vh] overflow-y-auto"
+              ref={mobileScrollRef}
             >
               <div className="p-4">
                 {/* Header */}
@@ -104,6 +144,7 @@ export function TableOfContents({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                       onClick={() => handleItemClick(item.id)}
+                      data-id={item.id}
                       className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 border-l-2 border-transparent ${
                         item.level === 3 ? "pl-6 text-sm" : "text-base"
                       } ${
@@ -128,6 +169,7 @@ export function TableOfContents({
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
         className="w-72 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto hidden lg:block"
+        ref={desktopScrollRef}
       >
         <Card className="p-3 gap-0">
           <div className="flex items-center gap-2 mb-2">
@@ -156,6 +198,7 @@ export function TableOfContents({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
                 onClick={() => onItemClick(item.id)}
+                data-id={item.id}
                 className={`block w-full text-left py-0.5 px-1.5 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent leading-tight ${
                   item.level === 3 ? "pl-3 text-[10px]" : "text-[11px]"
                 } ${
