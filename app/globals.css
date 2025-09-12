@@ -352,45 +352,55 @@
   @apply rounded-lg shadow-md;
 }
 
-/* Heading anchor tweaks: remove underline, show link icon on hover */
+/* Heading anchor link icon (hover-only, absolute; no reserved space) */
+.blog-article-content h2,
+.blog-article-content h3,
+.blog-article-content h4,
+.blog-article-content h5,
+.blog-article-content h6 {
+  position: relative;
+}
+
 .blog-article-content h2 > a.heading-anchor,
 .blog-article-content h3 > a.heading-anchor,
 .blog-article-content h4 > a.heading-anchor,
 .blog-article-content h5 > a.heading-anchor,
 .blog-article-content h6 > a.heading-anchor {
-  text-decoration: none;
-  color: inherit;
-  position: relative;
-}
-
-.blog-article-content h2 > a.heading-anchor::before,
-.blog-article-content h3 > a.heading-anchor::before,
-.blog-article-content h4 > a.heading-anchor::before,
-.blog-article-content h5 > a.heading-anchor::before,
-.blog-article-content h6 > a.heading-anchor::before {
-  content: "#";
-  opacity: 0;
   position: absolute;
-  left: -1.25rem;
+  left: 0;
   top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.875em;
-  font-weight: bold;
-  line-height: 1;
-  transition: opacity 0.2s ease;
+  transform: translate(-120%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
 }
 
-.blog-article-content h2:hover > a.heading-anchor::before,
-.blog-article-content h3:hover > a.heading-anchor::before,
-.blog-article-content h4:hover > a.heading-anchor::before,
-.blog-article-content h5:hover > a.heading-anchor::before,
-.blog-article-content h6:hover > a.heading-anchor::before,
-.blog-article-content h2 > a.heading-anchor:hover::before,
-.blog-article-content h3 > a.heading-anchor:hover::before,
-.blog-article-content h4 > a.heading-anchor:hover::before,
-.blog-article-content h5 > a.heading-anchor:hover::before,
-.blog-article-content h6 > a.heading-anchor:hover::before {
-  opacity: 0.7;
+.blog-article-content a.heading-anchor .heading-link-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+/* Make inner SVG fill the parent span */
+.blog-article-content a.heading-anchor .heading-link-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.blog-article-content h2:hover > a.heading-anchor,
+.blog-article-content h3:hover > a.heading-anchor,
+.blog-article-content h4:hover > a.heading-anchor,
+.blog-article-content h5:hover > a.heading-anchor,
+.blog-article-content h6:hover > a.heading-anchor,
+.blog-article-content a.heading-anchor:focus-visible {
+  opacity: 0.65;
 }
 
 /* Table of Contents specific styles */

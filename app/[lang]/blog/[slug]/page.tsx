@@ -72,8 +72,54 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               [
                 rehypeAutolinkHeadings,
                 {
-                  behavior: "wrap",
-                  properties: { className: ["heading-anchor"] },
+                  behavior: "prepend",
+                  properties: {
+                    className: ["heading-anchor"],
+                    ariaLabel: "Link to this section",
+                  },
+                  // Inline SVG link icon (Lucide "link-2" style)
+                  content: {
+                    type: "element",
+                    tagName: "span",
+                    properties: {
+                      className: ["heading-link-icon"],
+                      ariaHidden: "true",
+                    },
+                    children: [
+                      {
+                        type: "element",
+                        tagName: "svg",
+                        properties: {
+                          viewBox: "0 0 24 24",
+                          fill: "none",
+                          stroke: "currentColor",
+                          strokeWidth: 2,
+                          strokeLinecap: "round",
+                          strokeLinejoin: "round",
+                          ariaHidden: "true",
+                          focusable: "false",
+                        },
+                        children: [
+                          {
+                            type: "element",
+                            tagName: "path",
+                            properties: {
+                              d: "M10 13a5 5 0 0 0 7.07 0l1.41-1.41a5 5 0 0 0-7.07-7.07L10 5",
+                            },
+                            children: [],
+                          },
+                          {
+                            type: "element",
+                            tagName: "path",
+                            properties: {
+                              d: "M14 11a5 5 0 0 0-7.07 0L5.5 12.43a5 5 0 0 0 7.07 7.07L14 19",
+                            },
+                            children: [],
+                          },
+                        ],
+                      },
+                    ],
+                  },
                 },
               ],
             ],
