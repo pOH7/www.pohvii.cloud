@@ -146,7 +146,11 @@ export function TableOfContents({
                       onClick={() => handleItemClick(item.id)}
                       data-id={item.id}
                       className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 border-l-2 border-transparent ${
-                        item.level === 3 ? "pl-6 text-sm" : "text-base"
+                        item.level === 4
+                          ? "pl-8 text-sm"
+                          : item.level === 3
+                            ? "pl-6 text-sm"
+                            : "text-base"
                       } ${
                         activeSection === item.id
                           ? "border-l-primary bg-accent text-accent-foreground"
@@ -200,7 +204,11 @@ export function TableOfContents({
                 onClick={() => onItemClick(item.id)}
                 data-id={item.id}
                 className={`block w-full text-left py-0.5 px-1.5 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent leading-tight ${
-                  item.level === 3 ? "pl-3 text-[10px]" : "text-[11px]"
+                  item.level === 4
+                    ? "pl-4 text-[10px]"
+                    : item.level === 3
+                      ? "pl-3 text-[10px]"
+                      : "text-[11px]"
                 } ${
                   activeSection === item.id
                     ? "border-l-primary bg-accent text-accent-foreground translate-x-1"

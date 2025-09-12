@@ -297,6 +297,30 @@
   --tw-prose-td-borders: var(--border);
 }
 
+.blog-article-content {
+  /* CSS counters for hierarchical heading numbering */
+  counter-reset: h2;
+}
+.blog-article-content h2 { counter-reset: h3; }
+.blog-article-content h3 { counter-reset: h4; }
+
+/* Prefix visible numbers before headings (H2–H4) */
+.blog-article-content h2::before {
+  counter-increment: h2;
+  content: counter(h2) ". ";
+  color: var(--muted-foreground);
+}
+.blog-article-content h3::before {
+  counter-increment: h3;
+  content: counter(h2) "." counter(h3) ". ";
+  color: var(--muted-foreground);
+}
+.blog-article-content h4::before {
+  counter-increment: h4;
+  content: counter(h2) "." counter(h3) "." counter(h4) ". ";
+  color: var(--muted-foreground);
+}
+
 .blog-article-content h2,
 .blog-article-content h3 {
   /* Align with JS headerOffset (96px) to avoid off-by-one section selection */

@@ -7,6 +7,7 @@ import { mdxComponents } from "@/components/mdx-components";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
 
 interface BlogDetailPageProps {
   params: Promise<{
@@ -64,7 +65,10 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           mdxOptions: {
             remarkPlugins: [remarkGfm],
             rehypePlugins: [
+              // Ensure slug IDs are based on the original text (without numbers)
               rehypeSlug,
+              // Then prefix visible headings with hierarchical numbers
+              rehypeNumberedHeadings,
               [
                 rehypeAutolinkHeadings,
                 {

@@ -23,9 +23,15 @@ export function useReadingProgress(
   // Extract table of contents from content
   useEffect(() => {
     if (contentRef.current) {
-      const headings = contentRef.current.querySelectorAll("h2, h3");
-      const items: TOCItem[] = Array.from(headings).map((heading, index) => {
-        // Use existing ID if available, otherwise generate one
+      const headings = contentRef.current.querySelectorAll("h2, h3, h4");
+
+      // Build hierarchical numbering (matches CSS counters applied for H2–H4)
+      let c2 = 0,
+        c3 = 0,
+        c4 = 0;
+      const items: TOCItem[] = [];
+
+      Array.from(headings).forEach((heading, index) => {
         let id = heading.id;
         if (!id) {
           id =
@@ -36,12 +42,32 @@ export function useReadingProgress(
           heading.id = id;
         }
 
-        return {
+        const level = parseInt(heading.tagName.charAt(1));
+        const rawTitle = heading.textContent || "";
+
+        if (level === 2) {
+          c2 += 1;
+          c3 = 0;
+          c4 = 0;
+        } else if (level === 3) {
+          c3 += 1;
+          c4 = 0;
+        } else if (level === 4) {
+          c4 += 1;
+        }
+
+        let prefix = "";
+        if (level === 2) prefix = `${c2}.`;
+        if (level === 3) prefix = `${c2}.${c3}.`;
+        if (level === 4) prefix = `${c2}.${c3}.${c4}.`;
+
+        items.push({
           id,
-          title: heading.textContent || "",
-          level: parseInt(heading.tagName.charAt(1)),
-        };
+          title: prefix ? `${prefix} ${rawTitle}` : rawTitle,
+          level,
+        });
       });
+
       setTocItems(items);
     }
   }, [contentRef]);
@@ -65,7 +91,9 @@ export function useReadingProgress(
 
       // Find current section (stable rule: last heading above the offset line)
       if (contentRef.current) {
-        const headings = contentRef.current.querySelectorAll("h2[id], h3[id]");
+        const headings = contentRef.current.querySelectorAll(
+          "h2[id], h3[id], h4[id]"
+        );
         const headerOffset = 96;
         let current = "";
         headings.forEach((heading) => {
