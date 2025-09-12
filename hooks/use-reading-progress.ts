@@ -72,73 +72,113 @@ export function useReadingProgress(
     }
   }, [contentRef]);
 
-  // Handle scroll for reading progress and active section
+  // Handle scroll for reading progress (separate from observer-based section tracking)
   useEffect(() => {
     const handleScroll = () => {
       // Respect a short lock window after a programmatic scroll-to-section
-      if (Date.now() < clickLockUntilRef.current) {
-        // Keep the clicked section highlighted during the lock window
-        if (lastClickedIdRef.current) {
-          setActiveSection(lastClickedIdRef.current);
-        }
-        return;
-      }
+      // (Do not early-return; progress bar should keep updating.)
       const scrollTop = window.pageYOffset;
       const documentHeight =
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = (scrollTop / documentHeight) * 100;
       setReadingProgress(Math.min(100, Math.max(0, progress)));
-
-      // Find current section (stable rule: last heading above the offset line)
-      if (contentRef.current) {
-        const headings = contentRef.current.querySelectorAll(
-          "h2[id], h3[id], h4[id]"
-        );
-        const headerOffset = 96;
-        let current = "";
-        headings.forEach((heading) => {
-          const top = (heading as HTMLElement).getBoundingClientRect().top;
-          if (top - headerOffset <= 1) {
-            current = (heading as HTMLElement).id;
-          }
-        });
-        if (!current && headings.length > 0) {
-          current = (headings[0] as HTMLElement).id;
-        }
-        setActiveSection(current);
-      }
     };
 
     window.addEventListener("scroll", handleScroll);
+    // Run once on mount to initialize state (e.g., after hash nav or refresh)
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [contentRef]);
+
+  // Observer-based scrollspy for active section (Microsoft Learn-like behavior)
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const headings = Array.from(
+      contentRef.current.querySelectorAll<HTMLElement>("h2[id], h3[id], h4[id]")
+    );
+    if (headings.length === 0) return;
+
+    // Derive sticky header offset dynamically from computed scroll-margin-top
+    const computed = window.getComputedStyle(headings[0]);
+    const parsed = parseFloat(
+      (computed.scrollMarginTop as unknown as string) || "0"
+    );
+    const headerOffset = Number.isFinite(parsed) && parsed >= 0 ? parsed : 96;
+
+    // Track visibility states
+    const visible = new Set<string>();
+
+    const pickActive = () => {
+      // Respect click lock during programmatic scrolls
+      if (Date.now() < clickLockUntilRef.current && lastClickedIdRef.current) {
+        setActiveSection(lastClickedIdRef.current);
+        return;
+      }
+
+      // Prefer the first visible heading in document order
+      const byOrder = headings
+        .filter((h) => visible.has(h.id))
+        .map((h) => h.id);
+      if (byOrder.length > 0) {
+        setActiveSection(byOrder[0]);
+        return;
+      }
+
+      // Fallback: last heading above the offset line
+      const above = headings.filter(
+        (h) => h.getBoundingClientRect().top < headerOffset
+      );
+      if (above.length > 0) {
+        setActiveSection(above[above.length - 1].id);
+        return;
+      }
+
+      // Edge: at very top with nothing visible/above
+      setActiveSection(headings[0].id);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const id = (entry.target as HTMLElement).id;
+          if (entry.isIntersecting) visible.add(id);
+          else visible.delete(id);
+        }
+        pickActive();
+      },
+      {
+        root: null,
+        rootMargin: `-${headerOffset}px 0px 0px 0px`,
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      }
+    );
+
+    headings.forEach((h) => observer.observe(h));
+    // Initialize immediately
+    pickActive();
+
+    return () => observer.disconnect();
+  }, [contentRef, tocItems]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const headerOffset = 96; // Same offset used in handleScroll for consistency
       // Lock active state on click so the next section isn't highlighted
       setActiveSection(id);
       lastClickedIdRef.current = id;
-      const elementPosition = element.offsetTop - headerOffset;
-      // Lock until we reach the target (or a hard timeout)
-      clickLockUntilRef.current = Date.now() + 2000; // generous window for long smooth scrolls
-      let raf = 0;
-      const checkArrival = () => {
-        const delta = Math.abs(window.pageYOffset - elementPosition);
-        if (delta < 4) {
-          lastClickedIdRef.current = "";
-          clickLockUntilRef.current = 0;
-          cancelAnimationFrame(raf);
-        } else {
-          raf = requestAnimationFrame(checkArrival);
-        }
-      };
-      raf = requestAnimationFrame(checkArrival);
-      window.scrollTo({
-        top: elementPosition,
+      // Use native scrollIntoView honoring CSS scroll-margin-top on headings
+      clickLockUntilRef.current = Date.now() + 1200; // typical smooth-scroll duration
+      element.scrollIntoView({
         behavior: "smooth",
+        block: "start",
+        inline: "nearest",
       });
+      // Unlock after a safety timeout
+      window.setTimeout(() => {
+        lastClickedIdRef.current = "";
+        clickLockUntilRef.current = 0;
+      }, 1500);
     }
   };
 

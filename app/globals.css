@@ -322,8 +322,11 @@
 }
 
 .blog-article-content h2,
-.blog-article-content h3 {
-  /* Align with JS headerOffset (96px) to avoid off-by-one section selection */
+.blog-article-content h3,
+.blog-article-content h4,
+.blog-article-content h5,
+.blog-article-content h6 {
+  /* Top offset reserved for sticky header; JS derives this dynamically via getComputedStyle */
   scroll-margin-top: 96px;
 }
 

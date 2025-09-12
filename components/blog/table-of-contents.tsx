@@ -145,6 +145,9 @@ export function TableOfContents({
                       transition={{ delay: index * 0.05 }}
                       onClick={() => handleItemClick(item.id)}
                       data-id={item.id}
+                      aria-current={
+                        activeSection === item.id ? "true" : undefined
+                      }
                       className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 border-l-2 border-transparent ${
                         item.level === 4
                           ? "pl-8 text-sm"
@@ -203,6 +206,7 @@ export function TableOfContents({
                 transition={{ delay: 0.6 + index * 0.1 }}
                 onClick={() => onItemClick(item.id)}
                 data-id={item.id}
+                aria-current={activeSection === item.id ? "true" : undefined}
                 className={`block w-full text-left py-0.5 px-1.5 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent leading-tight ${
                   item.level === 4
                     ? "pl-4 text-[10px]"
