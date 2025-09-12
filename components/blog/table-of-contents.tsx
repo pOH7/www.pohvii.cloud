@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useId } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { List, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -20,6 +20,10 @@ export function TableOfContents({
   readingProgress,
   onItemClick,
 }: TableOfContentsProps) {
+  const baseId = useId();
+  const mobileTitleId = `toc-title-${baseId}-mobile`;
+  const desktopTitleId = `toc-title-${baseId}-desktop`;
+  const mobilePanelId = `toc-panel-${baseId}`;
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   // Refs to the scrollable containers (not the inner nav)
@@ -80,6 +84,9 @@ export function TableOfContents({
           onClick={() => setIsMobileOpen(true)}
           size="icon"
           className="rounded-full size-12 shadow-lg hover:shadow-xl transition-all duration-200"
+          aria-label="Open table of contents"
+          aria-expanded={isMobileOpen}
+          aria-controls={mobilePanelId}
         >
           <List className="w-5 h-5" />
         </Button>
@@ -105,6 +112,10 @@ export function TableOfContents({
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 500 }}
               className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl max-h-[80vh] overflow-y-auto"
+              id={mobilePanelId}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={mobileTitleId}
               ref={mobileScrollRef}
             >
               <div className="p-4">
@@ -112,7 +123,9 @@ export function TableOfContents({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <List className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold">In this article</h3>
+                    <h3 id={mobileTitleId} className="font-semibold">
+                      In this article
+                    </h3>
                   </div>
                   <Button
                     variant="ghost"
@@ -136,7 +149,7 @@ export function TableOfContents({
                 </div>
 
                 {/* TOC Navigation */}
-                <nav className="space-y-1">
+                <nav className="space-y-1" aria-labelledby={mobileTitleId}>
                   {items.map((item, index) => (
                     <motion.button
                       key={item.id}
@@ -181,7 +194,9 @@ export function TableOfContents({
         <Card className="p-3 gap-0">
           <div className="flex items-center gap-2 mb-2">
             <List className="w-3 h-3 text-primary" />
-            <h3 className="font-medium text-xs">In this article</h3>
+            <h3 id={desktopTitleId} className="font-medium text-xs">
+              In this article
+            </h3>
           </div>
 
           {/* Progress Bar */}
@@ -197,7 +212,7 @@ export function TableOfContents({
           </div>
 
           {/* TOC Navigation */}
-          <nav className="space-y-0.5 text-xs">
+          <nav className="space-y-0.5 text-xs" aria-labelledby={desktopTitleId}>
             {items.map((item, index) => (
               <motion.button
                 key={item.id}

@@ -340,7 +340,9 @@
 }
 
 .blog-article-content pre {
-  @apply bg-muted rounded-lg;
+  @apply bg-muted rounded-lg overflow-x-auto;
+  /* Prevent pre blocks from expanding flex items */
+  max-width: 100%;
 }
 
 .blog-article-content pre code {
@@ -540,6 +542,28 @@
 
 /* Enhanced responsive design */
 @media (max-width: 768px) {
+  /* Prevent long words/URLs from overflowing */
+  .blog-article-content {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Make wide tables scroll instead of stretching layout */
+  .blog-article-content table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Hide off-canvas heading anchors to avoid horizontal scroll on mobile */
+  .blog-article-content h2 > a.heading-anchor,
+  .blog-article-content h3 > a.heading-anchor,
+  .blog-article-content h4 > a.heading-anchor,
+  .blog-article-content h5 > a.heading-anchor,
+  .blog-article-content h6 > a.heading-anchor {
+    display: none;
+  }
+
   .utterances-container {
     margin: 0 -1rem;
     border-radius: var(--radius-lg);

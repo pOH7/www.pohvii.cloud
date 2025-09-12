@@ -51,7 +51,7 @@ export function BlogArticle({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-clip">
       {/* Back Button - Full Width */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -88,7 +88,7 @@ export function BlogArticle({
       {/* Content Area with Sidebar - Two Column Layout */}
       <div className="flex max-w-6xl mx-auto px-4 md:px-8 gap-8">
         {/* Main Article Content */}
-        <article className="flex-1 max-w-4xl">
+        <article className="min-w-0 flex-1 max-w-4xl">
           {/* Article Content */}
           <motion.div
             ref={contentRef}

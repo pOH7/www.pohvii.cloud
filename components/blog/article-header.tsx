@@ -102,7 +102,7 @@ export function ArticleHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="flex items-center gap-6 text-sm text-muted-foreground mb-6"
+          className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground mb-6"
         >
           <span className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
