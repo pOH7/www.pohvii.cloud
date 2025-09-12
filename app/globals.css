@@ -349,6 +349,66 @@
   @apply bg-transparent;
 }
 
+/* Syntax highlighting (rehype-pretty-code / Shiki) */
+.blog-article-content pre code { counter-reset: line; }
+
+.blog-article-content pre code [data-line] {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-left: 3.25rem; /* gutter for line numbers */
+}
+
+.blog-article-content pre code [data-line][data-highlighted] {
+  background-color: color-mix(in oklab, var(--muted) 60%, transparent);
+}
+
+.blog-article-content pre code [data-line] .highlighted,
+.blog-article-content pre code [data-line] .token.highlighted {
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+  border-radius: 0.25rem;
+}
+
+/* Line numbers gutter */
+.blog-article-content pre code [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+  position: absolute;
+  left: 0.75rem;
+  width: 2.25rem;
+  text-align: right;
+  color: var(--muted-foreground);
+  opacity: 0.7;
+}
+
+/* Diff-style lines */
+.blog-article-content pre code [data-line][data-diff="add"] {
+  background-color: color-mix(in oklab, #10b981 18%, transparent); /* emerald-500 */
+}
+.blog-article-content pre code [data-line][data-diff="remove"] {
+  background-color: color-mix(in oklab, #ef4444 18%, transparent); /* red-500 */
+}
+.blog-article-content pre code [data-line][data-diff="change"] {
+  background-color: color-mix(in oklab, #f59e0b 18%, transparent); /* amber-500 */
+}
+
+.blog-article-content pre code [data-line][data-diff="add"]::before { color: #10b981; content: "+ " counter(line); }
+.blog-article-content pre code [data-line][data-diff="remove"]::before { color: #ef4444; content: "- " counter(line); }
+.blog-article-content pre code [data-line][data-diff="change"]::before { color: #f59e0b; content: "~ " counter(line); }
+
+/* Map Shiki token variables to actual colors for light/dark themes */
+.blog-article-content code[data-theme*='github-'] {
+  color: var(--shiki-foreground);
+}
+
+html:not(.dark) .blog-article-content code[data-theme*='github-light'] span {
+  color: var(--shiki-light);
+}
+
+html.dark .blog-article-content code[data-theme*='github-dark'] span {
+  color: var(--shiki-dark);
+}
+
 .blog-article-content blockquote {
   @apply border-l-primary;
 }

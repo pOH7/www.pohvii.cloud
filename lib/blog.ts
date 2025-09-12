@@ -6,6 +6,11 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import type { Element, ElementContent, Text } from "hast";
+// Syntax highlighting
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - type definitions provided by package at runtime
+import rehypePrettyCode from "rehype-pretty-code";
 
 export interface BlogFrontmatter {
   title: string;
@@ -91,6 +96,46 @@ export async function getPostBySlug(lang: string, slug: string) {
     mdxOptions: {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [
+        [
+          rehypePrettyCode,
+          {
+            keepBackground: false,
+            theme: {
+              light: "github-light-default",
+              dark: "github-dark-default",
+            },
+            onVisitLine(node: Element) {
+              if (node.children.length === 0) {
+                const space: Text = { type: "text", value: " " };
+                node.children = [space];
+              }
+              const first: ElementContent | undefined = node.children?.[0];
+              if (first && (first as Text).type === "text") {
+                const v = (first as Text).value;
+                const mark = v.trimStart().charAt(0);
+                const leading = v.match(/^\s*/)?.[0] ?? "";
+                if (
+                  mark === "+" ||
+                  mark === "-" ||
+                  mark === "~" ||
+                  mark === "!"
+                ) {
+                  const map: Record<string, string> = {
+                    "+": "add",
+                    "-": "remove",
+                    "~": "change",
+                    "!": "change",
+                  };
+                  if (!node.properties) node.properties = {};
+                  (node.properties as Record<string, unknown>)["data-diff"] =
+                    map[mark];
+                  (first as Text).value =
+                    leading + v.trimStart().slice(1).replace(/^\s/, "");
+                }
+              }
+            },
+          },
+        ],
         rehypeSlug,
         [
           rehypeAutolinkHeadings,

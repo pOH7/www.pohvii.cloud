@@ -8,6 +8,11 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
+import type { Element, ElementContent, Text } from "hast";
+// Syntax highlighting
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - type definitions provided by package at runtime
+import rehypePrettyCode from "rehype-pretty-code";
 
 interface BlogDetailPageProps {
   params: Promise<{
@@ -69,6 +74,52 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               rehypeSlug,
               // Then prefix visible headings with hierarchical numbers
               rehypeNumberedHeadings,
+              // Syntax highlighting via Shiki
+              [
+                rehypePrettyCode,
+                {
+                  keepBackground: false,
+                  theme: {
+                    light: "github-light-default",
+                    dark: "github-dark-default",
+                  },
+                  onVisitLine(node: Element) {
+                    // Prevent lines from collapsing so copy/select keeps structure
+                    if (node.children.length === 0) {
+                      const space: Text = { type: "text", value: " " };
+                      node.children = [space];
+                    }
+                    // Diff-style detection: + added, - removed, ~ changed
+                    const first: ElementContent | undefined =
+                      node.children?.[0];
+                    if (first && (first as Text).type === "text") {
+                      const v = (first as Text).value;
+                      const mark = v.trimStart().charAt(0);
+                      const leading = v.match(/^\s*/)?.[0] ?? "";
+                      if (
+                        mark === "+" ||
+                        mark === "-" ||
+                        mark === "~" ||
+                        mark === "!"
+                      ) {
+                        const map: Record<string, string> = {
+                          "+": "add",
+                          "-": "remove",
+                          "~": "change",
+                          "!": "change",
+                        };
+                        if (!node.properties) node.properties = {};
+                        (node.properties as Record<string, unknown>)[
+                          "data-diff"
+                        ] = map[mark];
+                        // remove the marker and following optional space
+                        (first as Text).value =
+                          leading + v.trimStart().slice(1).replace(/^\s/, "");
+                      }
+                    }
+                  },
+                },
+              ],
               [
                 rehypeAutolinkHeadings,
                 {
