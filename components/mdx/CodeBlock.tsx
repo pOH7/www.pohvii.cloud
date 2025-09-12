@@ -54,21 +54,21 @@ export default function CodeBlock(props: PreProps) {
         type="button"
         onClick={onCopy}
         aria-label="Copy code"
-        className="absolute top-2 right-2 z-10 rounded-md border border-border bg-background/80 backdrop-blur px-2 py-1 text-xs text-foreground shadow-sm transition-opacity opacity-0 group-hover:opacity-100 hover:bg-muted"
+        className="absolute top-2 right-2 z-10 rounded-md border border-border bg-background/80 backdrop-blur px-2 py-1 text-xs text-foreground shadow-sm transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 hover:bg-muted"
       >
         {copied ? "Copied" : "Copy"}
       </button>
 
       {/* Optional language badge */}
       {language ? (
-        <span className="pointer-events-none absolute left-2 top-2 z-10 select-none rounded-md bg-background/80 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground border border-border opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="pointer-events-none absolute left-2 top-2 z-10 select-none rounded-md bg-background/80 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground border border-border opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity">
           {language}
         </span>
       ) : null}
 
       <pre
         {...rest}
-        className={`overflow-x-auto rounded-lg bg-muted p-4 ${className}`.trim()}
+        className={`overflow-auto max-h-[60vh] rounded-lg bg-muted p-4 pr-12 ${className}`.trim()}
       >
         {children}
       </pre>
