@@ -200,7 +200,7 @@ export async function getPostBySlug(lang: string, slug: string) {
 
 export async function getAllPosts(lang: string): Promise<BlogMeta[]> {
   const slugs = getAllPostSlugs(lang);
-  const posts: BlogMeta[] = [];
+  const posts: { post: BlogMeta; originalDate: string | Date }[] = [];
 
   for (const slug of slugs) {
     const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
@@ -223,70 +223,39 @@ export async function getAllPosts(lang: string): Promise<BlogMeta[]> {
       });
     };
     posts.push({
-      slug,
-      lang,
-      title: fm.title ?? slug,
-      description: fm.description ?? "",
-      date: formatDate(fm.date),
-      author: fm.author ?? "",
-      category: fm.category ?? "",
-      tags: fm.tags ?? [],
-      image: fm.image ?? "",
-      ...(fm.video && { video: fm.video }),
-      readTime: readingTime(content).text,
+      post: {
+        slug,
+        lang,
+        title: fm.title ?? slug,
+        description: fm.description ?? "",
+        date: formatDate(fm.date),
+        author: fm.author ?? "",
+        category: fm.category ?? "",
+        tags: fm.tags ?? [],
+        image: fm.image ?? "",
+        ...(fm.video && { video: fm.video }),
+        readTime: readingTime(content).text,
+      },
+      originalDate: fm.date ?? new Date(),
     });
   }
 
-  // Sort by date desc if possible
-  return posts.sort((a, b) => (a.date > b.date ? -1 : 1));
+  // Sort by original date desc (most recent first)
+  return posts
+    .sort((a, b) => {
+      const dateA = new Date(a.originalDate);
+      const dateB = new Date(b.originalDate);
+      return dateB.getTime() - dateA.getTime();
+    })
+    .map(({ post }) => post);
 }
 
 export async function getFeaturedPosts(
   lang: string,
   limit: number = 2
 ): Promise<BlogMeta[]> {
-  const slugs = getAllPostSlugs(lang);
-  const posts: BlogMeta[] = [];
-
-  for (let i = 0; i < Math.min(slugs.length, limit); i++) {
-    const slug = slugs[i];
-    const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
-    const raw = fs.readFileSync(filePath, "utf8");
-    const { content, data } = matter(raw);
-    const fm = data as Partial<BlogFrontmatter>;
-
-    const formatDate = (value: unknown): string => {
-      if (value instanceof Date) {
-        return value.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
-      }
-      if (typeof value === "string") return value;
-      return new Date().toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    };
-
-    posts.push({
-      slug,
-      lang,
-      title: fm.title ?? slug,
-      description: fm.description ?? "",
-      date: formatDate(fm.date),
-      author: fm.author ?? "",
-      category: fm.category ?? "",
-      tags: fm.tags ?? [],
-      image: fm.image ?? "",
-      ...(fm.video && { video: fm.video }),
-      readTime: readingTime(content).text,
-    });
-  }
-
-  return posts.sort((a, b) => (a.date > b.date ? -1 : 1));
+  const allPosts = await getAllPosts(lang);
+  return allPosts.slice(0, limit);
 }
 
 export async function getRecentPosts(
@@ -294,50 +263,8 @@ export async function getRecentPosts(
   limit: number = 6,
   skip: number = 0
 ): Promise<BlogMeta[]> {
-  const slugs = getAllPostSlugs(lang);
-  const posts: BlogMeta[] = [];
-
-  // Process posts starting from skip index
-  const endIndex = Math.min(slugs.length, skip + limit);
-  for (let i = skip; i < endIndex; i++) {
-    const slug = slugs[i];
-    const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
-    const raw = fs.readFileSync(filePath, "utf8");
-    const { content, data } = matter(raw);
-    const fm = data as Partial<BlogFrontmatter>;
-
-    const formatDate = (value: unknown): string => {
-      if (value instanceof Date) {
-        return value.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        });
-      }
-      if (typeof value === "string") return value;
-      return new Date().toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    };
-
-    posts.push({
-      slug,
-      lang,
-      title: fm.title ?? slug,
-      description: fm.description ?? "",
-      date: formatDate(fm.date),
-      author: fm.author ?? "",
-      category: fm.category ?? "",
-      tags: fm.tags ?? [],
-      image: fm.image ?? "",
-      ...(fm.video && { video: fm.video }),
-      readTime: readingTime(content).text,
-    });
-  }
-
-  return posts.sort((a, b) => (a.date > b.date ? -1 : 1));
+  const allPosts = await getAllPosts(lang);
+  return allPosts.slice(skip, skip + limit);
 }
 
 export interface TagWithCount {

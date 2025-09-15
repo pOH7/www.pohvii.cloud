@@ -23,6 +23,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@4.1.12)
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

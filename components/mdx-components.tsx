@@ -11,7 +11,9 @@ export const mdxComponents = {
     />
   ),
   // Render fenced code blocks with a copy button
-  pre: (props: React.ComponentProps<"pre">) => <CodeBlock {...props} />,
+  pre: (props: React.ComponentProps<"pre"> & { children: React.ReactNode }) => (
+    <CodeBlock {...props} />
+  ),
   // Keep inline code default styling while letting prose styles apply
   code: (props: React.ComponentProps<"code">) => {
     const { className, ...rest } = props;

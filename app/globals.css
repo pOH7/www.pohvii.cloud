@@ -332,11 +332,16 @@
 
 .blog-article-content code {
   @apply bg-muted px-1 py-0.5 rounded text-sm;
-  
+
   &::before,
   &::after {
     content: none;
   }
+}
+
+/* Remove padding for code inside pre blocks to fix alignment */
+.blog-article-content pre code {
+  @apply px-0 py-0 bg-transparent;
 }
 
 .blog-article-content pre {
