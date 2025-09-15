@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Calendar,
   Clock,
@@ -23,6 +24,7 @@ export interface ArticleHeaderProps {
   author: string;
   category: string;
   tags: string[];
+  lang?: string; // Add lang prop for tag links
   onScrollToComments?: () => void;
 }
 
@@ -36,6 +38,7 @@ export function ArticleHeader({
   author,
   category,
   tags,
+  lang = "en",
   onScrollToComments,
 }: ArticleHeaderProps) {
   return (
@@ -72,7 +75,14 @@ export function ArticleHeader({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + index * 0.1 }}
             >
-              <Badge variant="secondary">{tag}</Badge>
+              <Link href={`/${lang}/tag/${encodeURIComponent(tag)}`}>
+                <Badge
+                  variant="outline"
+                  className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                >
+                  #{tag}
+                </Badge>
+              </Link>
             </motion.div>
           ))}
         </motion.div>
@@ -128,7 +138,7 @@ export function ArticleHeader({
           <Button
             variant="outline"
             size="sm"
-            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
+            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform cursor-pointer"
             onClick={onScrollToComments}
           >
             <MessageCircle className="w-4 h-4" />

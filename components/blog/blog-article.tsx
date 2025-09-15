@@ -61,7 +61,7 @@ export function BlogArticle({
         <Link href={`/${lang}/blog`}>
           <Button
             variant="outline"
-            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
+            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Blog
@@ -81,6 +81,7 @@ export function BlogArticle({
           author={post.author}
           category={post.category}
           tags={post.tags}
+          lang={lang}
           onScrollToComments={scrollToComments}
         />
       </div>
@@ -118,7 +119,7 @@ export function BlogArticle({
               <Link href={`/${lang}/blog`}>
                 <Button
                   variant="outline"
-                  className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
+                  className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   All Posts

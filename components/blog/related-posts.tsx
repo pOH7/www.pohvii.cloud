@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Folder } from "lucide-react";
+import { Calendar, Folder, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -69,9 +69,11 @@ export function RelatedPosts({
                     {post.category}
                   </span>
                 </div>
-                <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
-                  {post.title}
-                </CardTitle>
+                <Link href={`/${lang}/blog/${post.slug}`}>
+                  <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors cursor-pointer">
+                    {post.title}
+                  </CardTitle>
+                </Link>
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
@@ -84,15 +86,20 @@ export function RelatedPosts({
                   </span>
                   <span>{post.readTime}</span>
                 </div>
-                <Link href={`/${lang}/blog/${post.slug}`}>
-                  <Button
-                    size="sm"
-                    className="hover:translate-y-[-1px] transition-transform"
-                    variant="outline"
+                <Button
+                  asChild
+                  size="sm"
+                  className="flex items-center gap-2 group cursor-pointer"
+                  variant="outline"
+                >
+                  <Link
+                    href={`/${lang}/blog/${post.slug}`}
+                    className="inline-flex cursor-pointer"
                   >
                     Read More
-                  </Button>
-                </Link>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           </motion.div>

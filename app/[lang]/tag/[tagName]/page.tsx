@@ -61,7 +61,10 @@ export default async function TagPage({
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Tag className="w-6 h-6 text-primary" />
-            <Badge variant="secondary" className="text-lg px-3 py-1">
+            <Badge
+              variant="secondary"
+              className="text-lg px-3 py-1 cursor-default"
+            >
               {decodedTagName}
             </Badge>
           </div>
@@ -102,9 +105,11 @@ export default async function TagPage({
 
               <div className="md:w-2/3 p-6">
                 <CardHeader className="p-0 mb-4">
-                  <CardTitle className="text-xl leading-tight hover:text-primary transition-colors line-clamp-2">
-                    {post.title}
-                  </CardTitle>
+                  <Link href={`/${lang}/blog/${post.slug}`}>
+                    <CardTitle className="text-xl leading-tight hover:text-primary transition-colors line-clamp-2 cursor-pointer">
+                      {post.title}
+                    </CardTitle>
+                  </Link>
                   <CardDescription className="leading-relaxed line-clamp-3">
                     {post.description}
                   </CardDescription>
@@ -150,7 +155,7 @@ export default async function TagPage({
                   </div>
 
                   <Link href={`/${lang}/blog/${post.slug}`}>
-                    <Button className="flex items-center gap-2 group">
+                    <Button className="flex items-center gap-2 group cursor-pointer">
                       Read More
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
