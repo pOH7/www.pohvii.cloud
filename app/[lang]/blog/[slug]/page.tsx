@@ -9,6 +9,7 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
 import type { Element, ElementContent, Text } from "hast";
+import type { Metadata } from "next";
 // Syntax highlighting
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - type definitions provided by package at runtime
@@ -19,6 +20,58 @@ interface BlogDetailPageProps {
     lang: string;
     slug: string;
   }>;
+}
+
+export async function generateMetadata({
+  params,
+}: BlogDetailPageProps): Promise<Metadata> {
+  const { lang, slug } = await params;
+  const mdx = await getPostBySlug(lang, slug);
+
+  if (!mdx) {
+    return {
+      title: "Post Not Found",
+      description: "The requested blog post could not be found.",
+    };
+  }
+
+  const post = mdx.meta;
+  const baseUrl = "https://www.pohvii.cloud";
+  const postUrl = `${baseUrl}/${lang}/blog/${slug}`;
+
+  return {
+    title: post.title,
+    description: post.description,
+    keywords: post.tags,
+    authors: [{ name: post.author || "Léon Zhang" }],
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author || "Léon Zhang"],
+      url: postUrl,
+      images: [
+        {
+          url: post.image || "/og-default-blog.svg",
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+      tags: post.tags,
+      section: post.category,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: [post.image || "/twitter-default-blog.svg"],
+    },
+    alternates: {
+      canonical: postUrl,
+    },
+  };
 }
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {

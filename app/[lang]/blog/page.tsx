@@ -302,7 +302,40 @@ export function generateMetadata() {
   return {
     title: "Blog | Léon Zhang",
     description:
-      "Discover my latest articles and tutorials about web development, React, TypeScript, and more.",
+      "Discover my latest articles and tutorials about web development, Java, Spring Boot, React, TypeScript, and software engineering best practices.",
+    keywords: [
+      "Tech Blog",
+      "Web Development",
+      "Java",
+      "Spring Boot",
+      "React",
+      "TypeScript",
+      "Software Engineering",
+      "Programming Tutorials",
+      "Technical Writing"
+    ],
+    openGraph: {
+      title: "Blog | Léon Zhang",
+      description:
+        "Discover my latest articles and tutorials about web development, Java, Spring Boot, React, TypeScript, and software engineering best practices.",
+      type: "website",
+      url: "https://www.pohvii.cloud/blog",
+      images: [
+        {
+          url: "/og-blog.svg",
+          width: 1200,
+          height: 630,
+          alt: "Léon Zhang - Tech Blog",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Blog | Léon Zhang",
+      description:
+        "Discover my latest articles and tutorials about web development, Java, Spring Boot, React, TypeScript, and software engineering best practices.",
+      images: ["/twitter-blog.svg"],
+    },
   };
 }
 
