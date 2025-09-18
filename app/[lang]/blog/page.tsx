@@ -19,7 +19,10 @@ import { Calendar, ArrowRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { TagLinksFooter } from "@/components/footer";
-import { getFeaturedPosts, getAllPosts } from "@/lib/blog";
+import {
+  getFeaturedPostsWithIds,
+  getAllPostsWithIds,
+} from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 
 const POSTS_PER_PAGE = 10;
@@ -32,9 +35,9 @@ export default async function BlogPage({
   const { lang } = await params;
   const currentPage = 1;
 
-  // Get featured posts
-  const featuredPosts = (await getFeaturedPosts(lang, 2)).map((p) => ({
-    slug: p.slug,
+  // Get featured posts (with self-healing URLs)
+  const featuredPosts = (await getFeaturedPostsWithIds(lang, 2)).map((p) => ({
+    slug: p.slug, // Already in self-healing format (slug-id)
     title: p.title,
     description: p.description,
     image: p.image,
@@ -42,8 +45,8 @@ export default async function BlogPage({
     tags: p.tags?.slice(0, 2) ?? [],
   }));
 
-  // Get all posts for pagination
-  const allPosts = await getAllPosts(lang);
+  // Get all posts for pagination (with self-healing URLs)
+  const allPosts = await getAllPostsWithIds(lang);
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
   const paginatedPosts = allPosts.slice(
     (currentPage - 1) * POSTS_PER_PAGE,
@@ -300,7 +303,7 @@ export default async function BlogPage({
 
 export function generateMetadata() {
   return {
-    title: "Blog | Léon Zhang",
+    title: "Blog",
     description:
       "Discover my latest articles and tutorials about web development, Java, Spring Boot, React, TypeScript, and software engineering best practices.",
     keywords: [
@@ -312,10 +315,10 @@ export function generateMetadata() {
       "TypeScript",
       "Software Engineering",
       "Programming Tutorials",
-      "Technical Writing"
+      "Technical Writing",
     ],
     openGraph: {
-      title: "Blog | Léon Zhang",
+      title: "Blog",
       description:
         "Discover my latest articles and tutorials about web development, Java, Spring Boot, React, TypeScript, and software engineering best practices.",
       type: "website",
@@ -331,7 +334,7 @@ export function generateMetadata() {
     },
     twitter: {
       card: "summary_large_image",
-      title: "Blog | Léon Zhang",
+      title: "Blog",
       description:
         "Discover my latest articles and tutorials about web development, Java, Spring Boot, React, TypeScript, and software engineering best practices.",
       images: ["/twitter-blog.svg"],

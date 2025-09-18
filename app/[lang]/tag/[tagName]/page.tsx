@@ -19,7 +19,7 @@ import {
 import { Calendar, ArrowRight, Clock, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 
@@ -34,7 +34,7 @@ export default async function TagPage({
   const decodedTagName = decodeURIComponent(tagName);
 
   // Get all posts and filter by tag
-  const allPosts = await getAllPosts(lang);
+  const allPosts = await getAllPostsWithIds(lang);
   const taggedPosts = allPosts.filter((post) =>
     post.tags.some((tag) => tag.toLowerCase() === decodedTagName.toLowerCase())
   );
@@ -232,7 +232,7 @@ export async function generateMetadata({
   const { tagName } = await params;
   const decodedTagName = decodeURIComponent(tagName);
   return {
-    title: `${decodedTagName} Articles | Léon Zhang`,
+    title: `${decodedTagName} Articles`,
     description: `Discover all articles about ${decodedTagName}. Learn about web development, programming, and more.`,
   };
 }
@@ -240,7 +240,7 @@ export async function generateMetadata({
 export async function generateStaticParams() {
   const params: { lang: string; tagName: string }[] = [];
   for (const lang of supportedLangs) {
-    const allPosts = await getAllPosts(lang);
+    const allPosts = await getAllPostsWithIds(lang);
     const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
     for (const tag of allTags) {
       params.push({ lang, tagName: encodeURIComponent(tag) });

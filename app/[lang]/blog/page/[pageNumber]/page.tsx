@@ -19,7 +19,7 @@ import {
 import { Calendar, ArrowRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 
@@ -44,7 +44,7 @@ export default async function BlogPaginationPage({
   }
 
   // Get all posts for pagination
-  const allPosts = await getAllPosts(lang);
+  const allPosts = await getAllPostsWithIds(lang);
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
 
   // Check if page number is valid
@@ -242,7 +242,7 @@ export async function generateMetadata({
   const { pageNumber } = await params;
   const page = parseInt(pageNumber, 10);
   return {
-    title: `Blog - Page ${page} | Léon Zhang`,
+    title: `Blog - Page ${page}`,
     description: `Browse blog articles - Page ${page}. Discover articles about web development, React, TypeScript, and more.`,
   };
 }
@@ -250,7 +250,7 @@ export async function generateMetadata({
 export async function generateStaticParams() {
   const allParams: { lang: string; pageNumber: string }[] = [];
   for (const lang of supportedLangs) {
-    const allPosts = await getAllPosts(lang);
+    const allPosts = await getAllPostsWithIds(lang);
     const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE) || 1;
     for (let page = 2; page <= totalPages; page++) {
       allParams.push({ lang, pageNumber: String(page) });

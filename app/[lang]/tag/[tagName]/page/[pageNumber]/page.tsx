@@ -19,7 +19,7 @@ import {
 import { Calendar, ArrowRight, Clock, Tag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 
@@ -40,7 +40,7 @@ export default async function TagPaginationPage({
   }
 
   // Get all posts and filter by tag
-  const allPosts = await getAllPosts(lang);
+  const allPosts = await getAllPostsWithIds(lang);
   const taggedPosts = allPosts.filter((post) =>
     post.tags.some((tag) => tag.toLowerCase() === decodedTagName.toLowerCase())
   );
@@ -259,7 +259,7 @@ export function generateMetadata({
   const decodedTagName = decodeURIComponent(params.tagName);
   const pageNumber = parseInt(params.pageNumber, 10);
   return {
-    title: `${decodedTagName} Articles - Page ${pageNumber} | Léon Zhang`,
+    title: `${decodedTagName} Articles - Page ${pageNumber}`,
     description: `Discover articles about ${decodedTagName} - Page ${pageNumber}. Learn about web development, programming, and more.`,
   };
 }
@@ -267,7 +267,7 @@ export function generateMetadata({
 export async function generateStaticParams() {
   const params: { lang: string; tagName: string; pageNumber: string }[] = [];
   for (const lang of supportedLangs) {
-    const allPosts = await getAllPosts(lang);
+    const allPosts = await getAllPostsWithIds(lang);
     const tagCounts = new Map<string, number>();
     for (const post of allPosts) {
       for (const tag of post.tags || []) {

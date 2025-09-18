@@ -1,5 +1,7 @@
 import { MetadataRoute } from "next";
 import { getAllPostSlugs } from "@/lib/blog";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
+import { generateSlug, combineSlugId } from "@/lib/post-id";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
@@ -62,14 +64,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // Add individual blog posts (use frontmatter date)
+  // Add individual blog posts with self-healing URLs (use frontmatter date)
   for (const locale of locales) {
-    const slugs = getAllPostSlugs(locale);
-    for (const slug of slugs) {
-      const lastModified = getBlogPostDate(locale, slug);
+    const posts = await getAllPostsWithIds(locale);
+    for (const post of posts) {
+      // Extract original slug from filename for getBlogPostDate
+      const originalSlug = getAllPostSlugs(locale).find((slug) => {
+        const filePath = path.join(
+          process.cwd(),
+          "content",
+          "blog",
+          locale,
+          `${slug}.mdx`
+        );
+        try {
+          const raw = fs.readFileSync(filePath, "utf8");
+          const { data } = matter(raw);
+          return data.id === post.id;
+        } catch {
+          return false;
+        }
+      });
+
+      const lastModified = originalSlug
+        ? getBlogPostDate(locale, originalSlug)
+        : new Date();
+
+      // Use canonical URL format: /locale/blog/slug-id
+      const canonicalSlug = post.id
+        ? combineSlugId(generateSlug(post.title), post.id)
+        : generateSlug(post.title);
 
       urls.push({
-        url: `${baseUrl}/${locale}/blog/${slug}`,
+        url: `${baseUrl}/${locale}/blog/${canonicalSlug}`,
         lastModified,
         changeFrequency: "monthly",
         priority: 0.6,

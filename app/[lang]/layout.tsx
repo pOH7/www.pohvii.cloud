@@ -10,9 +10,10 @@ import "../globals.css";
 export const metadata: Metadata = {
   title: {
     default: "Léon Zhang - Full Stack Developer & Tech Writer",
-    template: "%s | Léon Zhang"
+    template: "%s | Léon Zhang",
   },
-  description: "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
+  description:
+    "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
   keywords: [
     "Full Stack Developer",
     "Software Engineer",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
     "TypeScript",
     "Technical Writing",
     "Software Architecture",
-    "Web Development"
+    "Web Development",
   ],
   authors: [{ name: "Léon Zhang" }],
   creator: "Léon Zhang",
@@ -43,7 +44,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Léon Zhang - Full Stack Developer & Tech Writer",
-    description: "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
+    description:
+      "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
     url: "https://www.pohvii.cloud",
     siteName: "Léon Zhang",
     images: [
@@ -60,7 +62,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Léon Zhang - Full Stack Developer & Tech Writer",
-    description: "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
+    description:
+      "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
     images: ["/twitter-image.svg"],
   },
   robots: {
@@ -120,8 +123,8 @@ export default async function LangLayout({
       "Node.js",
       "TypeScript",
       "Software Engineering",
-      "Web Development"
-    ]
+      "Web Development",
+    ],
   };
 
   return (

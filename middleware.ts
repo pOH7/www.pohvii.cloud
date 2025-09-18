@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Simple slug-id parsing for middleware (Edge Runtime compatible)
+function parseSlugIdSimple(slugWithId: string): { id: string } {
+  const lastDashIndex = slugWithId.lastIndexOf("-");
+
+  if (lastDashIndex === -1 || lastDashIndex === slugWithId.length - 1) {
+    return { id: "" };
+  }
+
+  const potentialId = slugWithId.substring(lastDashIndex + 1);
+
+  // Check if the potential ID looks like our 8-character format
+  if (potentialId.length === 8 && /^[a-f0-9]+$/.test(potentialId)) {
+    return { id: potentialId };
+  }
+
+  return { id: "" };
+}
+
 const locales = ["en", "zh"];
 const defaultLocale = "en";
 
@@ -56,7 +74,27 @@ export function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) return;
+  // Handle self-healing URLs for blog posts
+  if (pathnameHasLocale) {
+    const blogRouteMatch = pathname.match(/^\/([a-z]{2})\/blog\/(.+)$/);
+    if (blogRouteMatch) {
+      const [, , slugWithId] = blogRouteMatch;
+      const { id } = parseSlugIdSimple(slugWithId);
+
+      // If the URL doesn't have an ID (legacy format), let the page component handle it
+      // The page component will try to find the post and redirect to the correct URL with ID
+      if (!id) {
+        // This is a legacy URL format - let the page handle the lookup and redirect
+        return NextResponse.next();
+      }
+
+      // For URLs with IDs, continue to the page component which will handle slug validation
+      return NextResponse.next();
+    }
+
+    // For non-blog routes with locale, continue normally
+    return NextResponse.next();
+  }
 
   // Redirect if there is no locale
   const locale = getLocale(request);

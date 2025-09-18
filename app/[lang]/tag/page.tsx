@@ -46,11 +46,11 @@ export default async function TagsPage({
 
 export function generateMetadata() {
   return {
-    title: "All Tags | Léon Zhang",
+    title: "All Tags",
     description:
       "Browse all topics and categories. Discover articles organized by tags and explore content that interests you.",
     openGraph: {
-      title: "All Tags | Léon Zhang",
+      title: "All Tags",
       description:
         "Browse all topics and categories. Discover articles organized by tags and explore content that interests you.",
       type: "website",

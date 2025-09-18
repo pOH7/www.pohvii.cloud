@@ -1,6 +1,12 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { BlogArticle, type BlogPost } from "@/components/blog";
-import { getAllPosts, getPostBySlug } from "@/lib/blog";
+// Remove unused import - we'll use getAllPostsWithIds for related posts
+import {
+  getPostBySlugId,
+  generateSelfHealingStaticParams,
+  getAllPostsWithIds,
+} from "@/lib/self-healing-blog";
+import { parseSlugId, generateSlug } from "@/lib/post-id";
 import { supportedLangs } from "@/lib/i18n";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/mdx-components";
@@ -25,19 +31,32 @@ interface BlogDetailPageProps {
 export async function generateMetadata({
   params,
 }: BlogDetailPageProps): Promise<Metadata> {
-  const { lang, slug } = await params;
-  const mdx = await getPostBySlug(lang, slug);
+  const { lang, slug: slugWithId } = await params;
 
-  if (!mdx) {
+  // Try self-healing approach first
+  const selfHealingResult = await getPostBySlugId(lang, slugWithId);
+
+  if (!selfHealingResult) {
     return {
       title: "Post Not Found",
       description: "The requested blog post could not be found.",
     };
   }
 
-  const post = mdx.meta;
-  const baseUrl = "https://www.pohvii.cloud";
-  const postUrl = `${baseUrl}/${lang}/blog/${slug}`;
+  const post = selfHealingResult.meta;
+  const canonicalUrl = selfHealingResult.canonicalUrl;
+
+  // Generate hreflang alternates for all supported languages
+  const alternateLanguages = supportedLangs.reduce(
+    (acc, supportedLang) => {
+      if (post.id) {
+        acc[supportedLang] =
+          `/${supportedLang}/blog/${generateSlug(post.title)}-${post.id}`;
+      }
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   return {
     title: post.title,
@@ -50,7 +69,7 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.date,
       authors: [post.author || "Léon Zhang"],
-      url: postUrl,
+      url: canonicalUrl, // Always use canonical URL
       images: [
         {
           url: post.image || "/og-default-blog.svg",
@@ -69,20 +88,32 @@ export async function generateMetadata({
       images: [post.image || "/twitter-default-blog.svg"],
     },
     alternates: {
-      canonical: postUrl,
+      canonical: canonicalUrl, // Critical: canonical URL for SEO
+      languages: alternateLanguages, // Proper hreflang implementation
     },
   };
 }
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
-  const { lang, slug } = await params;
+  const { lang, slug: slugWithId } = await params;
 
-  const mdx = await getPostBySlug(lang, slug);
-  if (!mdx) notFound();
+  // Use self-healing blog functions
+  const selfHealingResult = await getPostBySlugId(lang, slugWithId);
+  if (!selfHealingResult) notFound();
 
-  const all = await getAllPosts(lang);
+  // Check if we need to redirect (self-healing URL)
+  if (selfHealingResult.needsRedirect) {
+    const { id } = parseSlugId(slugWithId);
+    const correctSlug = generateSlug(selfHealingResult.meta.title);
+    const correctUrl = `/${lang}/blog/${correctSlug}-${id}`;
+    redirect(correctUrl); // 301 redirect to canonical URL
+  }
+
+  const mdx = selfHealingResult;
+
+  const all = await getAllPostsWithIds(lang);
   const relatedPosts: BlogPost[] = all
-    .filter((p) => p.slug !== slug)
+    .filter((p) => p.slug !== mdx.meta.slug)
     .slice(0, 2)
     .map((p) => ({
       slug: p.slug,
@@ -97,7 +128,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     }));
 
   const post: BlogPost = {
-    slug,
+    slug: mdx.meta.slug,
     title: mdx.meta.title,
     description: mdx.meta.description,
     image: mdx.meta.image ?? "",
@@ -235,12 +266,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 }
 
 export async function generateStaticParams() {
-  const params: { lang: string; slug: string }[] = [];
-  for (const lang of supportedLangs) {
-    const posts = await getAllPosts(lang);
-    for (const post of posts) {
-      params.push({ lang, slug: post.slug });
-    }
-  }
-  return params;
+  // Use the new self-healing static params generation
+  return await generateSelfHealingStaticParams();
 }
