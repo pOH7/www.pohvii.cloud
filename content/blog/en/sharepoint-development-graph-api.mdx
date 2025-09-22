@@ -1,0 +1,421 @@
+---
+title: "Mastering SharePoint Development with Microsoft Graph API: Sites.Selected Permissions and Advanced Operations"
+description: "A comprehensive guide to SharePoint development using Microsoft Graph API, covering Sites.Selected permissions, site and list operations, and handling complex field types"
+date: 2025-09-22
+author: "Léon Zhang"
+category: "Web Development"
+tags:
+  - SharePoint
+  - Microsoft Graph
+  - API
+  - Azure AD
+  - Development
+  - Security
+image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&h=600&fit=crop"
+id: "68ca401e"
+---
+
+## Introduction
+
+SharePoint development has evolved significantly with the introduction of Microsoft Graph API, providing developers with powerful capabilities to interact with SharePoint sites, lists, and libraries programmatically. One of the most important aspects of secure SharePoint development is implementing granular permissions using the Sites.Selected permission scope. This comprehensive guide explores advanced SharePoint development techniques, focusing on permission management, data operations, and handling complex field types.
+
+## Understanding Sites.Selected Permissions
+
+### What is Sites.Selected?
+
+Sites.Selected is a Microsoft Graph application permission that enables fine-grained access control to specific SharePoint sites. Unlike broader permissions like Sites.ReadWrite.All, which grant access to all sites in a tenant, Sites.Selected allows administrators to grant an application access only to explicitly specified sites.
+
+### Benefits of Using Sites.Selected
+
+1. **Principle of Least Privilege**: Applications only access the sites they need
+2. **Enhanced Security**: Reduces the risk of unauthorized data access
+3. **Compliance**: Better aligns with data governance policies
+4. **Granular Control**: Different permission levels for different sites
+
+## Setting Up Sites.Selected Permissions
+
+### Step 1: Configure Azure AD Application Permissions
+
+First, register your application in Azure AD and add the Sites.Selected permission:
+
+1. Navigate to Azure Portal > Azure Active Directory > App registrations
+2. Select your application or create a new one
+3. Go to API permissions > Add a permission > Microsoft Graph
+4. Select Application permissions > Sites.Selected
+5. Grant admin consent for the permission
+
+### Step 2: Grant Site-Specific Permissions
+
+Once Sites.Selected is configured, you need to explicitly grant permissions to specific SharePoint sites. Here's how to do it programmatically:
+
+```http
+POST /v1.0/sites/{site-id}/permissions HTTP/1.1
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+    "roles": [
+        "write"
+    ],
+    "grantedToIdentities": [
+        {
+            "application": {
+                "id": "00000000-0000-0000-000000000000000",
+                "displayName": "www.pohvii.cloud"
+            }
+        }
+    ]
+}
+```
+
+### Permission Roles Available
+
+- **read**: Read-only access to the site
+- **write**: Read and write access to the site
+- **fullcontrol**: Full control over the site (use with caution)
+
+### Example: Granting Write Permission
+
+Here's a practical example of granting write permission to a specific application:
+
+```http
+POST /v1.0/sites/00000000-0000-0000-000000000000000/permissions HTTP/1.1
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+    "roles": [
+        "write"
+    ],
+    "grantedToIdentities": [
+        {
+            "application": {
+                "id": "00000000-0000-0000-000000000000000",
+                "displayName": "www.pohvii.cloud"
+            }
+        }
+    ]
+}
+```
+
+## Retrieving SharePoint Site and List IDs
+
+Before performing operations on SharePoint sites and lists, you need to retrieve their unique identifiers. SharePoint provides multiple methods to obtain these IDs.
+
+### Getting Site ID via SharePoint REST API
+
+You can retrieve the site ID by visiting the SharePoint REST API endpoint directly in your browser:
+
+```
+https://fullydo.sharepoint.com/sites/www.pohvii.cloud/_api/site/id
+```
+
+When you navigate to this URL in your browser (while authenticated), SharePoint returns the site ID in XML format:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<d:Id xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+      xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    00000000-0000-0000-000000000000000
+</d:Id>
+```
+
+### Getting List ID by Title
+
+To retrieve a list ID using its title, visit the following URL in your browser:
+
+```
+https://fullydo.sharepoint.com/sites/www.pohvii.cloud/_api/web/lists/getbytitle('after-sales')?$select=Id
+```
+
+The response will be in XML format:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<entry xml:base="https://fullydo.sharepoint.com/sites/www.pohvii.cloud/_api/"
+       xmlns="http://www.w3.org/2005/Atom"
+       xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+       xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <content type="application/xml">
+        <m:properties>
+            <d:Id m:type="Edm.Guid">00000000-0000-0000-000000000000000</d:Id>
+        </m:properties>
+    </content>
+</entry>
+```
+
+**Note**: When visiting these URLs in a browser, you must be authenticated to SharePoint. The browser will handle the authentication automatically if you're already logged in. If you need JSON format instead of XML, you can add the `Accept: application/json` header when making programmatic requests.
+
+## Creating List Items with Microsoft Graph
+
+### Basic List Item Creation
+
+Once you have the site and list IDs, you can create items in SharePoint lists:
+
+```http
+POST /v1.0/sites/{site-id}/lists/{list-id}/items HTTP/1.1
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "fields": {
+    "Title": "New Item",
+    "Description": "Item created via Microsoft Graph API"
+  }
+}
+```
+
+## Handling Special Field Types
+
+### Working with System Fields (Created, Modified, Created By, Modified By)
+
+SharePoint lists include system fields that track metadata about list items. While these fields are automatically managed by SharePoint, you can configure their visibility and behavior through list settings:
+
+1. **Navigate to List Settings**: Go to your SharePoint list > Settings (gear icon) > List settings
+2. **Add System Columns**: Under "Columns" section, click "Add from existing site columns"
+3. **Select System Fields**: Choose from available system fields:
+   - **Created**: Timestamp when the item was created
+   - **Modified**: Timestamp when the item was last modified
+   - **Created By**: User who created the item
+   - **Modified By**: User who last modified the item
+
+These fields are automatically populated by SharePoint and cannot be directly set via API when creating items. However, they're valuable for auditing and tracking purposes.
+
+#### Retrieving System Fields via API
+
+When querying list items, you can include these system fields:
+
+```http
+GET /v1.0/sites/{site-id}/lists/{list-id}/items?$expand=fields($select=Title,Created,Modified,Author,Editor)
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+```
+
+Response example:
+```json
+{
+  "value": [
+    {
+      "fields": {
+        "Title": "Sample Item",
+        "Created": "2025-01-22T10:30:00Z",
+        "Modified": "2025-01-22T14:45:00Z",
+        "Author": {
+          "LookupId": 10,
+          "LookupValue": "John Doe",
+          "Email": "john.doe@company.com"
+        },
+        "Editor": {
+          "LookupId": 12,
+          "LookupValue": "Jane Smith",
+          "Email": "jane.smith@company.com"
+        }
+      }
+    }
+  ]
+}
+```
+
+### Working with Multiple Choice Fields
+
+Multiple choice fields require special handling in Microsoft Graph API. You need to specify the OData type and provide values as a collection:
+
+```json
+{
+  "fields": {
+    "choice_checkboxes@odata.type": "Collection(Edm.String)",
+    "choice_checkboxes": ["cb1", "cb2", "cb3"]
+  }
+}
+```
+
+#### Key Points for Multiple Choice Fields:
+
+1. **Always include the @odata.type annotation**: `"fieldName@odata.type": "Collection(Edm.String)"`
+2. **Provide values as an array**: Even for single selections
+3. **Values must match the defined choices**: Ensure values exist in the field configuration
+
+#### Complete Example with Multiple Choice:
+
+```http
+POST /v1.0/sites/{site-id}/lists/{list-id}/items HTTP/1.1
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "fields": {
+    "Title": "Product Order",
+    "ProductCategories@odata.type": "Collection(Edm.String)",
+    "ProductCategories": ["Electronics", "Software", "Services"],
+    "Priority@odata.type": "Collection(Edm.String)",
+    "Priority": ["High"],
+    "Status": "Active"
+  }
+}
+```
+
+### Handling Image and Attachment Fields
+
+Image fields in SharePoint lists require a two-step process:
+
+1. **Upload the file to a document library**
+2. **Reference the file in the list item**
+
+#### Step 1: Upload Image to Document Library
+
+```http
+PUT /v1.0/sites/{site-id}/drive/root:/AS/2025/09/22/68ca401e/image_1.jpg:/content
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+Content-Type: image/jpeg
+
+[Binary image data]
+```
+
+#### Step 2: Reference in List Item
+
+Store the image reference as a JSON string in the attachment field:
+
+```json
+{
+  "fields": {
+    "Title": "Item with Image",
+    "Attachment": "{\"fileName\": \"image_1.jpg\", \"serverRelativeUrl\": \"/sites/www.pohvii.cloud/Shared%20Documents/AS/2025/09/22/68ca401e/image_1.jpg\"}"
+  }
+}
+```
+
+## Security Considerations
+
+### 1. Token Management
+
+- **Never expose access tokens in client-side code**
+- **Implement token refresh logic** for long-running operations
+- **Use secure token storage** (Azure Key Vault, encrypted storage)
+
+### 2. Permission Auditing
+
+Regularly audit Sites.Selected permissions:
+
+```http
+GET /v1.0/sites/{site-id}/permissions
+Host: graph.microsoft.com
+Authorization: {ACCESS_TOKEN}
+```
+
+### 3. Input Validation
+
+Always validate and sanitize user input before creating list items:
+
+```javascript
+function sanitizeInput(input) {
+    // Remove potentially harmful characters
+    return input
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/[<>]/g, '')
+        .trim();
+}
+```
+
+## Performance Optimization
+
+### 1. Use Select and Filter
+
+Minimize data transfer by selecting only required fields:
+
+```http
+GET /v1.0/sites/{site-id}/lists/{list-id}/items?$select=id,fields/Title,fields/Status&$expand=fields
+```
+
+### 2. Implement Pagination
+
+For large datasets, use pagination:
+
+```http
+GET /v1.0/sites/{site-id}/lists/{list-id}/items?$top=100&$skip=0
+```
+
+### 3. Cache Site and List IDs
+
+Cache frequently used IDs to reduce API calls:
+
+```javascript
+class SharePointCache {
+    constructor(ttl = 3600000) { // 1 hour default
+        this.cache = new Map();
+        this.ttl = ttl;
+    }
+
+    set(key, value) {
+        this.cache.set(key, {
+            value,
+            expires: Date.now() + this.ttl
+        });
+    }
+
+    get(key) {
+        const item = this.cache.get(key);
+        if (!item) return null;
+        if (Date.now() > item.expires) {
+            this.cache.delete(key);
+            return null;
+        }
+        return item.value;
+    }
+}
+```
+
+## Troubleshooting Common Issues
+
+### 1. Permission Denied Errors
+
+**Error**: "Access denied. You do not have permission to perform this action."
+
+**Solutions**:
+- Verify Sites.Selected permission is granted
+- Ensure site-specific permissions are configured
+- Check token has not expired
+- Verify the application ID matches the granted permission
+
+### 2. Field Type Mismatch
+
+**Error**: "The request is malformed or incorrect."
+
+**Solutions**:
+- Add @odata.type annotation for collection fields
+- Ensure date fields use ISO 8601 format
+- Verify choice field values match allowed options
+
+### 3. Rate Limiting
+
+**Error**: "429 Too Many Requests"
+
+**Solutions**:
+- Implement exponential backoff
+- Use batch operations
+- Cache frequently accessed data
+- Respect Retry-After headers
+
+## Conclusion
+
+SharePoint development with Microsoft Graph API and Sites.Selected permissions provides a powerful, secure approach to building enterprise applications. By following the patterns and best practices outlined in this guide, you can create robust SharePoint solutions that maintain security while delivering functionality.
+
+Key takeaways:
+- Sites.Selected offers granular permission control
+- Proper field type handling is crucial for success
+- Image and attachment handling requires a two-step process
+- Always implement error handling and retry logic
+- Regular permission auditing ensures security
+
+As SharePoint and Microsoft Graph continue to evolve, staying updated with the latest API changes and best practices is essential for maintaining effective SharePoint solutions.
+
+## Additional Resources
+
+- [Microsoft Graph API Documentation](https://docs.microsoft.com/en-us/graph/)
+- [SharePoint REST API Reference](https://docs.microsoft.com/en-us/sharepoint/dev/sp-add-ins/sharepoint-rest-api)
+- [Azure AD Application Permissions](https://docs.microsoft.com/en-us/azure/active-directory/develop/)
+- [SharePoint Development Community](https://github.com/SharePoint/sp-dev-docs)
