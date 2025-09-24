@@ -103,9 +103,11 @@ export default async function BlogPaginationPage({
 
               <div className="md:w-2/3 p-6">
                 <CardHeader className="p-0 mb-4">
-                  <CardTitle className="text-xl leading-tight hover:text-primary transition-colors line-clamp-2">
-                    {post.title}
-                  </CardTitle>
+                  <Link href={`/${lang}/blog/${post.slug}`}>
+                    <CardTitle className="text-xl leading-tight hover:text-primary transition-colors line-clamp-2 cursor-pointer">
+                      {post.title}
+                    </CardTitle>
+                  </Link>
                   <CardDescription className="leading-relaxed line-clamp-3">
                     {post.description}
                   </CardDescription>
@@ -146,12 +148,18 @@ export default async function BlogPaginationPage({
                     ))}
                   </div>
 
-                  <Link href={`/${lang}/blog/${post.slug}`}>
-                    <Button className="flex items-center gap-2 group">
+                  <Button
+                    asChild
+                    className="flex items-center gap-2 group cursor-pointer"
+                  >
+                    <Link
+                      href={`/${lang}/blog/${post.slug}`}
+                      className="inline-flex cursor-pointer"
+                    >
                       Read More
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </CardContent>
               </div>
             </Card>
