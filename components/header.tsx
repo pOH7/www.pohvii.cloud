@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Dictionary } from "../app/[lang]/dictionaries";
 
-const navigationItems = [
-  { key: "home" as const, href: "/" },
-  { key: "blog" as const, href: "/blog" },
-  { key: "notes" as const, href: "/notes" },
-  { key: "about" as const, href: "/about" },
-  { key: "contact" as const, href: "/contact" },
+const getNavigationItems = (lang: string) => [
+  { key: "home" as const, href: `/${lang}` },
+  { key: "blog" as const, href: `/${lang}/blog` },
+  { key: "notes" as const, href: `/${lang}/notes` },
+  { key: "about" as const, href: `/${lang}/about` },
+  { key: "contact" as const, href: `/${lang}/contact` },
 ];
 
 const languages = [
@@ -41,14 +41,22 @@ export function Header({ dictionary, lang }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Extract language from pathname to ensure consistency between server and client
+  const currentLang = pathname.startsWith("/zh")
+    ? "zh"
+    : pathname.startsWith("/en")
+      ? "en"
+      : lang;
+  const navigationItems = getNavigationItems(currentLang);
+
   const handleLanguageChange = (newLang: string) => {
-    if (newLang === lang) return;
+    if (newLang === currentLang) return;
 
     // Set cookie for language preference (following next-intl pattern)
     document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
 
     // Navigate to new locale path
-    const path = pathname.replace(`/${lang}`, `/${newLang}`);
+    const path = pathname.replace(`/${currentLang}`, `/${newLang}`);
     router.push(path);
     router.refresh();
   };
@@ -58,7 +66,10 @@ export function Header({ dictionary, lang }: HeaderProps) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         <div className="flex h-16 items-center justify-between">
           {/* Logo & Brand */}
-          <Link href="/" className="flex items-center space-x-3">
+          <Link
+            href={`/${currentLang}`}
+            className="flex items-center space-x-3"
+          >
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -129,7 +140,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
                 {languages.map((language) => (
                   <DropdownMenuCheckboxItem
                     key={language.code}
-                    checked={lang === language.code}
+                    checked={currentLang === language.code}
                     onClick={() => handleLanguageChange(language.code)}
                   >
                     {language.name}
@@ -159,7 +170,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
                 {languages.map((language) => (
                   <DropdownMenuCheckboxItem
                     key={language.code}
-                    checked={lang === language.code}
+                    checked={currentLang === language.code}
                     onClick={() => handleLanguageChange(language.code)}
                     className="text-sm"
                   >
