@@ -1,0 +1,209 @@
+---
+title: Why I Switched from Next.js Image to Imgproxy (And You Should Too)
+description: >-
+  Learn how switching from Next.js built-in image optimization to Imgproxy
+  solved critical OOM errors and improved performance. Includes complete
+  implementation guide with CORS configuration and security best practices.
+date: 2025-09-24
+author: Léon Zhang
+category: Web Development
+tags:
+  - Next.js
+  - Image Optimization
+  - Performance
+  - Imgproxy
+  - Memory Management
+  - CORS
+  - Web Development
+image: >-
+  https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&h=600&fit=crop
+id: 4730f065
+---
+
+## The Problem: Next.js Image Optimization Causing OOM
+
+When building my company's website, I ran into a critical issue with Next.js's built-in Image component. Despite being designed to optimize images automatically, it was consuming too much RAM and causing Out of Memory (OOM) errors in our production environment.
+
+The problem was particularly evident when handling multiple high-resolution product images simultaneously. Next.js processes image optimization on the server at runtime, which can quickly exhaust available memory when dealing with:
+
+- Multiple concurrent image requests
+- Large source images (product photography, case studies)
+- Various device sizes requiring different image dimensions
+
+## The Solution: Imgproxy
+
+After researching alternatives, I implemented [Imgproxy](https://imgproxy.net/) - a dedicated image processing server that handles optimization externally. Here's why it works better:
+
+### CPU-Bound vs Memory-Bound
+
+**Imgproxy is CPU-bound**, not memory-bound. This is a crucial difference:
+
+- **Next.js Image**: Loads entire images into memory during processing, creating memory spikes
+- **Imgproxy**: Uses streaming processing and efficient algorithms that prioritize CPU over memory usage
+
+### Our Implementation
+
+I created a custom image loader that integrates seamlessly with Next.js while using Imgproxy for the heavy lifting:
+
+```typescript
+// lib/imgproxyLoader.ts
+import type { ImageLoaderProps } from 'next/image';
+
+const IMGPROXY_BASE_URL = process.env.IMGPROXY_BASE_URL || 'https://images.pohvii.cloud';
+const DEFAULT_QUALITY = 80;
+
+function generateImgproxyUrl(src: string, props: ImageLoaderProps): string {
+  let imageUrl = src;
+  if (src.startsWith('/')) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://website.pohvii';
+    imageUrl = new URL(src, baseUrl).toString();
+  }
+
+  const { width, quality } = props;
+  const finalQuality = quality || DEFAULT_QUALITY;
+
+  // Generate unsigned Imgproxy URL
+  const base64Url = Buffer.from(imageUrl)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+
+  // Format: /insecure/f:format/q:quality/rt:resizing_type/w:width/base64_url
+  const imgproxyPath = `insecure/f:webp/q:${finalQuality}/rt:fit/w:${width}/${base64Url}`;
+
+  return `${IMGPROXY_BASE_URL}/${imgproxyPath}`;
+}
+
+export default function imgproxyLoader(props: ImageLoaderProps): string {
+  try {
+    return generateImgproxyUrl(props.src, props);
+  } catch (error) {
+    console.error('Error generating Imgproxy URL:', error);
+    return props.src; // Fallback to original
+  }
+}
+```
+
+### Next.js Configuration
+
+I updated my `next.config.ts` to use the custom loader:
+
+```typescript
+const nextConfig: NextConfig = {
+  images: {
+    loader: 'custom',
+    loaderFile: './lib/imgproxyLoader.ts',
+    unoptimized: false,
+    domains: ['www.pohvii.cloud', 'images.pohvii.cloud', 's3.pohvii.cloud'],
+    minimumCacheTTL: 60,
+  },
+  // ... rest of config
+};
+```
+
+### Optimizing CORS and Caching
+
+To get the best performance, I also implemented proper CORS handling and caching:
+
+#### 1. Enable CORS for Image Components
+
+Make the browser send an actual CORS request by passing `crossOrigin="anonymous"` to your Image components:
+
+```tsx
+// components/OptimizedImage.tsx
+import Image, { ImageProps } from 'next/image';
+
+export function OptimizedImage(props: ImageProps) {
+  return <Image {...props} crossOrigin="anonymous" />;
+}
+```
+
+You can wrap Next's Image to do this globally.
+
+#### 2. Traefik Configuration
+
+Handle Imgproxy's CORS rules at the Traefik layer (see [Traefik Headers Middleware documentation](https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/headers/) for full configuration options):
+
+```yaml
+accessControlAllowOriginList:
+  - "https://www.pohvii.cloud"
+  - "http://localhost:3000"
+accessControlAllowMethods:
+  - GET
+  - OPTIONS
+  - POST
+accessControlAllowHeaders:
+  - Content-Type
+  - Authorization
+accessControlAllowCredentials: true
+addVaryHeader: true
+customResponseHeaders:
+  Cross-Origin-Resource-Policy: "same-site"
+```
+
+Keep the long-lived caching flags on the Imgproxy container as environment variables (see [Imgproxy Configuration Options](https://docs.imgproxy.net/configuration/options) for all available settings):
+
+```bash
+IMGPROXY_USE_ETAG="true"
+IMGPROXY_USE_LAST_MODIFIED="true"
+IMGPROXY_TTL="31536000"  # 1 year cache
+```
+
+This replaces the old `IMGPROXY_ALLOW_ORIGIN` environment variable on Imgproxy itself; Traefik now enforces an explicit allowlist so only our production domains (plus local development) can request optimized assets. With credentials enabled and the `Vary: Origin` header, browsers now send `Origin` + `If-None-Match`, and we still benefit from disk cache hits in practice.
+
+#### 3. Security Headers
+
+I handle security headers at the Traefik level. Imgproxy responds with `Cross-Origin-Resource-Policy: same-site`, while the Next.js site sends `Cross-Origin-Embedder-Policy: require-corp`.
+
+These ensure proper isolation policies while allowing cross-origin resources.
+
+## Understanding CORS Headers
+
+When implementing cross-origin image optimization, it's crucial to understand the CORS headers involved:
+
+### Access-Control-Allow-Origin
+
+The [`Access-Control-Allow-Origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Allow-Origin) header determines which origins are permitted to access the resource. In our Traefik configuration, we explicitly allow our production domains and localhost for development.
+
+This header is essential for:
+- Allowing your Next.js application to fetch optimized images from Imgproxy
+- Enabling browser-based CORS preflight requests
+- Supporting credential-enabled requests when needed
+
+### Cross-Origin-Resource-Policy
+
+The [`Cross-Origin-Resource-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Resource-Policy) header provides an additional layer of protection by allowing resources to declare their own cross-origin policy. We set it to `same-site` on Imgproxy responses.
+
+This header helps:
+- Prevent unauthorized embedding of your optimized images
+- Provide defense against Spectre-style attacks
+- Work in conjunction with Cross-Origin-Embedder-Policy for enhanced security
+
+Both headers work together to create a secure, performant image optimization pipeline while maintaining proper isolation between origins.
+
+## Results
+
+After switching to Imgproxy with proper CORS and caching, I experienced:
+
+- **Zero OOM errors** - Memory usage remained stable even under high load
+- **Faster image processing** - CPU-bound processing is more predictable and scalable
+- **Better format optimization** - Automatic WebP conversion with fallbacks
+- **Reduced server load** - Image processing moved to dedicated service
+- **Improved caching** - Browser disk cache provides instant loading on subsequent visits
+- **Better performance metrics** - Faster page loads and improved Core Web Vitals
+
+## Key Takeaways
+
+1. **Next.js Image optimization is memory-intensive** and can cause OOM in production
+2. **Imgproxy is CPU-bound**, making it more suitable for high-traffic applications
+3. **External image processing** provides better resource isolation and scalability
+4. **Custom loaders** allow you to keep Next.js's convenient Image API while using external services
+5. **Proper CORS configuration** is essential for cross-origin image optimization
+6. **Security headers** like Cross-Origin-Resource-Policy provide additional protection
+
+If you're experiencing similar memory issues with Next.js Image optimization, consider implementing Imgproxy. The setup is straightforward, and the performance benefits are significant.
+
+---
+
+*For more details on implementing Imgproxy with Next.js, check out the [official Imgproxy blog post](https://imgproxy.net/blog/image-optimization-for-nextjs-with-imgproxy/).*

@@ -22,6 +22,7 @@ export interface BlogPost {
   author: string;
   category: string;
   tags: string[];
+  id: string;
 }
 
 export interface BlogArticleProps {
@@ -143,7 +144,7 @@ export function BlogArticle({
         <div id="comments">
           <UtterancesComments
             repo={utterancesRepo}
-            issueTerm="pathname"
+            issueTerm={post.id}
             label="comment"
           />
         </div>

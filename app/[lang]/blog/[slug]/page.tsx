@@ -125,6 +125,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       author: p.author ?? "",
       category: p.category ?? "",
       tags: p.tags ?? [],
+      id: p.id,
     }));
 
   const post: BlogPost = {
@@ -138,6 +139,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     author: mdx.meta.author ?? "",
     category: mdx.meta.category ?? "",
     tags: mdx.meta.tags ?? [],
+    id: mdx.meta.id,
   };
 
   return (
