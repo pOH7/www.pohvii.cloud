@@ -1,5 +1,6 @@
 import React from "react";
 import CodeBlock from "@/components/mdx/CodeBlock";
+import PDFViewerWrapper from "@/components/PDFViewerWrapper";
 
 // Optional: map/augment elements for MDX rendering
 export const mdxComponents = {
@@ -25,6 +26,9 @@ export const mdxComponents = {
     }
     return <code {...rest} className={className} />;
   },
+  PDFViewer: (props: React.ComponentProps<typeof PDFViewerWrapper>) => (
+    <PDFViewerWrapper {...props} />
+  ),
 };
 
 export type MdxComponents = typeof mdxComponents;
