@@ -1,0 +1,182 @@
+---
+title: How to Ship HLS Streaming in Next.js with Plyr and ffmpeg
+description: >-
+  A practical walkthrough on packaging adaptive bitrate video with ffmpeg,
+  wiring HLS into a Next.js app using Plyr, and embedding streams inside MDX
+  blog posts.
+date: 2025-09-30
+author: Léon Zhang
+category: Web Development
+tags:
+  - HLS
+  - Video Streaming
+  - Next.js
+  - ffmpeg
+  - Plyr
+  - Adaptive Bitrate
+image: >-
+  https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200&h=600&fit=crop
+id: d3852b51
+---
+
+## Why HLS Is Still the Streaming Workhorse
+
+HTTP Live Streaming (HLS) packages media as small MPEG-TS segments behind one or
+more playlists (`.m3u8`). The client chooses an appropriate rendition on every
+segment request, so you can scale across slow hotel Wi-Fi and fibre-to-the-home
+without juggling separate video files. Modern browsers (Safari in particular)
+ship native HLS support, while the rest happily run it with
+[`hls.js`](https://github.com/video-dev/hls.js).
+
+The nice part is that Apple’s original spec still maps cleanly to the tools we
+use every day:
+
+- **ffmpeg** can transcode a master video into Adaptive Bitrate (ABR) rungs and
+  generate the playlists.
+- **Plyr** provides a polished HTML5 UI with Picture-in-Picture, AirPlay, and
+  accessibility baked in.
+- **Next.js + MDX** lets us drop the player inside content, documentation, or
+  landing pages without reaching for `<iframe>` embeds.
+
+## Encoding the Ladder with a Thin ffmpeg Wrapper
+
+A production-ready workflow usually pairs a client-side React player with a
+minimal shell script that wraps `ffmpeg`. The script turns a single MP4 into a
+three-rung ladder (1080p, 720p, 480p) plus a master manifest. Key details:
+
+- `force_original_aspect_ratio=decrease` prevents accidental upscaling and keeps
+  dimensions divisible by two (a requirement for H.264).
+- Audio tracks are duplicated across renditions, so the player can switch video
+  qualities without resync headaches.
+- `-hls_flags independent_segments` forces keyframes at segment boundaries to
+  guarantee seamless switching.
+
+Running it is as simple as invoking ffmpeg with multiple mapped outputs:
+
+```bash
+ffmpeg -y -i input.mp4 \
+  -filter_complex "\
+    [0:v]split=3[v1080][v720][v480]; \
+    [v1080]scale=w=1920:h=1080:force_original_aspect_ratio=decrease:force_divisible_by=2,format=yuv420p[v1080out]; \
+    [v720] scale=w=1280:h=720:force_original_aspect_ratio=decrease:force_divisible_by=2,format=yuv420p[v720out]; \
+    [v480] scale=w=854:h=480:force_original_aspect_ratio=decrease:force_divisible_by=2,format=yuv420p[v480out]" \
+  -map "[v1080out]" -map a? -c:v:0 libx264 -profile:v:0 high -level:v:0 4.0 -preset veryfast -g 60 -sc_threshold 0 -b:v:0 5000k -maxrate:v:0 5500k -bufsize:v:0 10000k -c:a:0 aac -b:a:0 128k -ac:a:0 2 \
+  -map "[v720out]"  -map a? -c:v:1 libx264 -profile:v:1 high -level:v:1 4.0 -preset veryfast -g 60 -sc_threshold 0 -b:v:1 2800k -maxrate:v:1 3300k -bufsize:v:1 6600k  -c:a:1 aac -b:a:1 128k -ac:a:1 2 \
+  -map "[v480out]"  -map a? -c:v:2 libx264 -profile:v:2 main -level:v:2 3.1 -preset veryfast -g 60 -sc_threshold 0 -b:v:2 1200k -maxrate:v:2 1500k -bufsize:v:2 3000k  -c:a:2 aac -b:a:2 96k  -ac:a:2 2 \
+  -f hls -hls_time 6 -hls_playlist_type vod -hls_segment_type mpegts -hls_flags independent_segments \
+  -hls_segment_filename "output-%v-%03d.ts" \
+  -master_pl_name "master.m3u8" \
+  -var_stream_map "v:0,a:0 v:1,a:1 v:2,a:2" \
+  "output_%v.m3u8"
+```
+
+You end up with a directory containing a master playlist plus per-rendition
+playlists and segment files that can be pushed to S3, Cloudflare R2, or any
+static host.
+
+### Handling Safari URL Encoding Quirks
+
+Safari is notoriously strict about URL encoding inside playlists. If a segment
+name contains spaces, non-ASCII characters, or even emoji, the browser expects
+percent-encoded references inside the `.m3u8` even though the underlying object
+store serves the raw filename. Two practical safeguards solve this:
+
+1. After ffmpeg finishes, loop over the generated `.m3u8` files and rewrite the
+   segment references with `urllib.parse.quote`. The script below streams the
+   playlist line by line, copies comments verbatim, and percent-encodes anything
+   that will be requested from the CDN:
+
+   ```bash
+   for m3u8 in output/*.m3u8; do
+     tmp=$(mktemp)
+     python3 - "$m3u8" "$tmp" <<'PY'
+   import sys, urllib.parse
+   src, dst = sys.argv[1:]
+   with open(src, 'r', encoding='utf-8') as infile, open(dst, 'w', encoding='utf-8') as outfile:
+       for line in infile:
+           stripped = line.strip('\n')
+           if stripped.startswith('#') or not stripped:
+               outfile.write(line)
+               continue
+           encoded = urllib.parse.quote(stripped, safe='/-._~')
+           outfile.write(encoded + '\n')
+   PY
+     mv "$tmp" "$m3u8"
+   done
+   ```
+
+   Safari will refuse to load `segment 001.ts` or `场景-01.ts` if those names
+   appear raw inside the playlist because it performs an additional decode step
+   before issuing the HTTP request. Pre-encoding them ensures the browser sees
+   `segment%20001.ts` and matches the object storage key exactly.
+2. Provide `hls.js` with a custom loader that resolves relative URLs against the
+   manifest’s base URL and normalises the encoding. That way Chromium/Firefox
+   avoid double-encoding while Safari keeps working when the user switches to a
+   non-native rendition.
+
+## How the Plyr + HLS Player Works
+
+The React player wraps a vanilla `<video>` element
+and layers on three important behaviours:
+
+1. **Progressive enhancement:** it lazily imports both `plyr` and `hls.js` on
+   the client so the server render stays lightweight.
+2. **Intelligent feature detection:** Safari receives the `.m3u8` directly via
+   its native decoder while Chromium/Firefox mount an `Hls` instance and listen
+   for fatal errors to attempt recovery or restart playback.
+3. **User-gesture safe autoplay:** a `createSafePlayHandler` helper caches the
+   original user gesture so Safari’s autoplay policy is satisfied even after the
+   stream buffers.
+
+That architecture is battle-tested for real marketing pages, and we can reuse
+most of the ideas here.
+
+## Bringing HLS into This Blog
+
+To make the blog self-contained, I added a lightweight
+`<HlsVideoPlayer />` MDX component that mirrors the behaviour above:
+
+- It dynamically loads `plyr` and `hls.js` only when a post renders on the
+  client.
+- Native HLS playback is preferred when the browser exposes
+  `canPlayType('application/vnd.apple.mpegurl')`.
+- Non-Safari browsers get a tuned `Hls` instance with worker support and fatal
+  error recovery, plus the custom loader mentioned above to normalise segment
+  URLs.
+- Plyr’s UI is initialised with an SVG sprite (`public/plyr.svg`) so the
+  controls stay visually consistent across the site.
+
+### Embed Example
+
+<HlsVideoPlayer
+  src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+  poster="https://peach.blender.org/wp-content/uploads/bbb-splash.png"
+  title="Big Buck Bunny demo stream"
+  preload="metadata"
+  playsInline
+/>
+*(Sample stream courtesy of the Mux public test feeds.)*
+
+You can drop the same component into any MDX document:
+
+```mdx
+<HlsVideoPlayer
+  src="https://cdn.example.com/videos/product-launch/master.m3u8"
+  poster="/images/product-launch/poster.jpg"
+  title="Product launch teaser"
+  preload="metadata"
+  playsInline
+/>
+```
+
+## Operational Checklist
+
+- **Transcode** source footage with `hlsify_abr.sh` (or your own ffmpeg ladder).
+- **Upload** the generated directory to object storage with public read access.
+- **Embed** the playlist URL via `<HlsVideoPlayer />` in MDX or any React page.
+- **Monitor** network errors in production—`hls.js` exposes detailed events that
+  can be forwarded to Sentry or DataDog.
+
+With the pipeline in place, editors can illustrate performance case studies or
+product walkthroughs with real video, and everything continues to work for users
+on slow connections, mobile Safari, or desktop Chromium.
