@@ -38,7 +38,7 @@
     "server-only": "^0.0.1",
     "shiki": "^1.22.0",
     "react-zoom-pan-pinch": "^3.7.0",
-    "pdfjs-dist": "^5.4.149",
+    "pdfjs-dist": "^5.4.296",
     "plyr": "^3.8.3",
     "tailwind-merge": "^3.3.1"
   },
