@@ -4,11 +4,7 @@ import { useEffect, useRef, type VideoHTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
-type PlyrInstance = {
-  destroy: () => void;
-  muted: boolean;
-  play: () => Promise<void> | void;
-};
+type PlyrInstance = import("plyr").default;
 
 type HlsInstance = import("hls.js").default | null;
 
@@ -59,6 +55,19 @@ export function HlsVideoPlayer({
   ...rest
 }: HlsVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // iOS detection utility
+  const isIOS = () => {
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
+  };
+
+  // Safari detection utility
+  const isSafari = () => {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  };
 
   useEffect(() => {
     if (!videoRef.current || nativeOnly) return;
@@ -157,12 +166,100 @@ export function HlsVideoPlayer({
         video.src = src;
       }
 
+      const deviceIsIOS = isIOS();
+      const deviceIsSafari = isSafari();
+
       player = new Plyr(video, {
         iconUrl: "/plyr.svg",
         controls: controls ? plyrControls : [],
         autoplay: Boolean(autoPlay),
         muted: Boolean(muted),
+        // iOS-specific configuration
+        fullscreen: {
+          enabled: true,
+          fallback: true,
+          iosNative: deviceIsIOS && !deviceIsSafari, // Only use iosNative on iOS non-Safari browsers
+        },
       });
+
+      // Custom fullscreen handling for iOS Safari
+      if (deviceIsIOS && deviceIsSafari) {
+        const handleFullscreenRequest = () => {
+          // Ensure video is playing before attempting fullscreen
+          if (player && video) {
+            // Check if video is paused and try to play first
+            if (video.paused && !player.playing) {
+              video
+                .play()
+                .then(() => {
+                  // After video starts playing, attempt fullscreen
+                  attemptIOSFullscreen(video);
+                })
+                .catch(() => {
+                  // If play fails, still try fullscreen
+                  attemptIOSFullscreen(video);
+                });
+            } else {
+              attemptIOSFullscreen(video);
+            }
+          }
+        };
+
+        // Function to attempt various fullscreen methods on iOS
+        const attemptIOSFullscreen = (videoElement: HTMLVideoElement) => {
+          const videoWithWebkit = videoElement as HTMLVideoElement & {
+            webkitEnterFullscreen?: () => void;
+            webkitRequestFullscreen?: () => void;
+          };
+
+          // Method 1: Try webkitEnterFullscreen (iOS Safari specific)
+          if (videoWithWebkit.webkitEnterFullscreen) {
+            try {
+              videoWithWebkit.webkitEnterFullscreen();
+              return;
+            } catch (error) {
+              console.warn("webkitEnterFullscreen failed:", error);
+            }
+          }
+
+          // Method 2: Try standard requestFullscreen
+          if (videoElement.requestFullscreen) {
+            try {
+              videoElement.requestFullscreen();
+              return;
+            } catch (error) {
+              console.warn("requestFullscreen failed:", error);
+            }
+          }
+
+          // Method 3: Try webkit prefixed version
+          if (videoWithWebkit.webkitRequestFullscreen) {
+            try {
+              videoWithWebkit.webkitRequestFullscreen();
+              return;
+            } catch (error) {
+              console.warn("webkitRequestFullscreen failed:", error);
+            }
+          }
+
+          console.warn("No fullscreen method available on this iOS device");
+        };
+
+        // Override Plyr's fullscreen behavior for iOS Safari
+        player.on("enterfullscreen", handleFullscreenRequest);
+
+        // Also listen for clicks on the fullscreen button directly
+        const fullscreenButton = video.parentElement?.querySelector(
+          '[data-plyr="fullscreen"]'
+        );
+        if (fullscreenButton) {
+          fullscreenButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleFullscreenRequest();
+          });
+        }
+      }
 
       if (autoPlay) {
         const maybePromise = player.play();
