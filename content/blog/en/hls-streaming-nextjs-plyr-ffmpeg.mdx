@@ -5,6 +5,7 @@ description: >-
   wiring HLS into a Next.js app using Plyr, and embedding streams inside MDX
   blog posts.
 date: 2025-09-30
+lastModified: 2025-10-11
 author: Léon Zhang
 category: Web Development
 tags:
@@ -169,14 +170,14 @@ You can drop the same component into any MDX document:
 />
 ```
 
-## Operational Checklist
-
-- **Transcode** source footage with `hlsify_abr.sh` (or your own ffmpeg ladder).
-- **Upload** the generated directory to object storage with public read access.
-- **Embed** the playlist URL via `<HlsVideoPlayer />` in MDX or any React page.
-- **Monitor** network errors in production—`hls.js` exposes detailed events that
-  can be forwarded to Sentry or DataDog.
-
 With the pipeline in place, editors can illustrate performance case studies or
 product walkthroughs with real video, and everything continues to work for users
 on slow connections, mobile Safari, or desktop Chromium.
+
+If you run into mobile fullscreen quirks, the
+[Video.js HTML5 tech docs](https://docs.videojs.com/tech_html5.js.html)
+outline the platform-specific hooks and events you can reuse to keep controls
+reliable on iOS and Android. For production QA, this
+[ffprobe-driven quality checklist](https://gist.github.com/io-st/9aabbac93ef7d32f1312c763495f10fb)
+walks through validating bitrate ladders, caption tracks, and manifest health
+before you ship new encodes.
