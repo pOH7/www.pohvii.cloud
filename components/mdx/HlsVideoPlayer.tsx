@@ -16,6 +16,10 @@ export interface HlsVideoPlayerProps
    */
   plyrControls?: string[];
   /**
+   * Override Plyr settings array. Defaults to ['quality', 'speed'].
+   */
+  plyrSettings?: string[];
+  /**
    * When true, skip setting up Plyr and render a bare video element.
    */
   nativeOnly?: boolean;
@@ -35,6 +39,8 @@ const DEFAULT_CONTROLS: string[] = [
   "fullscreen",
 ];
 
+const DEFAULT_SETTINGS: string[] = ["quality", "speed"];
+
 /**
  * Minimal Plyr + Hls.js integration inspired by a production marketing site.
  * The component dynamically loads both libraries on the client, hands off to
@@ -51,6 +57,7 @@ export function HlsVideoPlayer({
   title,
   children,
   plyrControls = DEFAULT_CONTROLS,
+  plyrSettings = DEFAULT_SETTINGS,
   nativeOnly = false,
   ...rest
 }: HlsVideoPlayerProps) {
@@ -129,11 +136,74 @@ export function HlsVideoPlayer({
             enableWorker: true,
             lowLatencyMode: false,
             backBufferLength: 90,
+            autoStartLoad: false, // Don't auto-load segments
+            maxBufferLength: 30, // Limit buffer to 30 seconds
+            maxMaxBufferLength: 60, // Max buffer limit
             loader: Loader,
           });
 
           hls.loadSource(src);
           hls.attachMedia(video);
+
+          // Start loading only when user plays the video or autoplay is enabled
+          const startLoadOnPlay = () => {
+            if (hls) {
+              hls.startLoad();
+            }
+          };
+
+          if (autoPlay) {
+            // For autoplay, start loading immediately
+            hls.startLoad();
+          } else {
+            // Otherwise wait for user interaction
+            video.addEventListener("play", startLoadOnPlay, { once: true });
+          }
+
+          // Handle quality selection when manifest is loaded
+          hls.on(HlsClass.Events.MANIFEST_PARSED, () => {
+            if (!hls || player) return; // Only initialize once
+
+            // Get available quality levels
+            const availableQualities = hls.levels.map((l) => l.height);
+
+            const deviceIsIOS = isIOS();
+
+            // Set default quality to Auto (-1 means auto in HLS.js)
+            hls.currentLevel = -1;
+
+            // Initialize Plyr with quality options
+            player = new Plyr(video, {
+              iconUrl: "/plyr.svg",
+              controls: controls ? plyrControls : [],
+              autoplay: Boolean(autoPlay),
+              muted: Boolean(muted),
+              settings: plyrSettings,
+              quality: {
+                default: availableQualities[availableQualities.length - 1], // Default to highest quality
+                options: availableQualities,
+                forced: true,
+                onChange: (newQuality: number) => {
+                  if (!hls) return;
+                  // Find and set specific quality level
+                  hls.levels.forEach((level, levelIndex) => {
+                    if (level.height === newQuality && hls) {
+                      hls.currentLevel = levelIndex;
+                    }
+                  });
+                },
+              },
+              fullscreen: {
+                enabled: true,
+                fallback: true,
+                // Disable iosNative to prevent conflicts with playsinline
+                iosNative: false,
+              },
+            });
+
+            setupIOSFullscreen(deviceIsIOS);
+            startAutoplay();
+          });
 
           hls.on(HlsClass.Events.ERROR, (_event, data) => {
             if (!hls) return;
@@ -161,23 +231,37 @@ export function HlsVideoPlayer({
         video.src = src;
       }
 
-      const deviceIsIOS = isIOS();
+      // For non-HLS sources or native HLS, initialize Plyr immediately
+      if (!isHlsSource || canUseNativeHls || !HlsClass.isSupported()) {
+        const deviceIsIOS = isIOS();
 
-      player = new Plyr(video, {
-        iconUrl: "/plyr.svg",
-        controls: controls ? plyrControls : [],
-        autoplay: Boolean(autoPlay),
-        muted: Boolean(muted),
-        fullscreen: {
-          enabled: true,
-          fallback: true,
-          // Disable iosNative to prevent conflicts with playsinline
-          iosNative: false,
-        },
-      });
+        // For native HLS, we can't control quality, so remove it from settings
+        const settingsForNativeHls = canUseNativeHls
+          ? plyrSettings.filter((s) => s !== "quality")
+          : plyrSettings;
 
-      // iOS: Custom fullscreen handler using video.js approach
-      if (deviceIsIOS) {
+        player = new Plyr(video, {
+          iconUrl: "/plyr.svg",
+          controls: controls ? plyrControls : [],
+          autoplay: Boolean(autoPlay),
+          muted: Boolean(muted),
+          settings: settingsForNativeHls,
+          fullscreen: {
+            enabled: true,
+            fallback: true,
+            // Disable iosNative to prevent conflicts with playsinline
+            iosNative: false,
+          },
+        });
+
+        setupIOSFullscreen(deviceIsIOS);
+        startAutoplay();
+      }
+
+      // Helper function to setup iOS fullscreen
+      function setupIOSFullscreen(deviceIsIOS: boolean) {
+        if (!deviceIsIOS || !player) return;
+
         player.on("ready", () => {
           fullscreenButton = document.querySelector(
             '[data-plyr="fullscreen"]'
@@ -188,6 +272,8 @@ export function HlsVideoPlayer({
               e.preventDefault();
               e.stopPropagation();
               e.stopImmediatePropagation();
+
+              if (!video) return;
 
               const videoWithWebkit = video as HTMLVideoElement & {
                 webkitEnterFullscreen?: () => void;
@@ -255,7 +341,10 @@ export function HlsVideoPlayer({
         });
       }
 
-      if (autoPlay) {
+      // Helper function to start autoplay
+      function startAutoplay() {
+        if (!autoPlay || !player) return;
+
         const maybePromise = player.play();
         if (maybePromise && typeof maybePromise.then === "function") {
           maybePromise.catch(() => {
@@ -277,7 +366,16 @@ export function HlsVideoPlayer({
         hls = null;
       }
     };
-  }, [src, autoPlay, controls, muted, nativeOnly, playsInline, plyrControls]);
+  }, [
+    src,
+    autoPlay,
+    controls,
+    muted,
+    nativeOnly,
+    playsInline,
+    plyrControls,
+    plyrSettings,
+  ]);
 
   return (
     <div
