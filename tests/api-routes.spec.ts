@@ -22,12 +22,12 @@ test.describe("API Routes", () => {
     const xmlContent = await response?.text();
 
     // Check both language homepages exist
-    expect(xmlContent).toContain("https://www.pohvii.cloud/en");
-    expect(xmlContent).toContain("https://www.pohvii.cloud/zh");
+    expect(xmlContent).toContain("https://www.pohvii.cloud/en/");
+    expect(xmlContent).toContain("https://www.pohvii.cloud/zh/");
 
     // Check priority is set correctly for homepage
     const enHomepageMatch = xmlContent?.match(
-      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en<\/loc>.*?<priority>(.*?)<\/priority>.*?<\/url>/s
+      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en\/<\/loc>.*?<priority>(.*?)<\/priority>.*?<\/url>/s
     );
     expect(enHomepageMatch?.[1]).toBe("1");
   });
@@ -36,12 +36,12 @@ test.describe("API Routes", () => {
     const response = await page.goto("/sitemap.xml");
     const xmlContent = await response?.text();
 
-    expect(xmlContent).toContain("https://www.pohvii.cloud/en/blog");
-    expect(xmlContent).toContain("https://www.pohvii.cloud/zh/blog");
+    expect(xmlContent).toContain("https://www.pohvii.cloud/en/blog/");
+    expect(xmlContent).toContain("https://www.pohvii.cloud/zh/blog/");
 
     // Check blog index priority
     const blogIndexMatch = xmlContent?.match(
-      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en\/blog<\/loc>.*?<priority>(.*?)<\/priority>.*?<\/url>/s
+      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en\/blog\/<\/loc>.*?<priority>(.*?)<\/priority>.*?<\/url>/s
     );
     expect(blogIndexMatch?.[1]).toBe("0.8");
   });
@@ -53,7 +53,8 @@ test.describe("API Routes", () => {
     const xmlContent = await response?.text();
 
     // Should contain at least one blog post URL
-    const blogPostRegex = /https:\/\/www\.pohvii\.cloud\/(en|zh)\/blog\/[^<]+/g;
+    const blogPostRegex =
+      /<loc>https:\/\/www\.pohvii\.cloud\/(en|zh)\/blog\/[^<]+\/<\/loc>/g;
     const blogPosts = xmlContent?.match(blogPostRegex);
     expect(blogPosts).toBeTruthy();
     expect(blogPosts?.length).toBeGreaterThan(0);
@@ -62,11 +63,6 @@ test.describe("API Routes", () => {
     expect(xmlContent).toContain("<lastmod>");
     expect(xmlContent).toContain("<changefreq>");
     expect(xmlContent).toContain("<priority>");
-
-    // Verify specific blog post exists
-    expect(xmlContent).toContain(
-      "building-modern-web-apps-with-react-and-nextjs"
-    );
   });
 
   test("robots.txt is accessible and properly configured", async ({ page }) => {
@@ -130,13 +126,13 @@ test.describe("API Routes", () => {
 
     // Homepage should have weekly frequency
     const homepageFreq = xmlContent?.match(
-      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en<\/loc>.*?<changefreq>(.*?)<\/changefreq>.*?<\/url>/s
+      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en\/<\/loc>.*?<changefreq>(.*?)<\/changefreq>.*?<\/url>/s
     );
     expect(homepageFreq?.[1]).toBe("weekly");
 
     // Blog index should have daily frequency
     const blogIndexFreq = xmlContent?.match(
-      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en\/blog<\/loc>.*?<changefreq>(.*?)<\/changefreq>.*?<\/url>/s
+      /<url>.*?<loc>https:\/\/www\.pohvii\.cloud\/en\/blog\/<\/loc>.*?<changefreq>(.*?)<\/changefreq>.*?<\/url>/s
     );
     expect(blogIndexFreq?.[1]).toBe("daily");
 

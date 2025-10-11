@@ -47,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Add homepage for each locale (use manual date)
   for (const locale of locales) {
     urls.push({
-      url: `${baseUrl}/${locale}`,
+      url: `${baseUrl}/${locale}/`,
       lastModified: staticPageDates.homepage,
       changeFrequency: "weekly",
       priority: 1,
@@ -57,7 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Add blog index pages (use manual date)
   for (const locale of locales) {
     urls.push({
-      url: `${baseUrl}/${locale}/blog`,
+      url: `${baseUrl}/${locale}/blog/`,
       lastModified: staticPageDates.blogIndex,
       changeFrequency: "daily",
       priority: 0.8,
@@ -96,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         : generateSlug(post.title);
 
       urls.push({
-        url: `${baseUrl}/${locale}/blog/${canonicalSlug}`,
+        url: `${baseUrl}/${locale}/blog/${canonicalSlug}/`,
         lastModified,
         changeFrequency: "monthly",
         priority: 0.6,
