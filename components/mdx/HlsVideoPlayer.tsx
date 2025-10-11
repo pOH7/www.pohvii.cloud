@@ -56,17 +56,11 @@ export function HlsVideoPlayer({
 }: HlsVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // iOS detection utility
   const isIOS = () => {
     return (
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
     );
-  };
-
-  // Safari detection utility
-  const isSafari = () => {
-    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   };
 
   useEffect(() => {
@@ -75,6 +69,8 @@ export function HlsVideoPlayer({
     let isMounted = true;
     let player: PlyrInstance | null = null;
     let hls: HlsInstance = null;
+    let fullscreenButton: HTMLElement | null = null;
+    let cleanupFullscreen: (() => void) | null = null;
 
     const setupPlayer = async () => {
       const video = videoRef.current;
@@ -167,52 +163,29 @@ export function HlsVideoPlayer({
       }
 
       const deviceIsIOS = isIOS();
-      const deviceIsSafari = isSafari();
+      const ua = navigator.userAgent;
+      const deviceIsIosSafari =
+        deviceIsIOS && !/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
 
       player = new Plyr(video, {
         iconUrl: "/plyr.svg",
         controls: controls ? plyrControls : [],
         autoplay: Boolean(autoPlay),
         muted: Boolean(muted),
-        // iOS-specific configuration
         fullscreen: {
           enabled: true,
           fallback: true,
-          iosNative: deviceIsIOS && !deviceIsSafari, // Only use iosNative on iOS non-Safari browsers
+          iosNative: true,
         },
       });
 
-      // Custom fullscreen handling for iOS Safari
-      if (deviceIsIOS && deviceIsSafari) {
-        const handleFullscreenRequest = () => {
-          // Ensure video is playing before attempting fullscreen
-          if (player && video) {
-            // Check if video is paused and try to play first
-            if (video.paused && !player.playing) {
-              video
-                .play()
-                .then(() => {
-                  // After video starts playing, attempt fullscreen
-                  attemptIOSFullscreen(video);
-                })
-                .catch(() => {
-                  // If play fails, still try fullscreen
-                  attemptIOSFullscreen(video);
-                });
-            } else {
-              attemptIOSFullscreen(video);
-            }
-          }
-        };
-
-        // Function to attempt various fullscreen methods on iOS
+      if (deviceIsIOS && !deviceIsIosSafari) {
         const attemptIOSFullscreen = (videoElement: HTMLVideoElement) => {
           const videoWithWebkit = videoElement as HTMLVideoElement & {
             webkitEnterFullscreen?: () => void;
             webkitRequestFullscreen?: () => void;
           };
 
-          // Method 1: Try webkitEnterFullscreen (iOS Safari specific)
           if (videoWithWebkit.webkitEnterFullscreen) {
             try {
               videoWithWebkit.webkitEnterFullscreen();
@@ -222,17 +195,15 @@ export function HlsVideoPlayer({
             }
           }
 
-          // Method 2: Try standard requestFullscreen
           if (videoElement.requestFullscreen) {
             try {
-              videoElement.requestFullscreen();
+              void videoElement.requestFullscreen();
               return;
             } catch (error) {
               console.warn("requestFullscreen failed:", error);
             }
           }
 
-          // Method 3: Try webkit prefixed version
           if (videoWithWebkit.webkitRequestFullscreen) {
             try {
               videoWithWebkit.webkitRequestFullscreen();
@@ -242,23 +213,45 @@ export function HlsVideoPlayer({
             }
           }
 
-          console.warn("No fullscreen method available on this iOS device");
+          console.warn("No fullscreen method available on this iOS browser");
         };
 
-        // Override Plyr's fullscreen behavior for iOS Safari
+        const handleFullscreenRequest = () => {
+          if (!player || !video) return;
+
+          if (video.paused && !player.playing) {
+            video
+              .play()
+              .then(() => {
+                attemptIOSFullscreen(video);
+              })
+              .catch(() => {
+                attemptIOSFullscreen(video);
+              });
+          } else {
+            attemptIOSFullscreen(video);
+          }
+        };
+
         player.on("enterfullscreen", handleFullscreenRequest);
 
-        // Also listen for clicks on the fullscreen button directly
-        const fullscreenButton = video.parentElement?.querySelector(
+        fullscreenButton = video.parentElement?.querySelector(
           '[data-plyr="fullscreen"]'
-        );
+        ) as HTMLElement | null;
+
         if (fullscreenButton) {
-          fullscreenButton.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleFullscreenRequest();
-          });
+          fullscreenButton.addEventListener("click", handleFullscreenRequest, true);
         }
+
+        cleanupFullscreen = () => {
+          player?.off("enterfullscreen", handleFullscreenRequest);
+          fullscreenButton?.removeEventListener(
+            "click",
+            handleFullscreenRequest,
+            true
+          );
+          fullscreenButton = null;
+        };
       }
 
       if (autoPlay) {
@@ -275,6 +268,10 @@ export function HlsVideoPlayer({
 
     return () => {
       isMounted = false;
+      if (cleanupFullscreen) {
+        cleanupFullscreen();
+        cleanupFullscreen = null;
+      }
       if (player) {
         player.destroy();
       }
