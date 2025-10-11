@@ -70,7 +70,6 @@ export function HlsVideoPlayer({
     let player: PlyrInstance | null = null;
     let hls: HlsInstance = null;
     let fullscreenButton: HTMLElement | null = null;
-    let cleanupFullscreen: (() => void) | null = null;
 
     const setupPlayer = async () => {
       const video = videoRef.current;
@@ -163,9 +162,6 @@ export function HlsVideoPlayer({
       }
 
       const deviceIsIOS = isIOS();
-      const ua = navigator.userAgent;
-      const deviceIsIosSafari =
-        deviceIsIOS && !/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
 
       player = new Plyr(video, {
         iconUrl: "/plyr.svg",
@@ -175,83 +171,88 @@ export function HlsVideoPlayer({
         fullscreen: {
           enabled: true,
           fallback: true,
-          iosNative: true,
+          // Disable iosNative to prevent conflicts with playsinline
+          iosNative: false,
         },
       });
 
-      if (deviceIsIOS && !deviceIsIosSafari) {
-        const attemptIOSFullscreen = (videoElement: HTMLVideoElement) => {
-          const videoWithWebkit = videoElement as HTMLVideoElement & {
-            webkitEnterFullscreen?: () => void;
-            webkitRequestFullscreen?: () => void;
-          };
+      // iOS: Custom fullscreen handler using video.js approach
+      if (deviceIsIOS) {
+        player.on("ready", () => {
+          fullscreenButton = document.querySelector(
+            '[data-plyr="fullscreen"]'
+          ) as HTMLElement | null;
 
-          if (videoWithWebkit.webkitEnterFullscreen) {
-            try {
-              videoWithWebkit.webkitEnterFullscreen();
-              return;
-            } catch (error) {
-              console.warn("webkitEnterFullscreen failed:", error);
-            }
+          if (fullscreenButton) {
+            const handleFullscreenClick = (e: Event) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+
+              const videoWithWebkit = video as HTMLVideoElement & {
+                webkitEnterFullscreen?: () => void;
+              };
+
+              if (typeof videoWithWebkit.webkitEnterFullscreen !== "function") {
+                // Fallback to Plyr's fullscreen
+                if (player) {
+                  player.fullscreen.toggle();
+                }
+                return;
+              }
+
+              // Video.js approach: play briefly to prime, then enter fullscreen
+              if (video.paused && video.networkState <= video.HAVE_METADATA) {
+                // Prime the video by playing it
+                video.play().catch(() => {});
+
+                setTimeout(() => {
+                  // Don't pause - keep playing and enter fullscreen
+                  try {
+                    videoWithWebkit.webkitEnterFullscreen!();
+                  } catch (err) {
+                    console.error("webkitEnterFullscreen failed:", err);
+                    // Fallback to Plyr's fullscreen
+                    if (player) {
+                      player.fullscreen.toggle();
+                    }
+                  }
+                }, 0);
+              } else if (video.paused) {
+                // Video is ready but paused - play it first
+                video.play().catch(() => {});
+
+                setTimeout(() => {
+                  try {
+                    videoWithWebkit.webkitEnterFullscreen!();
+                  } catch (err) {
+                    console.error("webkitEnterFullscreen failed:", err);
+                    if (player) {
+                      player.fullscreen.toggle();
+                    }
+                  }
+                }, 0);
+              } else {
+                // Video is already playing
+                try {
+                  videoWithWebkit.webkitEnterFullscreen!();
+                } catch (err) {
+                  console.error("webkitEnterFullscreen failed:", err);
+                  // Fallback to Plyr's fullscreen
+                  if (player) {
+                    player.fullscreen.toggle();
+                  }
+                }
+              }
+            };
+
+            fullscreenButton.addEventListener(
+              "click",
+              handleFullscreenClick,
+              true
+            );
           }
-
-          if (videoElement.requestFullscreen) {
-            try {
-              void videoElement.requestFullscreen();
-              return;
-            } catch (error) {
-              console.warn("requestFullscreen failed:", error);
-            }
-          }
-
-          if (videoWithWebkit.webkitRequestFullscreen) {
-            try {
-              videoWithWebkit.webkitRequestFullscreen();
-              return;
-            } catch (error) {
-              console.warn("webkitRequestFullscreen failed:", error);
-            }
-          }
-
-          console.warn("No fullscreen method available on this iOS browser");
-        };
-
-        const handleFullscreenRequest = () => {
-          if (!player || !video) return;
-
-          if (video.paused && !player.playing) {
-            video
-              .play()
-              .then(() => {
-                attemptIOSFullscreen(video);
-              })
-              .catch(() => {
-                attemptIOSFullscreen(video);
-              });
-          } else {
-            attemptIOSFullscreen(video);
-          }
-        };
-
-        player.on("enterfullscreen", handleFullscreenRequest);
-
-        fullscreenButton = video.parentElement?.querySelector(
-          '[data-plyr="fullscreen"]'
-        ) as HTMLElement | null;
-
-        if (fullscreenButton) {
-          fullscreenButton.addEventListener("click", handleFullscreenRequest, true);
-        }
-
-        cleanupFullscreen = () => {
-          player?.off("enterfullscreen", handleFullscreenRequest);
-          fullscreenButton?.removeEventListener(
-            "click",
-            handleFullscreenRequest,
-            true
-          );
-          fullscreenButton = null;
-        };
+        });
       }
 
       if (autoPlay) {
@@ -268,10 +269,6 @@ export function HlsVideoPlayer({
 
     return () => {
       isMounted = false;
-      if (cleanupFullscreen) {
-        cleanupFullscreen();
-        cleanupFullscreen = null;
-      }
       if (player) {
         player.destroy();
       }
@@ -292,6 +289,7 @@ export function HlsVideoPlayer({
         title={title}
         aria-label={title ?? "Video player"}
         playsInline={playsInline}
+        preload="metadata"
         {...rest}
       >
         {children}
