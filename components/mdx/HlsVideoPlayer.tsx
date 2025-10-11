@@ -378,9 +378,7 @@ export function HlsVideoPlayer({
   ]);
 
   return (
-    <div
-      className={cn("relative w-full overflow-hidden rounded-xl", className)}
-    >
+    <div className={cn("relative w-full rounded-xl", className)}>
       <video
         ref={videoRef}
         poster={poster}
