@@ -103,6 +103,7 @@ export function NoteArticleClient({
           activeSection={activeSection}
           readingProgress={readingProgress}
           onItemClick={scrollToSection}
+          activeTab={activeTab}
         />
       </div>
     </div>

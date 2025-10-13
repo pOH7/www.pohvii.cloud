@@ -7,6 +7,8 @@ export interface NoteTOCItem {
   title: string;
   level: number;
   isSection?: boolean; // True for section titles like "Overview", "Install"
+  tabKey?: string; // Which tab this item belongs to
+  sectionKey?: string; // Which section this item belongs to (for multi-tab sections)
 }
 
 export function useNoteReadingProgress(
@@ -34,13 +36,29 @@ export function useNoteReadingProgress(
         c3 = 0;
 
       Array.from(allHeadings).forEach((heading, index) => {
-        let id = heading.id;
-        if (!id) {
-          id =
+        // Check if this heading is inside a tab panel
+        const panel = heading.closest('[role="tabpanel"]');
+        const tabKey = panel?.getAttribute("data-tab") || undefined;
+        const sectionKey = panel?.getAttribute("data-section") || undefined;
+
+        // Generate or get the base ID
+        let baseId = heading.id;
+        if (!baseId) {
+          baseId =
             heading.textContent
               ?.toLowerCase()
               .replace(/\s+/g, "-")
               .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
+        }
+
+        // Prefix with tab key if in a tab to ensure uniqueness across tabs
+        let id = baseId;
+        if (tabKey && !baseId.startsWith(`${tabKey}-`)) {
+          id = `${tabKey}-${baseId}`;
+        }
+
+        // Update the heading's ID if it changed
+        if (heading.id !== id) {
           heading.id = id;
         }
 
@@ -55,6 +73,8 @@ export function useNoteReadingProgress(
             title: rawTitle,
             level: 1, // Treat sections as level 1 for indentation
             isSection: true,
+            ...(tabKey !== undefined && { tabKey }),
+            ...(sectionKey !== undefined && { sectionKey }),
           });
           c2 = 0; // Reset numbering for new section
           c3 = 0;
@@ -76,6 +96,8 @@ export function useNoteReadingProgress(
             title: prefix ? `${prefix} ${rawTitle}` : rawTitle,
             level,
             isSection: false,
+            ...(tabKey !== undefined && { tabKey }),
+            ...(sectionKey !== undefined && { sectionKey }),
           });
         }
       });
@@ -172,6 +194,28 @@ export function useNoteReadingProgress(
   }, [contentRef, tocItems]);
 
   const scrollToSection = (id: string) => {
+    // Find the TOC item to check if it needs tab switching
+    const tocItem = tocItems.find((item) => item.id === id);
+
+    // If the item is in a tab, switch to that tab first
+    if (tocItem?.tabKey && tocItem?.sectionKey) {
+      const switcherFn = (window as unknown as Record<string, unknown>)[
+        `switchTab_${tocItem.sectionKey}`
+      ];
+      if (typeof switcherFn === "function") {
+        switcherFn(tocItem.tabKey);
+        // Wait a bit for tab switch to complete before scrolling
+        setTimeout(() => {
+          performScroll(id);
+        }, 100);
+        return;
+      }
+    }
+
+    performScroll(id);
+  };
+
+  const performScroll = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       // Lock active state on click so the next section isn't highlighted

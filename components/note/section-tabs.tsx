@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { MDXRemote } from "next-mdx-remote";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { mdxComponents } from "@/components/mdx-components";
@@ -29,21 +29,48 @@ export function SectionTabs({
 }: SectionTabsProps) {
   const [activeTab, setActiveTab] = useState(subsections[0]?.key ?? "");
   const [mounted, setMounted] = useState(false);
+  const initialTabKey = subsections[0]?.key ?? "";
+  const initialSyncRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleTabChange = (newTab: string) => {
-    setActiveTab(newTab);
-    if (onTabChange) {
-      onTabChange(newTab, sectionKey);
+  const handleTabChange = useCallback(
+    (newTab: string) => {
+      if (newTab === activeTab) return;
+      setActiveTab(newTab);
+      if (onTabChange) {
+        onTabChange(newTab, sectionKey);
+      }
+    },
+    [activeTab, onTabChange, sectionKey]
+  );
+
+  // Expose method to parent via ref or callback
+  useEffect(() => {
+    if (mounted && window) {
+      // Store tab switcher function globally for TOC access
+      const key = sectionKey || sectionTitle;
+      (window as unknown as Record<string, unknown>)[`switchTab_${key}`] =
+        handleTabChange;
     }
-  };
+  }, [mounted, sectionKey, sectionTitle, handleTabChange]);
+
+  useEffect(() => {
+    setActiveTab(initialTabKey);
+    initialSyncRef.current = false;
+  }, [initialTabKey]);
+
+  useEffect(() => {
+    if (!mounted || !initialTabKey || initialSyncRef.current) return;
+    initialSyncRef.current = true;
+    if (onTabChange) {
+      onTabChange(initialTabKey, sectionKey);
+    }
+  }, [mounted, initialTabKey, onTabChange, sectionKey]);
 
   if (subsections.length === 0) return null;
-
-  const activeSubsection = subsections.find((s) => s.key === activeTab);
 
   return (
     <div className="my-8">
@@ -76,20 +103,25 @@ export function SectionTabs({
         ))}
       </div>
 
-      {/* Tab Content */}
-      {mounted && activeSubsection && (
-        <div
-          id={`panel-${activeSubsection.key}`}
-          role="tabpanel"
-          aria-labelledby={activeSubsection.key}
-          className="blog-article-content"
-        >
-          <MDXRemote
-            {...activeSubsection.mdxSource}
-            components={mdxComponents}
-          />
-        </div>
-      )}
+      {/* Tab Content - Render all tabs but hide inactive ones */}
+      {mounted &&
+        subsections.map((subsection) => (
+          <div
+            key={subsection.key}
+            id={`panel-${subsection.key}`}
+            role="tabpanel"
+            aria-labelledby={subsection.key}
+            aria-hidden={activeTab !== subsection.key}
+            data-tab={subsection.key}
+            data-section={sectionKey || sectionTitle}
+            className={cn(
+              "blog-article-content",
+              activeTab !== subsection.key && "hidden"
+            )}
+          >
+            <MDXRemote {...subsection.mdxSource} components={mdxComponents} />
+          </div>
+        ))}
     </div>
   );
 }
