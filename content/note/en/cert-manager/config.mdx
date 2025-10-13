@@ -1,0 +1,160 @@
+# Cert-Manager Configuration Guide
+
+## DNS01 Challenge
+
+DNS01 challenge is recommended for:
+- **Wildcard certificates** (e.g., `*.example.com`)
+- **Internal services** not publicly accessible
+- **Multiple subdomains** under the same domain
+
+### ClusterIssuer - Staging
+
+Use staging for testing to avoid rate limits:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    email: admin@pohvii.cloud
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+      - dns01:
+          cloudflare:
+            email: admin@pohvii.cloud
+            apiTokenSecretRef:
+              name: cloudflare-api-token-secret
+              key: api-token
+```
+
+### ClusterIssuer - Production
+
+Once tested, use production for trusted certificates:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    email: admin@pohvii.cloud
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-production
+    solvers:
+      - dns01:
+          cloudflare:
+            email: admin@pohvii.cloud
+            apiTokenSecretRef:
+              name: cloudflare-api-token-secret
+              key: api-token
+```
+
+### Cloudflare API Token Secret
+
+Create a Kubernetes secret with your Cloudflare API token:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token-secret
+  namespace: cert-manager
+type: Opaque
+data:
+  api-token: your-base64-encoded-cloudflare-api-token
+```
+
+To base64 encode your API token:
+
+```bash
+echo -n 'your-cloudflare-api-token' | base64
+```
+
+Or create the secret directly via kubectl:
+
+```bash
+kubectl create secret generic cloudflare-api-token-secret \
+  --from-literal=api-token=your-cloudflare-api-token \
+  -n cert-manager
+```
+
+### Getting Cloudflare API Token
+
+1. Go to **Cloudflare Dashboard**
+2. Navigate to **My Profile > API Tokens**
+3. Click **Create Token**
+4. Use **Edit zone DNS** template or create custom token
+5. Set permissions:
+   - **Zone:Zone:Read**
+   - **Zone:DNS:Edit**
+6. Set **Zone Resources**:
+   - Include > Specific zone > `pohvii.cloud`
+7. Create token and copy it immediately (shown only once)
+
+
+## HTTP01 Challenge
+
+HTTP01 challenge is recommended for:
+- **Public-facing services** with accessible HTTP endpoints
+- **Single domain certificates** (e.g., `example.com`, `www.example.com`)
+- **Simple setup** without DNS provider configuration
+
+**Note**: HTTP01 does **not** support wildcard certificates.
+
+### ClusterIssuer - Staging
+
+Use staging for testing to avoid rate limits:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    email: admin@pohvii.cloud
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
+```
+
+### ClusterIssuer - Production
+
+Once tested, use production for trusted certificates:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    email: admin@pohvii.cloud
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-production
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
+```
+
+## Comparison
+
+| Feature | DNS01 | HTTP01 |
+|---------|-------|--------|
+| Wildcard certificates | ✅ Yes | ❌ No |
+| Internal services | ✅ Yes | ❌ No (requires public access) |
+| DNS provider required | ✅ Yes | ❌ No |
+| Setup complexity | Medium | Low |
+| Ingress required | ❌ No | ✅ Yes |

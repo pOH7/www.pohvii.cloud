@@ -22,5 +22,29 @@
     "title": "404",
     "message": "未找到您要访问的页面。",
     "cta": "返回首页"
+  },
+  "Note": {
+    "sections": {
+      "overview": "概述",
+      "install": "安装",
+      "quickstart": "快速开始",
+      "config": "配置",
+      "usage": "使用",
+      "examples": "示例",
+      "troubleshooting": "故障排除"
+    },
+    "platforms": {
+      "windows": "Windows",
+      "linux": "Linux",
+      "macos": "macOS",
+      "docker": "Docker",
+      "helm": "Helm",
+      "kubectl": "kubectl"
+    },
+    "allSections": "所有章节",
+    "tableOfContents": "目录",
+    "readTime": "阅读时间",
+    "allNotes": "所有笔记",
+    "sectionCount": "个章节"
   }
 }

@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { getAllPostSlugs } from "@/lib/blog";
 import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { generateSlug, combineSlugId } from "@/lib/post-id";
+import { getAllNoteTopics } from "@/lib/note";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
@@ -13,6 +14,7 @@ const baseUrl = "https://www.pohvii.cloud";
 const staticPageDates = {
   homepage: new Date("2025-09-05"), // Update when homepage content changes
   blogIndex: new Date("2025-09-05"), // Update when blog index layout changes
+  noteIndex: new Date("2025-10-13"), // Update when note index layout changes
 };
 
 function getBlogPostDate(locale: string, slug: string): Date {
@@ -99,6 +101,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${baseUrl}/${locale}/blog/${canonicalSlug}/`,
         lastModified,
         changeFrequency: "monthly",
+        priority: 0.6,
+      });
+    }
+  }
+
+  // Add note index pages
+  for (const locale of locales) {
+    urls.push({
+      url: `${baseUrl}/${locale}/note/`,
+      lastModified: staticPageDates.noteIndex,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    });
+  }
+
+  // Add individual note pages
+  for (const locale of locales) {
+    const topics = getAllNoteTopics(locale);
+    for (const topic of topics) {
+      urls.push({
+        url: `${baseUrl}/${locale}/note/${topic}/`,
+        lastModified: new Date(), // Could be extracted from file stats if needed
+        changeFrequency: "weekly",
         priority: 0.6,
       });
     }

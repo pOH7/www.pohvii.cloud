@@ -20,7 +20,31 @@
   },
   "NotFound": {
     "title": "404",
-    "message": "The page you’re looking for could not be found.",
+    "message": "The page you're looking for could not be found.",
     "cta": "Go back home"
+  },
+  "Note": {
+    "sections": {
+      "overview": "Overview",
+      "install": "Installation",
+      "quickstart": "Quick Start",
+      "config": "Configuration",
+      "usage": "Usage",
+      "examples": "Examples",
+      "troubleshooting": "Troubleshooting"
+    },
+    "platforms": {
+      "windows": "Windows",
+      "linux": "Linux",
+      "macos": "macOS",
+      "docker": "Docker",
+      "helm": "Helm",
+      "kubectl": "kubectl"
+    },
+    "allSections": "All Sections",
+    "tableOfContents": "Table of Contents",
+    "readTime": "Read time",
+    "allNotes": "All Notes",
+    "sectionCount": "sections"
   }
 }
