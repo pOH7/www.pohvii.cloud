@@ -17,15 +17,29 @@ interface Subsection {
 interface SectionTabsProps {
   subsections: Subsection[];
   sectionTitle: string;
+  sectionKey?: string;
+  onTabChange?: (tabKey: string, sectionKey?: string) => void;
 }
 
-export function SectionTabs({ subsections, sectionTitle }: SectionTabsProps) {
+export function SectionTabs({
+  subsections,
+  sectionTitle,
+  sectionKey,
+  onTabChange,
+}: SectionTabsProps) {
   const [activeTab, setActiveTab] = useState(subsections[0]?.key ?? "");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    if (onTabChange) {
+      onTabChange(newTab, sectionKey);
+    }
+  };
 
   if (subsections.length === 0) return null;
 
@@ -34,7 +48,7 @@ export function SectionTabs({ subsections, sectionTitle }: SectionTabsProps) {
   return (
     <div className="my-8">
       {/* Section Title */}
-      <h2 className="text-3xl font-bold mb-4">{sectionTitle}</h2>
+      <h2 className="text-3xl font-bold mb-4 section-title">{sectionTitle}</h2>
 
       {/* Tabs Navigation */}
       <div
@@ -45,7 +59,7 @@ export function SectionTabs({ subsections, sectionTitle }: SectionTabsProps) {
         {subsections.map((subsection) => (
           <button
             key={subsection.key}
-            onClick={() => setActiveTab(subsection.key)}
+            onClick={() => handleTabChange(subsection.key)}
             role="tab"
             aria-selected={activeTab === subsection.key}
             aria-controls={`panel-${subsection.key}`}

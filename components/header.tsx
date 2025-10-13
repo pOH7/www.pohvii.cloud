@@ -19,11 +19,11 @@ import {
 import type { Dictionary } from "../app/[lang]/dictionaries";
 
 const getNavigationItems = (lang: string) => [
-  { key: "home" as const, href: `/${lang}` },
-  { key: "blog" as const, href: `/${lang}/blog` },
-  { key: "notes" as const, href: `/${lang}/notes` },
-  { key: "about" as const, href: `/${lang}/about` },
-  { key: "contact" as const, href: `/${lang}/contact` },
+  { key: "home" as const, href: `/${lang}/` },
+  { key: "blog" as const, href: `/${lang}/blog/` },
+  { key: "notes" as const, href: `/${lang}/note/` },
+  { key: "about" as const, href: `/${lang}/about/` },
+  { key: "contact" as const, href: `/${lang}/contact/` },
 ];
 
 const languages = [
