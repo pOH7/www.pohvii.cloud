@@ -31,9 +31,23 @@ export function useNoteReadingProgress(
       const allHeadings = contentRef.current.querySelectorAll("h2, h3");
       const items: NoteTOCItem[] = [];
 
-      // Track which section we're in for numbering reset
-      let c2 = 0,
-        c3 = 0;
+      const GLOBAL_CONTEXT = "__global__";
+      const tabCounters = new Map<
+        string,
+        {
+          level2: number;
+          level3: number;
+        }
+      >();
+      let globalLevel2 = 0;
+      let globalLevel3 = 0;
+
+      const getContextKey = (sectionKey?: string, tabKey?: string) => {
+        if (sectionKey && tabKey) return `${sectionKey}::${tabKey}`;
+        if (sectionKey) return `${sectionKey}::__section`;
+        if (tabKey) return `__tab::${tabKey}`;
+        return GLOBAL_CONTEXT;
+      };
 
       Array.from(allHeadings).forEach((heading, index) => {
         // Check if this heading is inside a tab panel
@@ -76,20 +90,54 @@ export function useNoteReadingProgress(
             ...(tabKey !== undefined && { tabKey }),
             ...(sectionKey !== undefined && { sectionKey }),
           });
-          c2 = 0; // Reset numbering for new section
-          c3 = 0;
+          if (!tabKey && !sectionKey) {
+            globalLevel2 = 0;
+            globalLevel3 = 0;
+          }
         } else {
-          // This is a content heading - add with number
-          if (level === 2) {
-            c2 += 1;
-            c3 = 0;
-          } else if (level === 3) {
-            c3 += 1;
+          const contextKey = getContextKey(sectionKey, tabKey);
+
+          let displayLevel2 = 0;
+          let displayLevel3 = 0;
+
+          if (contextKey === GLOBAL_CONTEXT) {
+            if (level === 2) {
+              globalLevel2 += 1;
+              globalLevel3 = 0;
+            } else if (level === 3) {
+              if (globalLevel2 === 0) {
+                globalLevel2 = 1;
+              }
+              globalLevel3 += 1;
+            }
+            displayLevel2 = globalLevel2;
+            displayLevel3 = globalLevel3;
+          } else {
+            const current = tabCounters.get(contextKey) ?? {
+              level2: 0,
+              level3: 0,
+            };
+            let { level2, level3 } = current;
+
+            if (level === 2) {
+              level2 += 1;
+              level3 = 0;
+            } else if (level === 3) {
+              if (level2 === 0) {
+                level2 = 1;
+              }
+              level3 += 1;
+            }
+
+            tabCounters.set(contextKey, { level2, level3 });
+            displayLevel2 = level2;
+            displayLevel3 = level3;
           }
 
+          // This is a content heading - add with number
           let prefix = "";
-          if (level === 2) prefix = `${c2}.`;
-          if (level === 3) prefix = `${c2}.${c3}`;
+          if (level === 2) prefix = `${displayLevel2}.`;
+          if (level === 3) prefix = `${displayLevel2}.${displayLevel3}`;
 
           items.push({
             id,

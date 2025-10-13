@@ -31,6 +31,7 @@ export function NoteTableOfContents({
   // Refs to the scrollable containers (not the inner nav)
   const desktopScrollRef = useRef<HTMLDivElement>(null);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const hasPlayedInitialAnimationRef = useRef(false);
 
   // Keep the active item centered within scrollable TOC containers
   useEffect(() => {
@@ -67,6 +68,10 @@ export function NoteTableOfContents({
     });
     return () => cancelAnimationFrame(raf);
   }, [activeSection, isMobileOpen]);
+
+  useEffect(() => {
+    hasPlayedInitialAnimationRef.current = true;
+  }, []);
 
   const handleItemClick = (id: string) => {
     onItemClick(id);
@@ -250,7 +255,11 @@ export function NoteTableOfContents({
                         <motion.button
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
+                          transition={{
+                            delay: hasPlayedInitialAnimationRef.current
+                              ? 0
+                              : index * 0.05,
+                          }}
                           onClick={() => handleItemClick(item.id)}
                           data-id={item.id}
                           aria-current={
@@ -379,7 +388,11 @@ export function NoteTableOfContents({
                   <motion.button
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + index * 0.05 }}
+                    transition={{
+                      delay: hasPlayedInitialAnimationRef.current
+                        ? 0
+                        : 0.6 + index * 0.05,
+                    }}
                     onClick={() => onItemClick(item.id)}
                     data-id={item.id}
                     aria-current={
