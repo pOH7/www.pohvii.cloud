@@ -144,6 +144,22 @@
     animation: none;
     mix-blend-mode: normal;
   }
+
+  html[data-theme-transition="to-light"]::view-transition-new(root) {
+    z-index: 1;
+  }
+
+  html[data-theme-transition="to-light"]::view-transition-old(root) {
+    z-index: 0;
+  }
+
+  html[data-theme-transition="to-dark"]::view-transition-new(root) {
+    z-index: 0;
+  }
+
+  html[data-theme-transition="to-dark"]::view-transition-old(root) {
+    z-index: 1;
+  }
 }
 
 @keyframes fadeInUp {

@@ -31,11 +31,9 @@ export function ThemeToggle() {
       return;
     }
 
-    await doc.startViewTransition(() => {
-      flushSync(() => {
-        setTheme(newTheme);
-      });
-    }).ready;
+    const root = document.documentElement;
+    const transitionType = newTheme === "dark" ? "to-dark" : "to-light";
+    root.dataset.themeTransition = transitionType;
 
     const { top, left, width, height } =
       buttonRef.current.getBoundingClientRect();
@@ -45,16 +43,71 @@ export function ThemeToggle() {
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
-    document.documentElement.animate(
+    const transition = doc.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(newTheme);
+      });
+    });
+
+    transition.finished
+      .catch(() => undefined)
+      .finally(() => {
+        delete root.dataset.themeTransition;
+      });
+
+    await transition.ready;
+
+    const clipKeyframes = [
+      `circle(0px at ${x}px ${y}px)`,
+      `circle(${maxRadius}px at ${x}px ${y}px)`,
+    ];
+    const fullyOpenClip = [
+      `circle(${maxRadius}px at ${x}px ${y}px)`,
+      `circle(${maxRadius}px at ${x}px ${y}px)`,
+    ];
+    const animationOptions = {
+      duration: 500,
+      easing: "ease-in-out",
+      fill: "both",
+    } as const;
+
+    if (newTheme === "light") {
+      root.animate(
+        {
+          clipPath: clipKeyframes,
+        },
+        {
+          ...animationOptions,
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+      root.animate(
+        {
+          clipPath: fullyOpenClip,
+        },
+        {
+          ...animationOptions,
+          pseudoElement: "::view-transition-old(root)",
+        }
+      );
+      return;
+    }
+
+    root.animate(
       {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRadius}px at ${x}px ${y}px)`,
-        ],
+        clipPath: [...clipKeyframes].reverse(),
       },
       {
-        duration: 500,
-        easing: "ease-in-out",
+        ...animationOptions,
+        pseudoElement: "::view-transition-old(root)",
+      }
+    );
+    root.animate(
+      {
+        clipPath: fullyOpenClip,
+      },
+      {
+        ...animationOptions,
         pseudoElement: "::view-transition-new(root)",
       }
     );
