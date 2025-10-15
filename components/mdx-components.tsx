@@ -2,6 +2,7 @@ import React from "react";
 import CodeBlock from "@/components/mdx/CodeBlock";
 import PDFViewerWrapper from "@/components/PDFViewerWrapper";
 import HlsVideoPlayer from "@/components/mdx/HlsVideoPlayer";
+import { ExcalidrawViewer } from "@/components/mdx/ExcalidrawViewer";
 
 // Optional: map/augment elements for MDX rendering
 export const mdxComponents = {
@@ -32,6 +33,9 @@ export const mdxComponents = {
   ),
   HlsVideoPlayer: (props: React.ComponentProps<typeof HlsVideoPlayer>) => (
     <HlsVideoPlayer {...props} />
+  ),
+  Excalidraw: (props: React.ComponentProps<typeof ExcalidrawViewer>) => (
+    <ExcalidrawViewer {...props} />
   ),
 };
 

@@ -12,6 +12,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-select": "^2.2.6",
@@ -28,8 +29,11 @@
     "next-mdx-remote": "^5.0.0",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.9.17",
+    "pdfjs-dist": "^5.4.296",
+    "plyr": "^3.8.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-zoom-pan-pinch": "^3.7.0",
     "reading-time": "^1.5.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-pretty-code": "^0.14.0",
@@ -37,9 +41,6 @@
     "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "shiki": "^3.13.0",
-    "react-zoom-pan-pinch": "^3.7.0",
-    "pdfjs-dist": "^5.4.296",
-    "plyr": "^3.8.3",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
