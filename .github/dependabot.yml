@@ -2,6 +2,7 @@ version: 2
 updates:
   # Enable version updates for npm
   - package-ecosystem: "npm"
+    package-manager: "pnpm"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -15,9 +16,13 @@ updates:
       # Group Next.js related updates
       nextjs:
         patterns:
-          - "next*"
+          - "next"
+          - "react"
+          - "react-dom"
+          - "next-themes"
+          - "nextjs-toploader"
+          - "server-only"
           - "@types/react*"
-          - "react*"
           - "eslint-config-next"
       # Group UI/styling dependencies  
       ui:
@@ -30,6 +35,8 @@ updates:
           - "tailwind-merge"
           - "framer-motion"
           - "lucide-react"
+          - "shadcn"
+          - "tw-animate-css"
       # Group development tools
       dev-tools:
         patterns:
@@ -37,6 +44,7 @@ updates:
           - "prettier"
           - "@playwright/*"
           - "typescript"
+          - "@eslint/*"
       # Group MDX/content processing
       content:
         patterns:
@@ -45,6 +53,17 @@ updates:
           - "rehype-*"
           - "remark-*"
           - "reading-time"
+          - "next-mdx-remote"
+          - "shiki"
+          - "@types/hast"
+      # Group media/asset tooling
+      media:
+        patterns:
+          - "hls.js"
+          - "plyr"
+          - "pdfjs-dist"
+          - "@excalidraw/excalidraw"
+          - "react-zoom-pan-pinch"
     ignore:
       # Skip major version updates for stable dependencies
       - dependency-name: "react"
