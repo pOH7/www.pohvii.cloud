@@ -1,0 +1,84 @@
+## Viewing MP4 Details
+
+### Command Line (ffprobe)
+```bash
+# Quick check for key specifications
+ffprobe -v quiet -print_format json -show_format -show_streams input.mp4 | grep -E '"codec_name"|"width"|"height"|"profile"|"level"'
+```
+
+### GUI Tools (Windows/Mac/Linux)
+
+**MediaInfo** (Recommended)
+- Download: https://mediaarea.net/en/MediaInfo
+- Shows detailed codec, profile, level, resolution, bitrate information
+- Professional tool used by video engineers
+
+**VLC Media Player**
+- Tools → Media Information (Ctrl+I) → Codec Details tab
+- Quick basic video information
+
+**HandBrake**
+- Load video to see source details
+- Shows format, codec, resolution in the summary tab
+
+## Converting MP4
+
+### Basic Compatibility Conversion
+Convert any video to H.264 Baseline Profile with Level 3.1 (maximum compatibility):
+
+```bash
+ffmpeg -i input.mp4 \
+  -c:v libx264 \
+  -profile:v baseline \
+  -level:v 3.1 \
+  -c:a aac \
+  -b:a 128k \
+  output_compatible.mp4
+```
+
+### Convert 4K to 1080p
+```bash
+ffmpeg -i input_4k.mp4 \
+  -vf scale=1920:1080 \
+  -c:v libx264 \
+  -profile:v baseline \
+  -level:v 3.1 \
+  -c:a aac \
+  -b:a 128k \
+  output_1080p.mp4
+```
+
+### Convert H.265/HEVC to H.264
+```bash
+ffmpeg -i input_h265.mp4 \
+  -c:v libx264 \
+  -profile:v baseline \
+  -level:v 3.1 \
+  -c:a aac \
+  -b:a 128k \
+  output_h264.mp4
+```
+
+### Convert Vertical Video to Horizontal (with black padding)
+```bash
+# Generic conversion - auto-calculates scaling and padding
+ffmpeg -i vertical_input.mp4 \
+  -vf "scale='if(gt(iw/ih,16/9),1920,-2)':'if(gt(iw/ih,16/9),-2,1080)',pad=1920:1080:(1920-iw)/2:(1080-ih)/2:black" \
+  -c:v libx264 \
+  -profile:v baseline \
+  -level:v 3.1 \
+  -c:a aac \
+  -b:a 128k \
+  output_horizontal.mp4
+```
+
+## Common Parameters Explained
+
+| Parameter | Description | Example Values |
+|-----------|-------------|----------------|
+| `-c:v` | Video codec | `libx264`, `libx265`, `copy` |
+| `-profile:v` | H.264 profile | `baseline`, `main`, `high` |
+| `-level:v` | H.264 level | `3.1`, `4.0`, `5.1` |
+| `-c:a` | Audio codec | `aac`, `mp3`, `copy` |
+| `-b:a` | Audio bitrate | `128k`, `192k`, `256k` |
+| `-vf` | Video filter | `scale=1920:1080` |
