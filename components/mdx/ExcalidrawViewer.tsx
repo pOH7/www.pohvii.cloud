@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { ExcalidrawInitialDataState } from "@excalidraw/excalidraw/types";
+import type {
+  ExcalidrawInitialDataState,
+  ExcalidrawImperativeAPI,
+} from "@excalidraw/excalidraw/types";
 import { cn } from "@/lib/utils";
 import "@excalidraw/excalidraw/index.css";
 
@@ -50,11 +53,14 @@ export function ExcalidrawViewer({
   height = DEFAULT_HEIGHT,
   className,
 }: ExcalidrawViewerProps) {
+  const excalidrawApiRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const [sceneData, setSceneData] = useState<ExcalidrawInitialDataState | null>(
     initialData
   );
   const [loading, setLoading] = useState<boolean>(Boolean(src && !initialData));
   const [error, setError] = useState<string | null>(null);
+  const [apiVersion, setApiVersion] = useState(0);
+  const [hasCentered, setHasCentered] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,12 +99,45 @@ export function ExcalidrawViewer({
     };
   }, [src]);
 
+  useEffect(() => {
+    if (!src) {
+      setSceneData(initialData ?? null);
+      setError(null);
+    }
+  }, [initialData, src]);
+
   const resolvedHeight = useMemo(() => {
     if (typeof height === "number") {
       return `${height}px`;
     }
     return height;
   }, [height]);
+
+  useEffect(() => {
+    setHasCentered(false);
+  }, [sceneData]);
+
+  useEffect(() => {
+    if (loading || hasCentered || !apiVersion) return;
+    const api = excalidrawApiRef.current;
+    if (!api) return;
+
+    const frameId = requestAnimationFrame(() => {
+      api.scrollToContent(undefined, {
+        fitToViewport: true,
+        viewportZoomFactor: 0.9,
+        animate: true,
+      });
+      setHasCentered(true);
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [loading, hasCentered, apiVersion, sceneData]);
+
+  const handleExcalidrawApi = useCallback((api: ExcalidrawImperativeAPI) => {
+    excalidrawApiRef.current = api;
+    setApiVersion((prev) => prev + 1);
+  }, []);
 
   if (error) {
     return (
@@ -135,7 +174,11 @@ export function ExcalidrawViewer({
       )}
       style={{ height: resolvedHeight }}
     >
-      <Excalidraw initialData={sceneData ?? null} viewModeEnabled={readOnly} />
+      <Excalidraw
+        initialData={sceneData ?? null}
+        viewModeEnabled={readOnly}
+        excalidrawAPI={handleExcalidrawApi}
+      />
     </div>
   );
 }
