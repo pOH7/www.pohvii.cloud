@@ -1,0 +1,103 @@
+---
+title: 'Designing a View Transition Theme Toggle Animation in Next.js'
+description: >-
+  How we built a theme toggle that expands into light mode and contracts back to dark mode using the View Transitions API, next-themes, and a pinch of Web Animations control.
+date: 2025-10-15
+author: Léon Zhang
+category: Web Development
+tags:
+  - Next.js
+  - React
+  - Animations
+  - View Transitions
+  - Dark Mode
+  - UI
+image: >-
+  https://images.unsplash.com/photo-1526498460520-4c246339dccb?w=1200&h=600&fit=crop
+id: 86fccc05
+---
+
+Ever since we introduced dark mode, the toggle felt abrupt. The classic icon swap was functional, but it never sold the illusion of the UI being re-lit. This update revisits the interaction with the new View Transitions API so the page now wipes open into light mode and gently shrinks back into darkness.
+
+## The Design Goal
+
+Dark mode should feel like dimming the lights, while returning to light mode should feel like flipping them fully on. That meant two requirements:
+
+- **Light → Dark:** the light layer collapses into the toggle, revealing the existing dark snapshot underneath.
+- **Dark → Light:** the light layer should radiate outward from the toggle, taking over the screen.
+
+We needed a single toggle component that could treat each direction differently while still respecting reduced motion preferences and gracefully degrading on browsers without View Transitions support.
+
+## Building the Animation
+
+The heart of the change lives in `components/theme-toggle.tsx`. We still rely on `next-themes` for state management, but we now orchestrate the transition by:
+
+1. Capturing the toggle button geometry so we can center the circular wipe.
+2. Starting a view transition and synchronously flipping the theme with `flushSync`.
+3. Storing a `data-theme-transition` flag on the `<html>` element so CSS can stack the correct pseudo element on top.
+4. Animating both the `::view-transition-new(root)` and `::view-transition-old(root)` pseudo elements with tailored clip-paths.
+
+```tsx
+const clipKeyframes = [
+  `circle(0px at ${x}px ${y}px)`,
+  `circle(${maxRadius}px at ${x}px ${y}px)`,
+];
+
+if (newTheme === "light") {
+  root.animate(
+    { clipPath: clipKeyframes },
+    { ...animationOptions, pseudoElement: "::view-transition-new(root)" }
+  );
+  root.animate(
+    { clipPath: fullyOpenClip },
+    { ...animationOptions, pseudoElement: "::view-transition-old(root)" }
+  );
+  return;
+}
+
+root.animate(
+  { clipPath: [...clipKeyframes].reverse() },
+  { ...animationOptions, pseudoElement: "::view-transition-old(root)" }
+);
+root.animate(
+  { clipPath: fullyOpenClip },
+  { ...animationOptions, pseudoElement: "::view-transition-new(root)" }
+);
+```
+
+The additional animation with the `fullyOpenClip` keeps the opposite layer fixed at full visibility, preventing any mid-transition flicker as the circle contracts.
+
+## Controlling the Layer Stack
+
+The View Transitions API renders snapshots as pseudo elements, so we used a tiny CSS helper in `app/globals.css` to set their `z-index` depending on the direction. The JavaScript toggle sets `data-theme-transition="to-light"` (or `"to-dark"`) before the theme change and removes it once the transition finishes.
+
+```css
+html[data-theme-transition="to-light"]::view-transition-new(root) {
+  z-index: 1;
+}
+
+html[data-theme-transition="to-dark"]::view-transition-old(root) {
+  z-index: 1;
+}
+```
+
+That pairing keeps the “active” snapshot on top: the expanding light layer or the persistent dark layer during the shrink.
+
+## Progressive Enhancement Considerations
+
+- **Reduced motion:** We exit early and flip themes normally when the user requests reduced motion.
+- **Unsupported browsers:** If `startViewTransition` is missing, the toggle remains a traditional instantaneous swap.
+- **State cleanup:** We remove `data-theme-transition` in a `finally` clause so subsequent toggles can run cleanly even if an animation is interrupted.
+
+## Try It Yourself
+
+Tap the toggle in this website's header to see both directions in action:
+
+- Starting in dark mode, a light circle expands outward to reveal the bright palette.
+- Switching back to dark mode, the light snapshot collapses into the button without flashing the background.
+
+If the animation feels too intense, enable the system-level “Reduce Motion” preference—our toggle respects it automatically.
+
+## What’s Next
+
+This experiment unlocked a pattern we can reuse for other transitions, like section reveals or onboarding flows. It also reminded us how powerful the View Transitions API can be when paired with fine-grained control from the Web Animations API. Expect more playful, yet respectful, motion design updates soon.
