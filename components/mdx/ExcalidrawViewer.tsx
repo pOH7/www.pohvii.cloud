@@ -6,6 +6,7 @@ import type {
   ExcalidrawInitialDataState,
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import "@excalidraw/excalidraw/index.css";
 
@@ -61,6 +62,31 @@ export function ExcalidrawViewer({
   const [error, setError] = useState<string | null>(null);
   const [apiVersion, setApiVersion] = useState(0);
   const [hasCentered, setHasCentered] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const [viewerTheme, setViewerTheme] = useState<"light" | "dark">("light");
+  const viewerUiOptions = useMemo(
+    () => ({
+      canvasActions: {
+        toggleTheme: false,
+      },
+    }),
+    []
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setViewerTheme(
+      window.document.documentElement.classList.contains("dark")
+        ? "dark"
+        : "light"
+    );
+  }, []);
+
+  useEffect(() => {
+    if (resolvedTheme === "light" || resolvedTheme === "dark") {
+      setViewerTheme(resolvedTheme);
+    }
+  }, [resolvedTheme]);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,6 +142,18 @@ export function ExcalidrawViewer({
   useEffect(() => {
     setHasCentered(false);
   }, [sceneData]);
+
+  useEffect(() => {
+    const api = excalidrawApiRef.current;
+    if (!api) return;
+    if (api.getAppState().theme === viewerTheme) return;
+
+    api.updateScene({
+      appState: {
+        theme: viewerTheme,
+      },
+    });
+  }, [viewerTheme, apiVersion]);
 
   useEffect(() => {
     if (loading || hasCentered || !apiVersion) return;
@@ -178,6 +216,8 @@ export function ExcalidrawViewer({
         initialData={sceneData ?? null}
         viewModeEnabled={readOnly}
         excalidrawAPI={handleExcalidrawApi}
+        theme={viewerTheme}
+        UIOptions={viewerUiOptions}
       />
     </div>
   );
