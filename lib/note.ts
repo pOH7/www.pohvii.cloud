@@ -285,6 +285,62 @@ async function getSectionContent(
 }
 
 /**
+ * Extract the first text paragraph, skipping code blocks and components.
+ */
+function extractFirstParagraph(content: string): string {
+  const lines = content.split("\n");
+  let inFence = false;
+  const paragraphLines: string[] = [];
+
+  const clearParagraph = () => {
+    paragraphLines.length = 0;
+  };
+
+  const commitParagraph = () => {
+    if (paragraphLines.length === 0) return "";
+    const paragraph = paragraphLines.join(" ").trim();
+    clearParagraph();
+    return paragraph;
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (/^```/.test(trimmed)) {
+      inFence = !inFence;
+      if (!inFence) {
+        clearParagraph();
+      }
+      continue;
+    }
+
+    if (inFence) continue;
+
+    if (trimmed === "") {
+      const paragraph = commitParagraph();
+      if (paragraph) return paragraph;
+      continue;
+    }
+
+    if (
+      /^[#>\-*]/.test(trimmed) ||
+      /^\d+\./.test(trimmed) ||
+      /^<\/?[A-Za-z]/.test(trimmed) ||
+      trimmed.startsWith("<") ||
+      /^(import|export)\b/.test(trimmed) ||
+      /^(?:\t|\s{4})/.test(line)
+    ) {
+      clearParagraph();
+      continue;
+    }
+
+    paragraphLines.push(trimmed);
+  }
+
+  return commitParagraph();
+}
+
+/**
  * Get aggregated note with all sections
  */
 export async function getNoteByTopic(
@@ -332,9 +388,9 @@ export async function getNoteByTopic(
   }
 
   // Try to extract description from first paragraph (not lists or headings)
-  const paragraphMatch = contentToCheck.match(/^([^#\-*\n].+?)(?:\n|$)/m);
-  if (paragraphMatch) {
-    description = paragraphMatch[1].slice(0, 200);
+  const firstParagraph = extractFirstParagraph(contentToCheck);
+  if (firstParagraph) {
+    description = firstParagraph.slice(0, 200);
   }
 
   return {
