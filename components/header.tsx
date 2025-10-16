@@ -52,12 +52,15 @@ export function Header({ dictionary, lang }: HeaderProps) {
   const handleLanguageChange = (newLang: string) => {
     if (newLang === currentLang) return;
 
-    // Set cookie for language preference (following next-intl pattern)
-    document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
-
     // Navigate to new locale path
     const path = pathname.replace(`/${currentLang}`, `/${newLang}`);
     router.push(path);
+
+    // Set cookie for language preference in a microtask to avoid direct modification during render
+    Promise.resolve().then(() => {
+      document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
+    });
+
     router.refresh();
   };
 

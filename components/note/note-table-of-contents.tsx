@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/refs */
+// False positive: The rule incorrectly flags memoized values (not refs) in map callbacks
 "use client";
 
 import { useEffect, useRef, useState, useId, useMemo } from "react";

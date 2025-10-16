@@ -27,14 +27,10 @@ export function SectionTabs({
   sectionKey,
   onTabChange,
 }: SectionTabsProps) {
-  const [activeTab, setActiveTab] = useState(subsections[0]?.key ?? "");
-  const [mounted, setMounted] = useState(false);
   const initialTabKey = subsections[0]?.key ?? "";
+  const [activeTab, setActiveTab] = useState(initialTabKey);
+  const [mounted, setMounted] = useState(false);
   const initialSyncRef = useRef(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleTabChange = useCallback(
     (newTab: string) => {
@@ -47,21 +43,20 @@ export function SectionTabs({
     [activeTab, onTabChange, sectionKey]
   );
 
-  // Expose method to parent via ref or callback
+  // Mount and expose method to parent
   useEffect(() => {
-    if (mounted && window) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+
+    if (typeof window !== "undefined") {
       // Store tab switcher function globally for TOC access
       const key = sectionKey || sectionTitle;
       (window as unknown as Record<string, unknown>)[`switchTab_${key}`] =
         handleTabChange;
     }
-  }, [mounted, sectionKey, sectionTitle, handleTabChange]);
+  }, [sectionKey, sectionTitle, handleTabChange]);
 
-  useEffect(() => {
-    setActiveTab(initialTabKey);
-    initialSyncRef.current = false;
-  }, [initialTabKey]);
-
+  // Sync initial tab selection with parent
   useEffect(() => {
     if (!mounted || !initialTabKey || initialSyncRef.current) return;
     initialSyncRef.current = true;
@@ -104,6 +99,7 @@ export function SectionTabs({
       </div>
 
       {/* Tab Content - Render all tabs but hide inactive ones */}
+      {/* Only render on client to avoid SSR issues with MDX components that use hooks */}
       {mounted &&
         subsections.map((subsection) => (
           <div

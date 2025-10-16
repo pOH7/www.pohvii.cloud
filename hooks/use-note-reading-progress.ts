@@ -25,133 +25,135 @@ export function useNoteReadingProgress(
   const lastClickedIdRef = useRef<string>("");
 
   // Extract table of contents from content
+  // This effect extracts TOC data from DOM, which is a legitimate use of setState in effect
   useEffect(() => {
-    if (contentRef.current) {
-      // Get all headings including section titles
-      const allHeadings = contentRef.current.querySelectorAll("h2, h3");
-      const items: NoteTOCItem[] = [];
+    if (!contentRef.current) return;
 
-      const GLOBAL_CONTEXT = "__global__";
-      const tabCounters = new Map<
-        string,
-        {
-          level2: number;
-          level3: number;
+    // Get all headings including section titles
+    const allHeadings = contentRef.current.querySelectorAll("h2, h3");
+    const items: NoteTOCItem[] = [];
+
+    const GLOBAL_CONTEXT = "__global__";
+    const tabCounters = new Map<
+      string,
+      {
+        level2: number;
+        level3: number;
+      }
+    >();
+    let globalLevel2 = 0;
+    let globalLevel3 = 0;
+
+    const getContextKey = (sectionKey?: string, tabKey?: string) => {
+      if (sectionKey && tabKey) return `${sectionKey}::${tabKey}`;
+      if (sectionKey) return `${sectionKey}::__section`;
+      if (tabKey) return `__tab::${tabKey}`;
+      return GLOBAL_CONTEXT;
+    };
+
+    Array.from(allHeadings).forEach((heading, index) => {
+      // Check if this heading is inside a tab panel
+      const panel = heading.closest('[role="tabpanel"]');
+      const tabKey = panel?.getAttribute("data-tab") || undefined;
+      const sectionKey = panel?.getAttribute("data-section") || undefined;
+
+      // Generate or get the base ID
+      let baseId = heading.id;
+      if (!baseId) {
+        baseId =
+          heading.textContent
+            ?.toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
+      }
+
+      // Prefix with tab key if in a tab to ensure uniqueness across tabs
+      let id = baseId;
+      if (tabKey && !baseId.startsWith(`${tabKey}-`)) {
+        id = `${tabKey}-${baseId}`;
+      }
+
+      // Update the heading's ID if it changed
+      if (heading.id !== id) {
+        heading.id = id;
+      }
+
+      const level = parseInt(heading.tagName.charAt(1));
+      const rawTitle = heading.textContent || "";
+      const isSection = heading.classList.contains("section-title");
+
+      if (isSection) {
+        // This is a section title - add without number and reset counters
+        items.push({
+          id,
+          title: rawTitle,
+          level: 1, // Treat sections as level 1 for indentation
+          isSection: true,
+          ...(tabKey !== undefined && { tabKey }),
+          ...(sectionKey !== undefined && { sectionKey }),
+        });
+        if (!tabKey && !sectionKey) {
+          globalLevel2 = 0;
+          globalLevel3 = 0;
         }
-      >();
-      let globalLevel2 = 0;
-      let globalLevel3 = 0;
+      } else {
+        const contextKey = getContextKey(sectionKey, tabKey);
 
-      const getContextKey = (sectionKey?: string, tabKey?: string) => {
-        if (sectionKey && tabKey) return `${sectionKey}::${tabKey}`;
-        if (sectionKey) return `${sectionKey}::__section`;
-        if (tabKey) return `__tab::${tabKey}`;
-        return GLOBAL_CONTEXT;
-      };
+        let displayLevel2 = 0;
+        let displayLevel3 = 0;
 
-      Array.from(allHeadings).forEach((heading, index) => {
-        // Check if this heading is inside a tab panel
-        const panel = heading.closest('[role="tabpanel"]');
-        const tabKey = panel?.getAttribute("data-tab") || undefined;
-        const sectionKey = panel?.getAttribute("data-section") || undefined;
-
-        // Generate or get the base ID
-        let baseId = heading.id;
-        if (!baseId) {
-          baseId =
-            heading.textContent
-              ?.toLowerCase()
-              .replace(/\s+/g, "-")
-              .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
-        }
-
-        // Prefix with tab key if in a tab to ensure uniqueness across tabs
-        let id = baseId;
-        if (tabKey && !baseId.startsWith(`${tabKey}-`)) {
-          id = `${tabKey}-${baseId}`;
-        }
-
-        // Update the heading's ID if it changed
-        if (heading.id !== id) {
-          heading.id = id;
-        }
-
-        const level = parseInt(heading.tagName.charAt(1));
-        const rawTitle = heading.textContent || "";
-        const isSection = heading.classList.contains("section-title");
-
-        if (isSection) {
-          // This is a section title - add without number and reset counters
-          items.push({
-            id,
-            title: rawTitle,
-            level: 1, // Treat sections as level 1 for indentation
-            isSection: true,
-            ...(tabKey !== undefined && { tabKey }),
-            ...(sectionKey !== undefined && { sectionKey }),
-          });
-          if (!tabKey && !sectionKey) {
-            globalLevel2 = 0;
+        if (contextKey === GLOBAL_CONTEXT) {
+          if (level === 2) {
+            globalLevel2 += 1;
             globalLevel3 = 0;
+          } else if (level === 3) {
+            if (globalLevel2 === 0) {
+              globalLevel2 = 1;
+            }
+            globalLevel3 += 1;
           }
+          displayLevel2 = globalLevel2;
+          displayLevel3 = globalLevel3;
         } else {
-          const contextKey = getContextKey(sectionKey, tabKey);
+          const current = tabCounters.get(contextKey) ?? {
+            level2: 0,
+            level3: 0,
+          };
+          let { level2, level3 } = current;
 
-          let displayLevel2 = 0;
-          let displayLevel3 = 0;
-
-          if (contextKey === GLOBAL_CONTEXT) {
-            if (level === 2) {
-              globalLevel2 += 1;
-              globalLevel3 = 0;
-            } else if (level === 3) {
-              if (globalLevel2 === 0) {
-                globalLevel2 = 1;
-              }
-              globalLevel3 += 1;
+          if (level === 2) {
+            level2 += 1;
+            level3 = 0;
+          } else if (level === 3) {
+            if (level2 === 0) {
+              level2 = 1;
             }
-            displayLevel2 = globalLevel2;
-            displayLevel3 = globalLevel3;
-          } else {
-            const current = tabCounters.get(contextKey) ?? {
-              level2: 0,
-              level3: 0,
-            };
-            let { level2, level3 } = current;
-
-            if (level === 2) {
-              level2 += 1;
-              level3 = 0;
-            } else if (level === 3) {
-              if (level2 === 0) {
-                level2 = 1;
-              }
-              level3 += 1;
-            }
-
-            tabCounters.set(contextKey, { level2, level3 });
-            displayLevel2 = level2;
-            displayLevel3 = level3;
+            level3 += 1;
           }
 
-          // This is a content heading - add with number
-          let prefix = "";
-          if (level === 2) prefix = `${displayLevel2}.`;
-          if (level === 3) prefix = `${displayLevel2}.${displayLevel3}`;
-
-          items.push({
-            id,
-            title: prefix ? `${prefix} ${rawTitle}` : rawTitle,
-            level,
-            isSection: false,
-            ...(tabKey !== undefined && { tabKey }),
-            ...(sectionKey !== undefined && { sectionKey }),
-          });
+          tabCounters.set(contextKey, { level2, level3 });
+          displayLevel2 = level2;
+          displayLevel3 = level3;
         }
-      });
 
-      setTocItems(items);
-    }
+        // This is a content heading - add with number
+        let prefix = "";
+        if (level === 2) prefix = `${displayLevel2}.`;
+        if (level === 3) prefix = `${displayLevel2}.${displayLevel3}`;
+
+        items.push({
+          id,
+          title: prefix ? `${prefix} ${rawTitle}` : rawTitle,
+          level,
+          isSection: false,
+          ...(tabKey !== undefined && { tabKey }),
+          ...(sectionKey !== undefined && { sectionKey }),
+        });
+      }
+    });
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTocItems(items);
   }, [contentRef, activeTab]); // Re-extract when tab changes
 
   // Handle scroll for reading progress (separate from observer-based section tracking)

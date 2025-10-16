@@ -21,55 +21,57 @@ export function useReadingProgress(
   const lastClickedIdRef = useRef<string>("");
 
   // Extract table of contents from content
+  // This effect extracts TOC data from DOM, which is a legitimate use of setState in effect
   useEffect(() => {
-    if (contentRef.current) {
-      const headings = contentRef.current.querySelectorAll("h2, h3, h4");
+    if (!contentRef.current) return;
 
-      // Build hierarchical numbering (matches CSS counters applied for H2–H4)
-      let c2 = 0,
-        c3 = 0,
+    const headings = contentRef.current.querySelectorAll("h2, h3, h4");
+
+    // Build hierarchical numbering (matches CSS counters applied for H2–H4)
+    let c2 = 0,
+      c3 = 0,
+      c4 = 0;
+    const items: TOCItem[] = [];
+
+    Array.from(headings).forEach((heading, index) => {
+      let id = heading.id;
+      if (!id) {
+        id =
+          heading.textContent
+            ?.toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
+        heading.id = id;
+      }
+
+      const level = parseInt(heading.tagName.charAt(1));
+      const rawTitle = heading.textContent || "";
+
+      if (level === 2) {
+        c2 += 1;
+        c3 = 0;
         c4 = 0;
-      const items: TOCItem[] = [];
+      } else if (level === 3) {
+        c3 += 1;
+        c4 = 0;
+      } else if (level === 4) {
+        c4 += 1;
+      }
 
-      Array.from(headings).forEach((heading, index) => {
-        let id = heading.id;
-        if (!id) {
-          id =
-            heading.textContent
-              ?.toLowerCase()
-              .replace(/\s+/g, "-")
-              .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
-          heading.id = id;
-        }
+      let prefix = "";
+      if (level === 2) prefix = `${c2}.`;
+      if (level === 3) prefix = `${c2}.${c3}.`;
+      if (level === 4) prefix = `${c2}.${c3}.${c4}.`;
 
-        const level = parseInt(heading.tagName.charAt(1));
-        const rawTitle = heading.textContent || "";
-
-        if (level === 2) {
-          c2 += 1;
-          c3 = 0;
-          c4 = 0;
-        } else if (level === 3) {
-          c3 += 1;
-          c4 = 0;
-        } else if (level === 4) {
-          c4 += 1;
-        }
-
-        let prefix = "";
-        if (level === 2) prefix = `${c2}.`;
-        if (level === 3) prefix = `${c2}.${c3}.`;
-        if (level === 4) prefix = `${c2}.${c3}.${c4}.`;
-
-        items.push({
-          id,
-          title: prefix ? `${prefix} ${rawTitle}` : rawTitle,
-          level,
-        });
+      items.push({
+        id,
+        title: prefix ? `${prefix} ${rawTitle}` : rawTitle,
+        level,
       });
+    });
 
-      setTocItems(items);
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTocItems(items);
   }, [contentRef]);
 
   // Handle scroll for reading progress (separate from observer-based section tracking)
