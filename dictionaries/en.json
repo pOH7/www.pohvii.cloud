@@ -46,5 +46,14 @@
     "readTime": "Read time",
     "allNotes": "All Notes",
     "sectionCount": "sections"
+  },
+  "Auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "user": "User",
+    "signInWithGitHub": "Sign in with GitHub",
+    "protectedNote": "Protected Note",
+    "loginRequired": "This note requires authentication to view. Please sign in to continue.",
+    "protectedNoteInfo": "Authentication is required to access certain notes with sensitive or exclusive content."
   }
 }

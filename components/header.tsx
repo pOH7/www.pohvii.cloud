@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
+import { AuthButton } from "./auth/auth-button";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -153,6 +154,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
             </DropdownMenu>
 
             <ThemeToggle />
+            <AuthButton dictionary={dictionary} />
           </div>
 
           {/* Mobile Menu Button */}
@@ -184,6 +186,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
             </DropdownMenu>
 
             <ThemeToggle />
+            <AuthButton dictionary={dictionary} />
             <Button
               variant="outline"
               size="icon"

@@ -46,5 +46,14 @@
     "readTime": "阅读时间",
     "allNotes": "所有笔记",
     "sectionCount": "个章节"
+  },
+  "Auth": {
+    "login": "登录",
+    "logout": "退出",
+    "user": "用户",
+    "signInWithGitHub": "使用 GitHub 登录",
+    "protectedNote": "受保护的笔记",
+    "loginRequired": "此笔记需要登录后才能查看，请登录后继续。",
+    "protectedNoteInfo": "某些包含敏感或独家内容的笔记需要身份验证才能访问。"
   }
 }

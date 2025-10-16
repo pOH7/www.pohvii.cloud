@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
 import { getNoteByTopic, getAllNoteTopics } from "@/lib/note";
 import { supportedLangs } from "@/lib/i18n";
+import { getSession } from "@/lib/auth-server";
+import { getDictionary } from "@/app/[lang]/dictionaries";
 import type { Metadata } from "next";
 import { NoteArticle } from "@/components/note/note-article";
+import { ProtectedNoteGuard } from "@/components/note/protected-note-guard";
+
+// Force dynamic rendering for protected notes
+export const dynamic = "force-dynamic";
 
 interface NotePageProps {
   params: Promise<{
@@ -65,6 +71,20 @@ export default async function NotePage({ params }: NotePageProps) {
 
   if (!note) {
     notFound();
+  }
+
+  // Check if note is protected and user is authenticated
+  if (note.protected) {
+    const session = await getSession();
+    const isAuthenticated =
+      session?.user !== null && session?.user !== undefined;
+
+    if (!isAuthenticated) {
+      const dictionary = await getDictionary(lang as "en" | "zh");
+      return (
+        <ProtectedNoteGuard noteTitle={note.title} dictionary={dictionary} />
+      );
+    }
   }
 
   return <NoteArticle note={note} lang={lang} />;

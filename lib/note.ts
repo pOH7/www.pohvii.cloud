@@ -32,6 +32,7 @@ export interface NoteFrontmatter {
   platform?: string; // For subsections (e.g., 'Windows', 'Linux')
   order?: number; // Custom ordering within directory
   icon?: string; // Optional icon identifier
+  protected?: boolean; // Require authentication to view
 }
 
 export interface NoteSubsection {
@@ -59,6 +60,7 @@ export interface NoteMeta {
   description: string;
   sections: NoteSection[];
   readTime: string;
+  protected?: boolean; // Whether note requires authentication
 }
 
 const contentDir = path.join(process.cwd(), "content", "note");
@@ -352,6 +354,7 @@ export async function getNoteByTopic(
 
   const sections: NoteSection[] = [];
   let totalContent = "";
+  let isProtected = false;
 
   // Process sections in standard order
   for (const sectionKey of STANDARD_SECTIONS) {
@@ -393,6 +396,15 @@ export async function getNoteByTopic(
     description = firstParagraph.slice(0, 200);
   }
 
+  // Check if overview section has protected flag in frontmatter
+  const overviewFile = path.join(topicDir, "overview.mdx");
+  if (fs.existsSync(overviewFile)) {
+    const raw = fs.readFileSync(overviewFile, "utf8");
+    const { data } = matter(raw);
+    const fm = data as Partial<NoteFrontmatter>;
+    isProtected = fm.protected === true;
+  }
+
   return {
     topic,
     lang,
@@ -400,6 +412,7 @@ export async function getNoteByTopic(
     description,
     sections,
     readTime: readingTime(totalContent).text,
+    protected: isProtected,
   };
 }
 
