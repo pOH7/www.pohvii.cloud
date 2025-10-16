@@ -7,6 +7,15 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
+interface NoteFrontmatter {
+  title?: string;
+  description?: string;
+  platform?: string;
+  order?: number;
+  icon?: string;
+  protected?: boolean;
+}
+
 const locales = ["en", "zh"];
 const baseUrl = "https://www.pohvii.cloud";
 
@@ -41,6 +50,30 @@ function getBlogPostDate(locale: string, slug: string): Date {
   }
 
   return new Date();
+}
+
+function isNoteProtected(locale: string, topic: string): boolean {
+  try {
+    const overviewFile = path.join(
+      process.cwd(),
+      "content",
+      "note",
+      locale,
+      topic,
+      "overview.mdx"
+    );
+
+    if (fs.existsSync(overviewFile)) {
+      const raw = fs.readFileSync(overviewFile, "utf8");
+      const { data } = matter(raw);
+      const fm = data as Partial<NoteFrontmatter>;
+      return fm.protected === true;
+    }
+  } catch {
+    // If we can't read the file, assume it's not protected
+  }
+
+  return false;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -116,10 +149,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // Add individual note pages
+  // Add individual note pages (exclude protected notes)
   for (const locale of locales) {
     const topics = getAllNoteTopics(locale);
     for (const topic of topics) {
+      // Skip protected notes - they should not appear in sitemap
+      if (isNoteProtected(locale, topic)) {
+        continue;
+      }
+
       urls.push({
         url: `${baseUrl}/${locale}/note/${topic}/`,
         lastModified: new Date(), // Could be extracted from file stats if needed
