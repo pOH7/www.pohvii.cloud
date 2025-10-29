@@ -1,0 +1,97 @@
+Configure dnsmasq as a DHCP server without DNS functionality on macOS.
+
+## Disable DNS
+
+```conf
+port=0
+no-resolv
+no-hosts
+```
+
+Setting `port=0` disables DNS completely, preventing conflicts with macOS system DNS services.
+
+## Interface Binding
+
+```conf
+interface=en1
+bind-interfaces
+```
+
+Binds only to specified interface. On macOS, `bind-interfaces` prevents conflicts with other network services.
+
+## DHCP Range
+
+```conf
+dhcp-range=192.168.110.100,192.168.110.200,10m
+```
+
+- Start: 192.168.110.100
+- End: 192.168.110.200
+- Lease time: 10m (use `12h` for production)
+
+## DHCP Options
+
+```conf
+dhcp-option=option:router,192.168.110.1
+dhcp-option=option:dns-server,223.5.5.5
+```
+
+Sets default gateway and DNS server for DHCP clients.
+
+## Static Assignments with Custom Gateway
+
+```conf
+dhcp-option=tag:custom-gw,option:router,192.168.110.176
+dhcp-host=11:22:33:44:55:66,192.168.110.30,my-laptop,set:custom-gw
+```
+
+Creates split-gateway setup where tagged devices use 192.168.110.176 (the Mac) as gateway instead of the default.
+
+## Authoritative Mode
+
+```conf
+dhcp-authoritative
+log-dhcp
+```
+
+- `dhcp-authoritative`: Takes over DHCP for all clients on network
+- `log-dhcp`: Enables detailed DHCP transaction logging
+
+## Service Management
+
+```bash
+# Restart after config changes (requires sudo)
+sudo brew services restart dnsmasq
+
+# Check leases
+cat /opt/homebrew/var/lib/misc/dnsmasq/dnsmasq.leases
+```
+
+## Troubleshooting
+
+**dnsmasq won't start:**
+```bash
+# Check port conflicts
+sudo lsof -i :67
+
+# Test configuration
+/opt/homebrew/sbin/dnsmasq --test -C /opt/homebrew/etc/dnsmasq.conf
+```
+
+**Clients not getting leases:**
+```bash
+# Verify running
+ps aux | grep dnsmasq
+```
+
+## macOS-Specific Notes
+
+Enable IP forwarding for custom gateway routing:
+```bash
+sudo sysctl -w net.inet.ip.forwarding=1
+```
+
+Ensure firewall allows dnsmasq:
+```bash
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /opt/homebrew/sbin/dnsmasq
+```
