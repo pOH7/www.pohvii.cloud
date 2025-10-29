@@ -1,27 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm run:*)",
-      "mcp__shadcn__get_project_registries",
-      "mcp__shadcn__search_items_in_registries",
-      "mcp__shadcn__list_items_in_registries",
-      "mcp__shadcn__get_add_command_for_items",
+      "mcp__shadcn__*",
       "Bash(pnpm dlx shadcn@latest add:*)",
       "Bash(git commit:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "mcp__playwright-extension__browser_navigate",
-      "mcp__playwright-extension__browser_click",
-      "mcp__playwright-extension__browser_resize",
-      "mcp__playwright-extension__browser_snapshot",
-      "mcp__playwright-extension__browser_take_screenshot",
-      "mcp__playwright-extension__browser_evaluate",
-      "mcp__playwright__browser_navigate",
-      "mcp__playwright-extension__browser_hover",
-      "mcp__playwright__browser_resize",
-      "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_click",
-      "mcp__playwright__browser_press_key"
+      "mcp__playwright-extension__*",
+      "mcp__playwright__*",
+      "mcp__chrome-devtools__*",
+      "Bash(pnpm lint:fix:*)"
     ],
     "deny": [],
     "ask": []

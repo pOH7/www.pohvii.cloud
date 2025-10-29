@@ -306,8 +306,7 @@ export function NoteTableOfContents({
                                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                                 }`}
                               >
-                                {platform.charAt(0).toUpperCase() +
-                                  platform.slice(1)}
+                                {platform}
                               </button>
                             ))}
                           </div>
@@ -436,7 +435,7 @@ export function NoteTableOfContents({
                               : "bg-muted text-muted-foreground hover:bg-muted/80"
                           }`}
                         >
-                          {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                          {platform}
                         </button>
                       ))}
                     </div>

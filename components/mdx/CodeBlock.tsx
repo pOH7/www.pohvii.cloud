@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import MermaidDiagram from "./MermaidDiagram";
 
 type DataProps = {
   children?: React.ReactNode;
@@ -104,6 +105,11 @@ export default function CodeBlock(props: PreProps) {
       }
     }
   };
+
+  // Check if this is a Mermaid diagram
+  if (language === "mermaid") {
+    return <MermaidDiagram chart={codeText} />;
+  }
 
   return (
     <div className="relative group">

@@ -215,8 +215,7 @@ async function getSubsections(sectionDir: string): Promise<NoteSubsection[]> {
     const fm = data as Partial<NoteFrontmatter>;
 
     const key = file.replace(/\.(mdx?|MDX?)$/, "");
-    const title =
-      fm.title ?? key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+    const title = fm.title ?? key;
 
     const mdxSource = await serializeMDX(content);
 
