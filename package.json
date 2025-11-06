@@ -24,7 +24,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",
     "gray-matter": "^4.0.3",
-    "hls.js": "^1.6.11",
+    "hls.js": "^1.6.14",
     "lucide-react": "^0.552.0",
     "mermaid": "^11.12.0",
     "next": "15.5.6",
