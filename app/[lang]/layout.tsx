@@ -9,13 +9,13 @@ import "../globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Léon Zhang - Full Stack Developer & Tech Writer",
+    default: "Léon Zhang - Software Engineer & Tech Writer",
     template: "%s | Léon Zhang",
   },
   description:
-    "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
+    "Software Engineer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
   keywords: [
-    "Full Stack Developer",
+    "Software Engineer",
     "Software Engineer",
     "Java Developer",
     "Spring Boot",
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Léon Zhang - Full Stack Developer & Tech Writer",
+    title: "Léon Zhang - Software Engineer & Tech Writer",
     description:
-      "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
+      "Software Engineer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
     url: "https://www.pohvii.cloud",
     siteName: "Léon Zhang",
     images: [
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
         url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Léon Zhang - Full Stack Developer",
+        alt: "Léon Zhang - Software Engineer",
       },
     ],
     locale: "en_US",
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Léon Zhang - Full Stack Developer & Tech Writer",
+    title: "Léon Zhang - Software Engineer & Tech Writer",
     description:
-      "Full Stack Developer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
+      "Software Engineer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
     images: ["/twitter-image.svg"],
   },
   robots: {
@@ -113,8 +113,8 @@ export default async function LangLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Léon Zhang",
-    jobTitle: "Full Stack Developer",
-    description: "Full Stack Developer specializing in modern web technologies",
+    jobTitle: "Software Engineer",
+    description: "Software Engineer specializing in modern web technologies",
     url: "https://www.pohvii.cloud",
     knowsAbout: [
       "Java",
