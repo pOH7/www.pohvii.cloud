@@ -1,0 +1,45 @@
+---
+title: Set System Volume on Startup
+description: Automatically set system volume to a specific level when Windows starts
+---
+
+This example shows how to automatically set your system volume to a specific level when Windows starts.
+
+## Steps
+
+### 1. Create a PowerShell Script
+
+Create a file at the following location:
+
+```
+C:\Tools\SetVolume.ps1
+```
+
+Add this content to the file:
+
+```powershell
+& "C:\Tools\nircmd-x64\nircmd.exe" setsysvolume 32768
+```
+
+> **Note:** The value `32768` sets the volume to 50%. You can adjust this value:
+> - `0` = mute
+> - `65535` = 100% volume
+> - `32768` = 50% volume
+
+### 2. Create a Startup Shortcut
+
+Open the Startup folder by pressing `Win+R` and typing:
+
+```
+shell:startup
+```
+
+Create a new shortcut with the following target:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File "C:\Tools\SetVolume.ps1"
+```
+
+## How It Works
+
+When Windows starts, the shortcut in the Startup folder will run the PowerShell script, which executes NirCmd to set the system volume to your desired level.
