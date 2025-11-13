@@ -210,7 +210,7 @@ PersistentKeepalive = 25
 
 ## Verification and Testing
 
-### 1. Test Connectivity
+### Test Connectivity
 
 From your phone or laptop (connected to WireGuard):
 
@@ -225,7 +225,7 @@ ping 192.168.1.1
 ssh user@192.168.1.50
 ```
 
-### 2. Check Routing on macOS
+### Check Routing on macOS
 
 Verify routing table on your macOS machine:
 
@@ -235,7 +235,7 @@ netstat -nr | grep 192.168.1
 
 You should see routes for your home LAN network.
 
-### 3. Verify NAT Rules
+### Verify NAT Rules
 
 Check that NAT rules are loaded:
 
@@ -245,7 +245,7 @@ sudo pfctl -s nat
 
 You should see your `wireguard.nat` rules listed.
 
-### 4. Monitor WireGuard Status
+### Monitor WireGuard Status
 
 ```bash
 sudo wg show
@@ -253,7 +253,7 @@ sudo wg show
 
 This displays active connections and traffic statistics.
 
-### 5. Use Traceroute
+### Use Traceroute
 
 From your remote device:
 
@@ -319,7 +319,7 @@ Some devices on your home LAN might have firewalls blocking traffic from unknown
 
 ## Security Considerations
 
-### 1. Firewall Rules
+### Firewall Rules
 
 When enabling IP forwarding and NAT, you're essentially turning your macOS machine into a router. Consider adding firewall rules to restrict what can be accessed:
 
@@ -333,13 +333,13 @@ pass from 10.0.0.0/24 to 192.168.1.0/24 port { 80, 443, 8080 }
 EOF
 ```
 
-### 2. Keep Software Updated
+### Keep Software Updated
 
 - Regularly update WireGuard
 - Keep macOS updated for security patches
 - Monitor your WireGuard server logs
 
-### 3. Use Strong Keys
+### Use Strong Keys
 
 Always use WireGuard's built-in key generation:
 
@@ -349,7 +349,7 @@ wg genkey | tee privatekey | wg pubkey > publickey
 
 Never reuse keys across different peers.
 
-### 4. Limit Access
+### Limit Access
 
 Only add the home LAN subnet to `AllowedIPs` for clients that truly need it. Not all devices need access to your entire home network.
 
@@ -381,7 +381,7 @@ AllowedIPs = 10.0.0.0/24, 192.168.1.0/24, 192.168.2.0/24
 
 ## Performance Tips
 
-### 1. Optimize MTU
+### Optimize MTU
 
 Test different MTU values to find the optimal size:
 
@@ -391,11 +391,11 @@ ping -D -s 1400 10.0.0.1
 # Increase size until fragmentation occurs, then reduce by 28 bytes
 ```
 
-### 2. Enable Modern Crypto
+### Enable Modern Crypto
 
 WireGuard uses modern crypto by default (ChaCha20-Poly1305), but ensure your server supports hardware acceleration if available.
 
-### 3. Use PersistentKeepalive Wisely
+### Use PersistentKeepalive Wisely
 
 For mobile devices behind NAT:
 ```ini
@@ -404,7 +404,7 @@ PersistentKeepalive = 25
 
 For devices with stable connections, you can increase this or omit it to save bandwidth.
 
-### 4. Monitor Resource Usage
+### Monitor Resource Usage
 
 ```bash
 # Check CPU usage
