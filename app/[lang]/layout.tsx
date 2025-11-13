@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { TopBar } from "@/components/top-bar";
 import { BackToTop } from "@/components/back-to-top";
+import { LenisProvider } from "@/components/lenis-provider";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
@@ -154,10 +155,12 @@ export default async function LangLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TopBar />
-          <Header dictionary={dictionary} lang={lang} />
-          <main>{children}</main>
-          <BackToTop />
+          <LenisProvider>
+            <TopBar />
+            <Header dictionary={dictionary} lang={lang} />
+            <main>{children}</main>
+            <BackToTop />
+          </LenisProvider>
         </ThemeProvider>
       </body>
     </html>

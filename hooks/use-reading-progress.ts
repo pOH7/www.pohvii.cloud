@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import type { LenisScrollEvent } from "@/types/lenis";
 
 export interface TOCItem {
   id: string;
@@ -76,20 +77,36 @@ export function useReadingProgress(
 
   // Handle scroll for reading progress (separate from observer-based section tracking)
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = (e?: LenisScrollEvent | Event) => {
       // Respect a short lock window after a programmatic scroll-to-section
       // (Do not early-return; progress bar should keep updating.)
-      const scrollTop = window.pageYOffset;
+      const scrollTop =
+        e && "scroll" in e ? e.scroll : window.pageYOffset;
       const documentHeight =
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = (scrollTop / documentHeight) * 100;
       setReadingProgress(Math.min(100, Math.max(0, progress)));
     };
 
-    window.addEventListener("scroll", handleScroll);
+    // Listen to Lenis scroll events if available
+    const lenis = window.lenis;
+
+    if (lenis) {
+      lenis.on("scroll", handleScroll);
+    } else {
+      window.addEventListener("scroll", handleScroll);
+    }
+
     // Run once on mount to initialize state (e.g., after hash nav or refresh)
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      if (lenis) {
+        lenis.off("scroll", handleScroll);
+      } else {
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
   }, [contentRef]);
 
   // Observer-based scrollspy for active section (Microsoft Learn-like behavior)
@@ -169,13 +186,25 @@ export function useReadingProgress(
       // Lock active state on click so the next section isn't highlighted
       setActiveSection(id);
       lastClickedIdRef.current = id;
-      // Use native scrollIntoView honoring CSS scroll-margin-top on headings
       clickLockUntilRef.current = Date.now() + 1200; // typical smooth-scroll duration
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-        inline: "nearest",
-      });
+
+      const lenis = window.lenis;
+
+      if (lenis) {
+        // Use Lenis scrollTo with target element
+        lenis.scrollTo(element, {
+          offset: -96, // Match the scroll-margin-top value
+          duration: 1.2,
+        });
+      } else {
+        // Fallback to native scrollIntoView honoring CSS scroll-margin-top on headings
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+
       // Unlock after a safety timeout
       window.setTimeout(() => {
         lastClickedIdRef.current = "";

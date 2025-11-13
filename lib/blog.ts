@@ -8,7 +8,7 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { Element, ElementContent, Text } from "hast";
 // Syntax highlighting
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
 // @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 

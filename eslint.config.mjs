@@ -1,26 +1,7 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-import prettierPlugin from "eslint-plugin-prettier";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextPlugin from "eslint-config-next";
+import prettierConfig from "eslint-config-prettier";
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  ...compat.extends("prettier"),
-  {
-    plugins: {
-      prettier: prettierPlugin,
-    },
-    rules: {
-      "prettier/prettier": "error",
-    },
-  },
   {
     ignores: [
       "node_modules/**",
@@ -28,7 +9,35 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "public/**",
+      "*.config.{js,mjs,ts}",
     ],
+  },
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+  },
+  ...nextPlugin,
+  prettierConfig,
+  {
+    rules: {
+      // TypeScript
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+
+      // React
+      "react/react-in-jsx-scope": "off", // Not needed in Next.js
+      "react/prop-types": "off", // Using TypeScript
+
+      // General
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "prefer-const": "error",
+    },
   },
 ];
 

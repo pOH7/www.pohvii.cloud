@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { LenisScrollEvent } from "@/types/lenis";
 
 interface BackToTopProps {
   /**
@@ -30,8 +31,8 @@ export function BackToTop({
   const [scrollProgress, setScrollProgress] = React.useState(0);
 
   React.useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
+    const handleScroll = (e?: LenisScrollEvent | Event) => {
+      const scrollY = e && "scroll" in e ? e.scroll : window.scrollY;
       const documentHeight =
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = (scrollY / documentHeight) * 100;
@@ -40,51 +41,76 @@ export function BackToTop({
       setScrollProgress(Math.min(progress, 100));
     };
 
-    // Throttle scroll events for better performance
-    let ticking = false;
-    const throttledHandleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+    // Listen to Lenis scroll events if available
+    const lenis = window.lenis;
 
-    window.addEventListener("scroll", throttledHandleScroll, { passive: true });
+    if (lenis) {
+      lenis.on("scroll", handleScroll);
+    } else {
+      // Fallback to native scroll events if Lenis is not available
+      let ticking = false;
+      const throttledHandleScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            handleScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+
+      window.addEventListener("scroll", throttledHandleScroll, {
+        passive: true,
+      });
+    }
 
     // Check initial position
     handleScroll();
 
     return () => {
-      window.removeEventListener("scroll", throttledHandleScroll);
+      if (lenis) {
+        lenis.off("scroll", handleScroll);
+      } else {
+        window.removeEventListener("scroll", () => {});
+      }
     };
   }, [threshold]);
 
   const scrollToTop = () => {
-    const startPosition = window.scrollY;
-    const startTime = performance.now();
+    const lenis = window.lenis;
 
-    const animateScroll = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / scrollDuration, 1);
+    if (lenis) {
+      // Use Lenis scrollTo for smooth scrolling
+      lenis.scrollTo(0, {
+        duration: scrollDuration / 1000, // Convert ms to seconds
+        easing: (t: number) =>
+          t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+      });
+    } else {
+      // Fallback to native smooth scroll
+      const startPosition = window.scrollY;
+      const startTime = performance.now();
 
-      // Ease-in-out cubic function
-      const easeInOutCubic =
-        progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const animateScroll = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / scrollDuration, 1);
 
-      const currentPosition = startPosition * (1 - easeInOutCubic);
-      window.scrollTo(0, currentPosition);
+        // Ease-in-out cubic function
+        const easeInOutCubic =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-      if (progress < 1) {
-        requestAnimationFrame(animateScroll);
-      }
-    };
+        const currentPosition = startPosition * (1 - easeInOutCubic);
+        window.scrollTo(0, currentPosition);
 
-    requestAnimationFrame(animateScroll);
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll);
+        }
+      };
+
+      requestAnimationFrame(animateScroll);
+    }
   };
 
   return (

@@ -17,7 +17,7 @@ import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
 import type { Element, ElementContent, Text } from "hast";
 import type { Metadata } from "next";
 // Syntax highlighting
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
 // @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 
