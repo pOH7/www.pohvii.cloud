@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ZoomIn, ZoomOut, Maximize2, Maximize, Minimize } from "lucide-react";
+import { useTheme } from "next-themes";
 
 type MermaidDiagramProps = {
   chart: string;
@@ -22,12 +23,26 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const originalSvgSizeRef = useRef<{ width: number; height: number } | null>(null);
   const hasInitializedRef = useRef(false);
   const isFirstRenderRef = useRef(true);
+  const isThemeChangeRef = useRef(false);
+  const previousThemeRef = useRef<string | undefined>(undefined);
+
+  // Get current theme for mermaid diagram
+  const { resolvedTheme } = useTheme();
+  const mermaidTheme = resolvedTheme === "dark" ? "dark" : "default";
+
+  // Detect theme changes
+  useEffect(() => {
+    if (previousThemeRef.current !== undefined && previousThemeRef.current !== mermaidTheme) {
+      isThemeChangeRef.current = true;
+    }
+    previousThemeRef.current = mermaidTheme;
+  }, [mermaidTheme]);
 
   useEffect(() => {
     // Initialize mermaid with configuration
     mermaid.initialize({
       startOnLoad: false,
-      theme: "default",
+      theme: mermaidTheme,
       securityLevel: "loose",
       fontFamily: "inherit",
     });
@@ -55,7 +70,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     };
 
     renderDiagram();
-  }, [chart]);
+  }, [chart, mermaidTheme]);
 
   const onCopy = async () => {
     try {
@@ -152,6 +167,12 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   // Store original SVG dimensions when SVG first loads
   useEffect(() => {
     if (svg && containerRef.current && transformRef.current) {
+      // Skip reset and auto-fit if this is a theme change
+      if (isThemeChangeRef.current) {
+        isThemeChangeRef.current = false;
+        return;
+      }
+
       // Reset initialization flag for new SVG
       hasInitializedRef.current = false;
 

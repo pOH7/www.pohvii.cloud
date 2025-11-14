@@ -43,6 +43,14 @@ export function ThemeToggle() {
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
+    // Give the icon container a view-transition-name so it's captured
+    const iconContainer = buttonRef.current.querySelector(
+      ".col-start-1"
+    ) as HTMLElement;
+    if (iconContainer) {
+      iconContainer.style.viewTransitionName = "theme-icon";
+    }
+
     const transition = doc.startViewTransition(() => {
       flushSync(() => {
         setTheme(newTheme);
@@ -53,9 +61,44 @@ export function ThemeToggle() {
       .catch(() => undefined)
       .finally(() => {
         delete root.dataset.themeTransition;
+        if (iconContainer) {
+          iconContainer.style.viewTransitionName = "";
+        }
       });
 
     await transition.ready;
+
+    // Animate the old and new icons with spinning effect
+    const oldPseudo = "::view-transition-old(theme-icon)";
+    const newPseudo = "::view-transition-new(theme-icon)";
+
+    // Old icon: spin out counter-clockwise
+    root.animate(
+      {
+        transform: ["rotate(0deg)", "rotate(-90deg)"],
+        opacity: ["1", "0"],
+      },
+      {
+        duration: 500,
+        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+        pseudoElement: oldPseudo,
+        fill: "forwards",
+      }
+    );
+
+    // New icon: spin in clockwise
+    root.animate(
+      {
+        transform: ["rotate(90deg)", "rotate(0deg)"],
+        opacity: ["0", "1"],
+      },
+      {
+        duration: 500,
+        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+        pseudoElement: newPseudo,
+        fill: "forwards",
+      }
+    );
 
     const clipKeyframes = [
       `circle(0px at ${x}px ${y}px)`,
@@ -121,8 +164,15 @@ export function ThemeToggle() {
       onClick={handleThemeToggle}
       className="h-10 w-10"
     >
-      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <div className="inline-grid relative">
+        <div className="col-start-1 row-start-1 relative">
+          {theme === "dark" ? (
+            <Moon className="h-[1.2rem] w-[1.2rem]" />
+          ) : (
+            <Sun className="h-[1.2rem] w-[1.2rem]" />
+          )}
+        </div>
+      </div>
       <span className="sr-only">Toggle theme</span>
     </Button>
   );
