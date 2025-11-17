@@ -160,9 +160,12 @@ export function ArticleHeader({
               src={video}
               poster={image}
               controls
+              muted
               className="w-full h-full object-cover"
               preload="metadata"
             >
+              {/* Empty track element to satisfy jsx-a11y/media-has-caption */}
+              <track kind="captions" />
               Your browser does not support the video tag.
             </video>
             {/* Optional custom play button overlay */}

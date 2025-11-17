@@ -10,6 +10,7 @@ export const mdxComponents = {
   a: (props: React.ComponentProps<"a">) => (
     <a
       {...props}
+      aria-label={props["aria-label"] ?? "Link"}
       className={`underline decoration-dotted hover:decoration-solid ${props.className ?? ""}`}
     />
   ),

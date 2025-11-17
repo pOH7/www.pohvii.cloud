@@ -13,6 +13,9 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_SECRET ||
     "dev-secret-key-change-in-production-min-32-chars",
 
+  // Explicitly use memory adapter (suppresses warning)
+  database: undefined,
+
   // Use JWT sessions stored in HTTP-only cookies (no database)
   session: {
     cookieCache: {

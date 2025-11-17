@@ -25,10 +25,10 @@ export default function CodeBlock(props: PreProps) {
 
   if (React.isValidElement(children)) {
     const child = children as React.ReactElement<DataProps>;
-    const raw = child?.props?.children;
+    const raw = child.props.children;
     const cls: string | undefined =
-      child?.props?.className || child?.props?.class;
-    const dataLang: string | undefined = child?.props?.["data-language"];
+      child.props.className || child.props.class;
+    const dataLang: string | undefined = child.props["data-language"];
     if (typeof dataLang === "string" && dataLang.trim()) {
       language = dataLang;
     } else if (typeof cls === "string") {
@@ -44,11 +44,11 @@ export default function CodeBlock(props: PreProps) {
       if (React.isValidElement(node)) {
         const n = node as React.ReactElement<DataProps>;
         const nodeCls: string | undefined =
-          n.props?.className || n.props?.class;
+          n.props.className || n.props.class;
         const isLine =
           (typeof nodeCls === "string" && /(^|\s)line(\s|$)/.test(nodeCls)) ||
-          n.props?.["data-line"] !== undefined;
-        const text = getText(n.props?.children);
+          n.props["data-line"] !== undefined;
+        const text = getText(n.props.children);
         return isLine ? (text ? text + "\n" : "\n") : text;
       }
       return "";
@@ -79,7 +79,8 @@ export default function CodeBlock(props: PreProps) {
   const onCopy = async () => {
     const text = extractTextFromDom();
     try {
-      if (navigator.clipboard?.writeText) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if ("clipboard" in navigator && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
       } else {
         throw new Error("clipboard API not available");
@@ -116,7 +117,7 @@ export default function CodeBlock(props: PreProps) {
       {/* Copy button */}
       <button
         type="button"
-        onClick={onCopy}
+        onClick={() => void onCopy()}
         aria-label="Copy code"
         className="absolute top-2 right-2 z-10 rounded-md border border-border bg-background/80 backdrop-blur px-2 py-1 text-xs text-foreground shadow-sm transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 hover:bg-muted"
       >

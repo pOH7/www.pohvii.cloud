@@ -28,13 +28,13 @@ const POSTS_PER_PAGE = 10;
 export default async function TagPage({
   params,
 }: {
-  params: { lang: string; tagName: string };
+  params: Promise<{ lang: string; tagName: string }>;
 }) {
   const { lang, tagName } = await params;
   const decodedTagName = decodeURIComponent(tagName);
 
   // Get all posts and filter by tag
-  const allPosts = await getAllPostsWithIds(lang);
+  const allPosts = getAllPostsWithIds(lang);
   const taggedPosts = allPosts.filter((post) =>
     post.tags.some((tag) => tag.toLowerCase() === decodedTagName.toLowerCase())
   );
@@ -227,7 +227,7 @@ export default async function TagPage({
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: string; tagName: string };
+  params: Promise<{ lang: string; tagName: string }>;
 }) {
   const { tagName } = await params;
   const decodedTagName = decodeURIComponent(tagName);
@@ -237,10 +237,10 @@ export async function generateMetadata({
   };
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const params: { lang: string; tagName: string }[] = [];
   for (const lang of supportedLangs) {
-    const allPosts = await getAllPostsWithIds(lang);
+    const allPosts = getAllPostsWithIds(lang);
     const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
     for (const tag of allTags) {
       params.push({ lang, tagName: encodeURIComponent(tag) });

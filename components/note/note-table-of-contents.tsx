@@ -93,14 +93,14 @@ export function NoteTableOfContents({
         }
 
         if (item.sectionKey && item.tabKey) {
-          if (currentSectionId && !headingToSection[currentSectionId]) {
+          if (currentSectionId && !(item.sectionKey in headingToSection)) {
             headingToSection[currentSectionId] = item.sectionKey;
           }
-          if (!platformSets[item.sectionKey]) {
+          if (!(item.sectionKey in platformSets)) {
             platformSets[item.sectionKey] = new Set<string>();
           }
           platformSets[item.sectionKey].add(item.tabKey);
-          if (!defaultTabs[item.sectionKey]) {
+          if (!(item.sectionKey in defaultTabs)) {
             defaultTabs[item.sectionKey] = item.tabKey;
           }
         }
@@ -125,7 +125,7 @@ export function NoteTableOfContents({
       `switchTab_${section}`
     ];
     if (typeof switcherFn === "function") {
-      switcherFn(platform);
+      (switcherFn as (platform: string) => void)(platform);
       // Find first item in this platform/tab and scroll to it
       const firstItem = items.find(
         (item) =>
@@ -222,16 +222,14 @@ export function NoteTableOfContents({
                   {items.map((item, index) => {
                     const derivedSectionKey = item.isSection
                       ? (sectionKeyByHeading[item.id] ?? "")
-                      : (item.sectionKey ?? "");
+                      : (item.sectionKey || "");
                     const sectionPlatforms =
-                      derivedSectionKey && platformsBySection[derivedSectionKey]
-                        ? platformsBySection[derivedSectionKey]
-                        : [];
+                      (derivedSectionKey ? platformsBySection[derivedSectionKey] : undefined) || [];
                     const chosenTab = derivedSectionKey
                       ? activeTab?.section === derivedSectionKey
                         ? activeTab.tab
-                        : (defaultTabBySection[derivedSectionKey] ??
-                          sectionPlatforms[0] ??
+                        : (defaultTabBySection[derivedSectionKey] ||
+                          sectionPlatforms[0] ||
                           "")
                       : "";
                     const showSwitcher = Boolean(
@@ -301,7 +299,7 @@ export function NoteTableOfContents({
                                 }
                                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                                   activeTab?.section === derivedSectionKey &&
-                                  activeTab?.tab === platform
+                                  activeTab.tab === platform
                                     ? "bg-primary text-primary-foreground"
                                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                                 }`}
@@ -356,14 +354,12 @@ export function NoteTableOfContents({
                 ? (sectionKeyByHeading[item.id] ?? "")
                 : (item.sectionKey ?? "");
               const sectionPlatforms =
-                derivedSectionKey && platformsBySection[derivedSectionKey]
-                  ? platformsBySection[derivedSectionKey]
-                  : [];
+                (derivedSectionKey ? platformsBySection[derivedSectionKey] : undefined) || [];
               const chosenTab = derivedSectionKey
                 ? activeTab?.section === derivedSectionKey
                   ? activeTab.tab
-                  : (defaultTabBySection[derivedSectionKey] ??
-                    sectionPlatforms[0] ??
+                  : (defaultTabBySection[derivedSectionKey] ||
+                    sectionPlatforms[0] ||
                     "")
                 : "";
               const showSwitcher = Boolean(
@@ -430,7 +426,7 @@ export function NoteTableOfContents({
                           }
                           className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
                             activeTab?.section === derivedSectionKey &&
-                            activeTab?.tab === platform
+                            activeTab.tab === platform
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted text-muted-foreground hover:bg-muted/80"
                           }`}

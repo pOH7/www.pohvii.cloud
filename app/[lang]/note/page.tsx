@@ -51,7 +51,7 @@ export async function generateMetadata({
 
 export default async function NoteIndexPage({ params }: NoteIndexPageProps) {
   const { lang } = await params;
-  const notes = await getAllNotesMetadata(lang);
+  const notes = getAllNotesMetadata(lang);
 
   const title = lang === "zh" ? "所有笔记" : "All Notes";
   const noNotesMessage =
@@ -113,6 +113,6 @@ export default async function NoteIndexPage({ params }: NoteIndexPageProps) {
   );
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return supportedLangs.map((lang) => ({ lang }));
 }

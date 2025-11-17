@@ -31,15 +31,15 @@ export function AuthButton({ dictionary }: AuthButtonProps) {
     setMounted(true);
   }, []);
 
-  const handleSignIn = async () => {
-    await signIn.social({
+  const handleSignIn = () => {
+    void signIn.social({
       provider: "github",
       callbackURL: pathname, // Redirect back to current page after login
     });
   };
 
-  const handleSignOut = async () => {
-    await signOut({
+  const handleSignOut = () => {
+    void signOut({
       fetchOptions: {
         onSuccess: () => {
           window.location.reload();

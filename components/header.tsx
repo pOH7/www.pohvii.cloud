@@ -58,7 +58,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
     router.push(path);
 
     // Set cookie for language preference in a microtask to avoid direct modification during render
-    Promise.resolve().then(() => {
+    void Promise.resolve().then(() => {
       document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
     });
 

@@ -20,8 +20,8 @@ export function ProtectedNoteGuard({
 }: ProtectedNoteGuardProps) {
   const pathname = usePathname();
 
-  const handleSignIn = async () => {
-    await signIn.social({
+  const handleSignIn = () => {
+    void signIn.social({
       provider: "github",
       callbackURL: pathname, // Redirect back to this note after login
     });

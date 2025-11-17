@@ -6,11 +6,10 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import type { Element, ElementContent, Text } from "hast";
+import type { Element, Text } from "hast";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
 // Syntax highlighting
 
-// @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 
 // Standard section order
@@ -109,11 +108,12 @@ async function serializeMDX(
                 const space: Text = { type: "text", value: " " };
                 node.children = [space];
               }
-              const first: ElementContent | undefined = node.children?.[0];
-              if (first && (first as Text).type === "text") {
-                const v = (first as Text).value;
+              const first = node.children[0];
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              if (first && "type" in first && first.type === "text") {
+                const v = first.value;
                 const mark = v.trimStart().charAt(0);
-                const leading = v.match(/^\s*/)?.[0] ?? "";
+                const leading = v.match(/^\s*/)?.[0] || "";
                 if (
                   mark === "+" ||
                   mark === "-" ||
@@ -126,10 +126,11 @@ async function serializeMDX(
                     "~": "change",
                     "!": "change",
                   };
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                   if (!node.properties) node.properties = {};
                   (node.properties as Record<string, unknown>)["data-diff"] =
                     map[mark];
-                  (first as Text).value =
+                  first.value =
                     leading + v.trimStart().slice(1).replace(/^\s/, "");
                 }
               }
@@ -383,6 +384,7 @@ export async function getNoteByTopic(
 
   // Try to extract title from first H1 in overview or first section
   const contentToCheck =
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     overviewSection?.content ?? firstSection?.content ?? "";
   const h1Match = contentToCheck.match(/^#\s+(.+)$/m);
   if (h1Match) {
@@ -416,27 +418,64 @@ export async function getNoteByTopic(
 }
 
 /**
- * Get basic metadata for all notes (for index page)
+ * Get basic metadata for all notes (for index page) - synchronous version
  */
-export async function getAllNotesMetadata(lang: string): Promise<
-  Array<{
-    topic: string;
-    title: string;
-    description: string;
-    sectionCount: number;
-  }>
-> {
+export function getAllNotesMetadata(lang: string): Array<{
+  topic: string;
+  title: string;
+  description: string;
+  sectionCount: number;
+}> {
   const topics = getAllNoteTopics(lang);
   const metadata = [];
 
   for (const topic of topics) {
-    const note = await getNoteByTopic(lang, topic);
-    if (note) {
+    const topicDir = getTopicDir(lang, topic);
+    if (!fs.existsSync(topicDir)) continue;
+
+    // Default title is capitalized topic name
+    let title = topic.charAt(0).toUpperCase() + topic.slice(1).toLowerCase();
+    let description = "";
+
+    // Try to get title and description from overview
+    const overviewFile = path.join(topicDir, "overview.mdx");
+    if (fs.existsSync(overviewFile)) {
+      const raw = fs.readFileSync(overviewFile, "utf8");
+      const { content } = matter(raw);
+
+      // Try to extract title from first H1 in overview
+      const h1Match = content.match(/^#\s+(.+)$/m);
+      if (h1Match) {
+        title = h1Match[1];
+      }
+
+      // Try to extract description from first paragraph
+      const firstParagraph = extractFirstParagraph(content);
+      if (firstParagraph) {
+        description = firstParagraph.slice(0, 200);
+      }
+    }
+
+    // Count sections (files and directories in topic dir)
+    let sectionCount = 0;
+    for (const sectionKey of STANDARD_SECTIONS) {
+      const sectionFile = path.join(topicDir, `${sectionKey}.mdx`);
+      const sectionDir = path.join(topicDir, sectionKey);
+
+      if (
+        fs.existsSync(sectionFile) ||
+        (fs.existsSync(sectionDir) && fs.statSync(sectionDir).isDirectory())
+      ) {
+        sectionCount++;
+      }
+    }
+
+    if (sectionCount > 0) {
       metadata.push({
         topic,
-        title: note.title,
-        description: note.description,
-        sectionCount: note.sections.length,
+        title,
+        description,
+        sectionCount,
       });
     }
   }

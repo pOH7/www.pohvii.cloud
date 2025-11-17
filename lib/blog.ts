@@ -6,10 +6,9 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import type { Element, ElementContent, Text } from "hast";
+import type { Element, Text } from "hast";
 // Syntax highlighting
 
-// @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 
 export interface BlogFrontmatter {
@@ -109,11 +108,12 @@ export async function getPostBySlug(lang: string, slug: string) {
                 const space: Text = { type: "text", value: " " };
                 node.children = [space];
               }
-              const first: ElementContent | undefined = node.children?.[0];
-              if (first && (first as Text).type === "text") {
-                const v = (first as Text).value;
+              const first = node.children[0];
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              if (first && "type" in first && first.type === "text") {
+                const v = first.value;
                 const mark = v.trimStart().charAt(0);
-                const leading = v.match(/^\s*/)?.[0] ?? "";
+                const leading = v.match(/^\s*/)?.[0] || "";
                 if (
                   mark === "+" ||
                   mark === "-" ||
@@ -126,10 +126,11 @@ export async function getPostBySlug(lang: string, slug: string) {
                     "~": "change",
                     "!": "change",
                   };
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                   if (!node.properties) node.properties = {};
                   (node.properties as Record<string, unknown>)["data-diff"] =
                     map[mark];
-                  (first as Text).value =
+                  first.value =
                     leading + v.trimStart().slice(1).replace(/^\s/, "");
                 }
               }
@@ -198,7 +199,7 @@ export async function getPostBySlug(lang: string, slug: string) {
   return { meta, mdxSource, rawContent: content } as const;
 }
 
-export async function getAllPosts(lang: string): Promise<BlogMeta[]> {
+export function getAllPosts(lang: string): BlogMeta[] {
   const slugs = getAllPostSlugs(lang);
   const posts: { post: BlogMeta; originalDate: string | Date }[] = [];
 
@@ -250,20 +251,20 @@ export async function getAllPosts(lang: string): Promise<BlogMeta[]> {
     .map(({ post }) => post);
 }
 
-export async function getFeaturedPosts(
+export function getFeaturedPosts(
   lang: string,
   limit: number = 2
-): Promise<BlogMeta[]> {
-  const allPosts = await getAllPosts(lang);
+): BlogMeta[] {
+  const allPosts = getAllPosts(lang);
   return allPosts.slice(0, limit);
 }
 
-export async function getRecentPosts(
+export function getRecentPosts(
   lang: string,
   limit: number = 6,
   skip: number = 0
-): Promise<BlogMeta[]> {
-  const allPosts = await getAllPosts(lang);
+): BlogMeta[] {
+  const allPosts = getAllPosts(lang);
   return allPosts.slice(skip, skip + limit);
 }
 
@@ -273,8 +274,8 @@ export interface TagWithCount {
   slug: string;
 }
 
-export async function getAllTags(lang: string): Promise<TagWithCount[]> {
-  const posts = await getAllPosts(lang);
+export function getAllTags(lang: string): TagWithCount[] {
+  const posts = getAllPosts(lang);
   const tagCounts = new Map<string, number>();
 
   // Count occurrences of each tag

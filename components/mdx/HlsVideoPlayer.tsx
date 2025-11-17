@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useRef, type VideoHTMLAttributes } from "react";
+import type Plyr from "plyr";
+import type Hls from "hls.js";
+import type { LoaderContext, LoaderConfiguration, LoaderCallbacks } from "hls.js";
 
 import { cn } from "@/lib/utils";
 
-type PlyrInstance = import("plyr").default;
+type PlyrInstance = Plyr;
 
-type HlsInstance = import("hls.js").default | null;
+type HlsInstance = Hls | null;
 
 export interface HlsVideoPlayerProps
   extends VideoHTMLAttributes<HTMLVideoElement> {
@@ -115,11 +118,9 @@ export function HlsVideoPlayer({
             }
 
             load(
-              context: import("hls.js").LoaderContext,
-              config: import("hls.js").LoaderConfiguration,
-              callbacks: import("hls.js").LoaderCallbacks<
-                import("hls.js").LoaderContext
-              >
+              context: LoaderContext,
+              config: LoaderConfiguration,
+              callbacks: LoaderCallbacks<LoaderContext>
             ) {
               if (context.url && "baseurl" in context && context.baseurl) {
                 context.url = this.resolveURL(
@@ -265,7 +266,7 @@ export function HlsVideoPlayer({
         player.on("ready", () => {
           fullscreenButton = document.querySelector(
             '[data-plyr="fullscreen"]'
-          ) as HTMLElement | null;
+          );
 
           if (fullscreenButton) {
             const handleFullscreenClick = (e: Event) => {
@@ -321,7 +322,7 @@ export function HlsVideoPlayer({
               } else {
                 // Video is already playing
                 try {
-                  videoWithWebkit.webkitEnterFullscreen!();
+                  videoWithWebkit.webkitEnterFullscreen();
                 } catch (err) {
                   console.error("webkitEnterFullscreen failed:", err);
                   // Fallback to Plyr's fullscreen
@@ -354,7 +355,7 @@ export function HlsVideoPlayer({
       }
     };
 
-    setupPlayer();
+    void setupPlayer();
 
     return () => {
       isMounted = false;
@@ -386,8 +387,11 @@ export function HlsVideoPlayer({
         aria-label={title ?? "Video player"}
         playsInline={playsInline}
         preload="metadata"
+        muted={muted}
         {...rest}
       >
+        {/* Empty track element to satisfy jsx-a11y/media-has-caption */}
+        <track kind="captions" />
         {children}
         <p>Your browser does not support embedded videos.</p>
       </video>

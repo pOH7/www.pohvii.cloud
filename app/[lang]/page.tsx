@@ -45,6 +45,6 @@ export default async function HomePage({
   );
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return supportedLangs.map((lang) => ({ lang }));
 }

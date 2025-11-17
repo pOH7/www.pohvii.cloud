@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 
 // Simple slug-id parsing for middleware (Edge Runtime compatible)
 function parseSlugIdSimple(slugWithId: string): { id: string } {

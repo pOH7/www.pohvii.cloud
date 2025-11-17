@@ -38,8 +38,8 @@ export function useReadingProgress(
       let id = heading.id;
       if (!id) {
         id =
-          heading.textContent
-            ?.toLowerCase()
+          (heading.textContent || "")
+            .toLowerCase()
             .replace(/\s+/g, "-")
             .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
         heading.id = id;

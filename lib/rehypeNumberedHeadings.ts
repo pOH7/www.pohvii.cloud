@@ -11,7 +11,7 @@ interface HastNode {
 }
 
 function isElement(node: HastNode): node is HastNode {
-  return node && node.type === "element";
+  return node.type === "element";
 }
 
 function isHeading(node: HastNode) {

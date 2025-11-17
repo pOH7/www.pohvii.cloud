@@ -118,7 +118,7 @@ export function ExcalidrawViewer({
       }
     }
 
-    loadScene(src);
+    void loadScene(src);
 
     return () => {
       cancelled = true;

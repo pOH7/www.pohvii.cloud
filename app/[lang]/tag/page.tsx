@@ -5,12 +5,12 @@ import { supportedLangs } from "@/lib/i18n";
 export default async function TagsPage({
   params,
 }: {
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
 
   // Get all tags with their post counts
-  const tags = await getAllTags(lang);
+  const tags = getAllTags(lang);
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 pt-16 pb-8">
@@ -58,6 +58,6 @@ export function generateMetadata() {
   };
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return supportedLangs.map((lang) => ({ lang }));
 }

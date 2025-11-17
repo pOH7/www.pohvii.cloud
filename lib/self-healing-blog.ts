@@ -6,10 +6,9 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import type { Element, ElementContent, Text } from "hast";
+import type { Element, Text } from "hast";
 // Syntax highlighting
 
-// @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 import {
   parseSlugId,
@@ -208,11 +207,12 @@ async function buildSelfHealingResult(
                 const space: Text = { type: "text", value: " " };
                 node.children = [space];
               }
-              const first: ElementContent | undefined = node.children?.[0];
-              if (first && (first as Text).type === "text") {
-                const v = (first as Text).value;
+              const first = node.children[0];
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              if (first && "type" in first && first.type === "text") {
+                const v = first.value;
                 const mark = v.trimStart().charAt(0);
-                const leading = v.match(/^\s*/)?.[0] ?? "";
+                const leading = v.match(/^\s*/)?.[0] || "";
                 if (
                   mark === "+" ||
                   mark === "-" ||
@@ -225,10 +225,11 @@ async function buildSelfHealingResult(
                     "~": "change",
                     "!": "change",
                   };
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                   if (!node.properties) node.properties = {};
                   (node.properties as Record<string, unknown>)["data-diff"] =
                     map[mark];
-                  (first as Text).value =
+                  first.value =
                     leading + v.trimStart().slice(1).replace(/^\s/, "");
                 }
               }
@@ -310,7 +311,7 @@ async function buildSelfHealingResult(
 /**
  * Get all posts with self-healing URL format
  */
-export async function getAllPostsWithIds(lang: string): Promise<BlogMeta[]> {
+export function getAllPostsWithIds(lang: string): BlogMeta[] {
   const slugs = getAllPostSlugs(lang);
   const posts: { post: BlogMeta; originalDate: string | Date }[] = [];
 
@@ -371,11 +372,11 @@ export async function getAllPostsWithIds(lang: string): Promise<BlogMeta[]> {
 /**
  * Get featured posts with self-healing URL format
  */
-export async function getFeaturedPostsWithIds(
+export function getFeaturedPostsWithIds(
   lang: string,
   limit: number = 2
-): Promise<BlogMeta[]> {
-  const allPosts = await getAllPostsWithIds(lang);
+): BlogMeta[] {
+  const allPosts = getAllPostsWithIds(lang);
   return allPosts.slice(0, limit);
 }
 
@@ -391,7 +392,7 @@ export async function generateSelfHealingStaticParams(): Promise<
   const { supportedLangs } = await import("./i18n");
 
   for (const lang of supportedLangs) {
-    const posts = await getAllPostsWithIds(lang);
+    const posts = getAllPostsWithIds(lang);
     for (const post of posts) {
       params.push({
         lang,

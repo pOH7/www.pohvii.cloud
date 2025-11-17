@@ -23,7 +23,7 @@ interface PDFViewerWrapperProps {
   src: string;
   title?: string;
   className?: string;
-  locale?: string;
+  locale?: "en" | "zh";
   height?: string;
 }
 

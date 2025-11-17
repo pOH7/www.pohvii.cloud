@@ -30,23 +30,23 @@ const POSTS_PER_PAGE = 10;
 export default async function BlogPage({
   params,
 }: {
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
   const currentPage = 1;
 
   // Get featured posts (with self-healing URLs)
-  const featuredPosts = (await getFeaturedPostsWithIds(lang, 2)).map((p) => ({
+  const featuredPosts = getFeaturedPostsWithIds(lang, 2).map((p) => ({
     slug: p.slug, // Already in self-healing format (slug-id)
     title: p.title,
     description: p.description,
     image: p.image,
     date: p.date,
-    tags: p.tags?.slice(0, 2) ?? [],
+    tags: p.tags.slice(0, 2),
   }));
 
   // Get all posts for pagination (with self-healing URLs)
-  const allPosts = await getAllPostsWithIds(lang);
+  const allPosts = getAllPostsWithIds(lang);
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
   const paginatedPosts = allPosts.slice(
     (currentPage - 1) * POSTS_PER_PAGE,
@@ -253,16 +253,8 @@ export default async function BlogPage({
 
                 {/* Page numbers */}
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let pageNumber;
-                  if (totalPages <= 5) {
-                    pageNumber = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNumber = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    pageNumber = currentPage - 2 + i;
-                  }
+                  // Since currentPage is always 1, we show pages 1-5 (or less if totalPages < 5)
+                  const pageNumber = i + 1;
 
                   return (
                     <PaginationItem key={pageNumber}>
@@ -342,6 +334,6 @@ export function generateMetadata() {
   };
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return supportedLangs.map((lang) => ({ lang }));
 }

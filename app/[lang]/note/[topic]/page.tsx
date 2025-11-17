@@ -76,8 +76,7 @@ export default async function NotePage({ params }: NotePageProps) {
   // Check if note is protected and user is authenticated
   if (note.protected) {
     const session = await getSession();
-    const isAuthenticated =
-      session?.user !== null && session?.user !== undefined;
+    const isAuthenticated = session?.user !== undefined;
 
     if (!isAuthenticated) {
       const dictionary = await getDictionary(lang as "en" | "zh");
@@ -90,7 +89,7 @@ export default async function NotePage({ params }: NotePageProps) {
   return <NoteArticle note={note} lang={lang} />;
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const params: Array<{ lang: string; topic: string }> = [];
 
   for (const lang of supportedLangs) {

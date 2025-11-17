@@ -28,7 +28,7 @@ const POSTS_PER_PAGE = 10;
 export default async function TagPaginationPage({
   params,
 }: {
-  params: { lang: string; tagName: string; pageNumber: string };
+  params: Promise<{ lang: string; tagName: string; pageNumber: string }>;
 }) {
   const { lang, tagName, pageNumber } = await params;
   const decodedTagName = decodeURIComponent(tagName);
@@ -40,7 +40,7 @@ export default async function TagPaginationPage({
   }
 
   // Get all posts and filter by tag
-  const allPosts = await getAllPostsWithIds(lang);
+  const allPosts = getAllPostsWithIds(lang);
   const taggedPosts = allPosts.filter((post) =>
     post.tags.some((tag) => tag.toLowerCase() === decodedTagName.toLowerCase())
   );
@@ -264,13 +264,13 @@ export function generateMetadata({
   };
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const params: { lang: string; tagName: string; pageNumber: string }[] = [];
   for (const lang of supportedLangs) {
-    const allPosts = await getAllPostsWithIds(lang);
+    const allPosts = getAllPostsWithIds(lang);
     const tagCounts = new Map<string, number>();
     for (const post of allPosts) {
-      for (const tag of post.tags || []) {
+      for (const tag of post.tags) {
         const key = tag;
         tagCounts.set(key, (tagCounts.get(key) || 0) + 1);
       }

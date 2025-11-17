@@ -9,8 +9,8 @@ const DICTS = { en, zh } as const;
 
 export default function NotFound() {
   const params = useParams<{ lang?: keyof typeof DICTS }>();
-  const lang = (params?.lang ?? "en") as keyof typeof DICTS;
-  const dict = DICTS[lang] ?? DICTS.en;
+  const lang = (params.lang ?? "en");
+  const dict = DICTS[lang];
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6">

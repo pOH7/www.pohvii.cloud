@@ -7,9 +7,8 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
-import type { Element, ElementContent, Text } from "hast";
+import type { Element, Text } from "hast";
 
-// @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 
 interface NoteArticleProps {
@@ -62,12 +61,12 @@ export function NoteArticle({ note, lang }: NoteArticleProps) {
                                 };
                                 node.children = [space];
                               }
-                              const first: ElementContent | undefined =
-                                node.children?.[0];
-                              if (first && (first as Text).type === "text") {
-                                const v = (first as Text).value;
+                              const first = node.children[0];
+                              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                              if (first && "type" in first && first.type === "text") {
+                                const v = first.value;
                                 const mark = v.trimStart().charAt(0);
-                                const leading = v.match(/^\s*/)?.[0] ?? "";
+                                const leading = v.match(/^\s*/)?.[0] || "";
                                 if (
                                   mark === "+" ||
                                   mark === "-" ||
@@ -80,11 +79,12 @@ export function NoteArticle({ note, lang }: NoteArticleProps) {
                                     "~": "change",
                                     "!": "change",
                                   };
+                                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                   if (!node.properties) node.properties = {};
                                   (node.properties as Record<string, unknown>)[
                                     "data-diff"
                                   ] = map[mark];
-                                  (first as Text).value =
+                                  first.value =
                                     leading +
                                     v.trimStart().slice(1).replace(/^\s/, "");
                                 }

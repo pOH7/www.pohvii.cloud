@@ -62,8 +62,8 @@ export function useNoteReadingProgress(
       let baseId = heading.id;
       if (!baseId) {
         baseId =
-          heading.textContent
-            ?.toLowerCase()
+          (heading.textContent || "")
+            .toLowerCase()
             .replace(/\s+/g, "-")
             .replace(/[^a-z0-9-]/g, "") || `heading-${index}`;
       }
@@ -265,12 +265,12 @@ export function useNoteReadingProgress(
     const tocItem = tocItems.find((item) => item.id === id);
 
     // If the item is in a tab, switch to that tab first
-    if (tocItem?.tabKey && tocItem?.sectionKey) {
+    if (tocItem?.tabKey && tocItem.sectionKey) {
       const switcherFn = (window as unknown as Record<string, unknown>)[
         `switchTab_${tocItem.sectionKey}`
       ];
       if (typeof switcherFn === "function") {
-        switcherFn(tocItem.tabKey);
+        (switcherFn as (tabKey: string) => void)(tocItem.tabKey);
         // Wait a bit for tab switch to complete before scrolling
         setTimeout(() => {
           performScroll(id);

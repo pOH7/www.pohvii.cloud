@@ -1,4 +1,4 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { getAllPostSlugs } from "@/lib/blog";
 import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { generateSlug, combineSlugId } from "@/lib/post-id";
@@ -39,10 +39,10 @@ function getBlogPostDate(locale: string, slug: string): Date {
     const { data } = matter(raw);
 
     // Use lastModified if available, fall back to date, then current date
-    if (data.lastModified) {
+    if (data.lastModified && typeof data.lastModified === 'string') {
       return new Date(data.lastModified);
     }
-    if (data.date) {
+    if (data.date && typeof data.date === 'string') {
       return new Date(data.date);
     }
   } catch {
@@ -76,7 +76,7 @@ function isNoteProtected(locale: string, topic: string): boolean {
   return false;
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default function sitemap(): MetadataRoute.Sitemap {
   const urls: MetadataRoute.Sitemap = [];
 
   // Add homepage for each locale (use manual date)
@@ -101,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Add individual blog posts with self-healing URLs (use frontmatter date)
   for (const locale of locales) {
-    const posts = await getAllPostsWithIds(locale);
+    const posts = getAllPostsWithIds(locale);
     for (const post of posts) {
       // Extract original slug from filename for getBlogPostDate
       const originalSlug = getAllPostSlugs(locale).find((slug) => {

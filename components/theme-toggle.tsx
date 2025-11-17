@@ -24,7 +24,7 @@ export function ThemeToggle() {
     // Check if View Transitions API is supported or user prefers reduced motion
     if (
       !buttonRef.current ||
-      !doc.startViewTransition ||
+      typeof doc.startViewTransition !== "function" ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       setTheme(newTheme);
@@ -44,9 +44,9 @@ export function ThemeToggle() {
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
     // Give the icon container a view-transition-name so it's captured
-    const iconContainer = buttonRef.current.querySelector(
+    const iconContainer = buttonRef.current.querySelector<HTMLElement>(
       ".col-start-1"
-    ) as HTMLElement;
+    );
     if (iconContainer) {
       iconContainer.style.viewTransitionName = "theme-icon";
     }
@@ -161,7 +161,7 @@ export function ThemeToggle() {
       ref={buttonRef}
       variant="outline"
       size="icon"
-      onClick={handleThemeToggle}
+      onClick={() => void handleThemeToggle()}
       className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground"
     >
       <div className="inline-grid relative">

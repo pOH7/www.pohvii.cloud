@@ -6,8 +6,6 @@ import type { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
 
 import type {
   PDFDocumentProxy,
-  PDFPageProxy,
-  PDFDocumentLoadingTask,
 } from "pdfjs-dist/types/src/display/api";
 
 import React, {
@@ -32,8 +30,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { acquireScrollLock } from "@/lib/scroll-lock";
+import type * as PDFJSType from "pdfjs-dist";
 
-type PDFModule = typeof import("pdfjs-dist");
+type PDFModule = typeof PDFJSType;
 
 type FullscreenDocument = Document & {
   webkitFullscreenEnabled?: boolean;
@@ -119,7 +118,7 @@ interface PDFViewerProps {
   src: string;
   title?: string;
   className?: string;
-  locale?: keyof typeof viewerMessages | string;
+  locale?: keyof typeof viewerMessages;
   height?: string;
 }
 
@@ -133,9 +132,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
   height,
 }) => {
   const messages = useMemo(() => {
-    return (
-      viewerMessages[locale as keyof typeof viewerMessages] ?? viewerMessages.en
-    );
+    return viewerMessages[locale];
   }, [locale]);
 
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
@@ -184,7 +181,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     const positionX = scaledWidth <= rect.width ? centeredX : 0;
     const positionY = scaledHeight <= rect.height ? centeredY : 0;
 
-    transform.setTransform?.(positionX, positionY, clampedScale);
+    transform.setTransform(positionX, positionY, clampedScale);
   }, []);
 
   const handleDoubleClick = useCallback(
@@ -214,7 +211,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       }
     };
 
-    init();
+    void init();
   }, [isMounted]);
 
   useEffect(() => {
@@ -241,7 +238,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         setLoading(true);
         setError(null);
 
-        const task = pdfjsLib.getDocument(src) as PDFDocumentLoadingTask;
+        const task = pdfjsLib.getDocument(src);
         const pdf = await task.promise;
 
         setPdfDoc(pdf);
@@ -256,7 +253,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     };
 
     if (src && pdfLibReady) {
-      loadPDF();
+      void loadPDF();
     }
   }, [src, pdfLibReady]);
 
@@ -265,7 +262,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
       if (!pdfDoc || pageImages[pageNumber] || !pdfjsLib) return;
 
       try {
-        const page = (await pdfDoc.getPage(pageNumber)) as PDFPageProxy;
+        const page = (await pdfDoc.getPage(pageNumber));
         const viewport = page.getViewport({ scale: 2 });
 
         const canvas = document.createElement("canvas");
@@ -294,7 +291,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
   useEffect(() => {
     if (pdfDoc && pageNum) {
-      renderPage(pageNum);
+      void renderPage(pageNum);
     }
   }, [pdfDoc, pageNum, renderPage]);
 
@@ -371,7 +368,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
     const result = fn();
 
-    if (result && typeof (result as Promise<void>).then === "function") {
+    if (result && typeof (result).then === "function") {
       await result;
     }
   };
@@ -397,32 +394,26 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     try {
       if (!isFullscreen && !isMobileFullscreen) {
         await callMaybePromise(
-          fullscreenElement.requestFullscreen?.bind(fullscreenElement)
+          fullscreenElement.requestFullscreen.bind(fullscreenElement)
         );
-        if (!document.fullscreenElement) {
-          await callMaybePromise(
-            fullscreenElement.webkitRequestFullscreen?.bind(fullscreenElement)
-          );
-          if (!document.fullscreenElement) {
-            await callMaybePromise(
-              fullscreenElement.msRequestFullscreen?.bind(fullscreenElement)
-            );
-          }
-        }
+        // Fallback to webkit/ms if standard method didn't work
+        await callMaybePromise(
+          fullscreenElement.webkitRequestFullscreen?.bind(fullscreenElement)
+        );
+        await callMaybePromise(
+          fullscreenElement.msRequestFullscreen?.bind(fullscreenElement)
+        );
       } else {
         await callMaybePromise(
-          fullscreenDoc.exitFullscreen?.bind(fullscreenDoc)
+          fullscreenDoc.exitFullscreen.bind(fullscreenDoc)
         );
-        if (document.fullscreenElement) {
-          await callMaybePromise(
-            fullscreenDoc.webkitExitFullscreen?.bind(fullscreenDoc)
-          );
-          if (document.fullscreenElement) {
-            await callMaybePromise(
-              fullscreenDoc.msExitFullscreen?.bind(fullscreenDoc)
-            );
-          }
-        }
+        // Fallback to webkit/ms if standard method didn't work
+        await callMaybePromise(
+          fullscreenDoc.webkitExitFullscreen?.bind(fullscreenDoc)
+        );
+        await callMaybePromise(
+          fullscreenDoc.msExitFullscreen?.bind(fullscreenDoc)
+        );
       }
     } catch (error) {
       console.error("Error toggling fullscreen:", error);
@@ -649,7 +640,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
                 : messages.controls.enterFullscreen
             }
             variant="outline"
-            onClick={toggleFullscreen}
+            onClick={() => void toggleFullscreen()}
           >
             {isAnyFullscreen ? (
               <Shrink className="h-4 w-4" />

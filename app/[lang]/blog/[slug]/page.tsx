@@ -14,11 +14,9 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
-import type { Element, ElementContent, Text } from "hast";
+import type { Element, Text } from "hast";
 import type { Metadata } from "next";
 // Syntax highlighting
-
-// @ts-ignore - type definitions provided by package at runtime
 import rehypePrettyCode from "rehype-pretty-code";
 
 interface BlogDetailPageProps {
@@ -111,7 +109,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
   const mdx = selfHealingResult;
 
-  const all = await getAllPostsWithIds(lang);
+  const all = getAllPostsWithIds(lang);
   const relatedPosts: BlogPost[] = all
     .filter((p) => p.slug !== mdx.meta.slug)
     .slice(0, 2)
@@ -119,12 +117,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       slug: p.slug,
       title: p.title,
       description: p.description,
-      image: p.image ?? "",
+      image: p.image,
       date: p.date,
       readTime: p.readTime,
-      author: p.author ?? "",
-      category: p.category ?? "",
-      tags: p.tags ?? [],
+      author: p.author,
+      category: p.category,
+      tags: p.tags,
       id: p.id,
     }));
 
@@ -132,13 +130,13 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     slug: mdx.meta.slug,
     title: mdx.meta.title,
     description: mdx.meta.description,
-    image: mdx.meta.image ?? "",
+    image: mdx.meta.image,
     ...(mdx.meta.video && { video: mdx.meta.video }),
     date: mdx.meta.date,
     readTime: mdx.meta.readTime,
-    author: mdx.meta.author ?? "",
-    category: mdx.meta.category ?? "",
-    tags: mdx.meta.tags ?? [],
+    author: mdx.meta.author,
+    category: mdx.meta.category,
+    tags: mdx.meta.tags,
     id: mdx.meta.id,
   };
 
@@ -176,12 +174,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                       node.children = [space];
                     }
                     // Diff-style detection: + added, - removed, ~ changed
-                    const first: ElementContent | undefined =
-                      node.children?.[0];
-                    if (first && (first as Text).type === "text") {
-                      const v = (first as Text).value;
+                    const first = node.children[0];
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (first && "type" in first && first.type === "text") {
+                      const v = first.value;
                       const mark = v.trimStart().charAt(0);
-                      const leading = v.match(/^\s*/)?.[0] ?? "";
+                      const leading = v.match(/^\s*/)?.[0] || "";
                       if (
                         mark === "+" ||
                         mark === "-" ||
@@ -194,12 +192,13 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                           "~": "change",
                           "!": "change",
                         };
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         if (!node.properties) node.properties = {};
                         (node.properties as Record<string, unknown>)[
                           "data-diff"
                         ] = map[mark];
                         // remove the marker and following optional space
-                        (first as Text).value =
+                        first.value =
                           leading + v.trimStart().slice(1).replace(/^\s/, "");
                       }
                     }

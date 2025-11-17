@@ -27,5 +27,5 @@ export async function getSession() {
  */
 export async function isAuthenticated(): Promise<boolean> {
   const session = await getSession();
-  return session?.user !== null && session?.user !== undefined;
+  return session?.user !== undefined;
 }

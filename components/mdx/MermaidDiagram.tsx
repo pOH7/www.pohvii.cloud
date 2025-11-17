@@ -69,12 +69,13 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
       }
     };
 
-    renderDiagram();
+    void renderDiagram();
   }, [chart, mermaidTheme]);
 
   const onCopy = async () => {
     try {
-      if (navigator.clipboard?.writeText) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if ("clipboard" in navigator && navigator.clipboard) {
         await navigator.clipboard.writeText(chart);
       } else {
         throw new Error("clipboard API not available");
@@ -301,7 +302,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={toggleFullscreen}
+                  onClick={() => void toggleFullscreen()}
                   aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                   className="p-2 text-foreground hover:bg-muted transition-colors rounded-r-md"
                 >
@@ -316,7 +317,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
               {/* Copy button */}
               <button
                 type="button"
-                onClick={onCopy}
+                onClick={() => void onCopy()}
                 aria-label="Copy diagram source"
                 className="rounded-md border border-border bg-background/80 backdrop-blur px-2 py-1 text-xs text-foreground shadow-sm transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 hover:bg-muted h-9 flex items-center"
               >

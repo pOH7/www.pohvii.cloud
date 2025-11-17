@@ -28,7 +28,7 @@ const POSTS_PER_PAGE = 10;
 export default async function BlogPaginationPage({
   params,
 }: {
-  params: { lang: string; pageNumber: string };
+  params: Promise<{ lang: string; pageNumber: string }>;
 }) {
   const { lang, pageNumber } = await params;
   const currentPage = parseInt(pageNumber, 10);
@@ -44,7 +44,7 @@ export default async function BlogPaginationPage({
   }
 
   // Get all posts for pagination
-  const allPosts = await getAllPostsWithIds(lang);
+  const allPosts = getAllPostsWithIds(lang);
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
 
   // Check if page number is valid
@@ -245,7 +245,7 @@ export default async function BlogPaginationPage({
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: string; pageNumber: string };
+  params: Promise<{ lang: string; pageNumber: string }>;
 }) {
   const { pageNumber } = await params;
   const page = parseInt(pageNumber, 10);
@@ -255,10 +255,10 @@ export async function generateMetadata({
   };
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const allParams: { lang: string; pageNumber: string }[] = [];
   for (const lang of supportedLangs) {
-    const allPosts = await getAllPostsWithIds(lang);
+    const allPosts = getAllPostsWithIds(lang);
     const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE) || 1;
     for (let page = 2; page <= totalPages; page++) {
       allParams.push({ lang, pageNumber: String(page) });
