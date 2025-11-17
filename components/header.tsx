@@ -133,7 +133,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
             {/* Language Picker */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-10 w-10">
+                <Button variant="outline" size="icon" className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground">
                   <Globe className="h-4 w-4" />
                   <span className="sr-only">Select language</span>
                 </Button>
@@ -162,7 +162,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
             {/* Mobile Language Picker */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-10 w-10">
+                <Button variant="outline" size="icon" className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground">
                   <Globe className="h-4 w-4" />
                   <span className="sr-only">Select language</span>
                 </Button>

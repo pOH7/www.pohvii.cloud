@@ -162,15 +162,12 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       onClick={handleThemeToggle}
-      className="h-10 w-10"
+      className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground"
     >
       <div className="inline-grid relative">
         <div className="col-start-1 row-start-1 relative">
-          {theme === "dark" ? (
-            <Moon className="h-[1.2rem] w-[1.2rem]" />
-          ) : (
-            <Sun className="h-[1.2rem] w-[1.2rem]" />
-          )}
+          <Sun className="h-[1.2rem] w-[1.2rem] dark:hidden" />
+          <Moon className="h-[1.2rem] w-[1.2rem] hidden dark:block" />
         </div>
       </div>
       <span className="sr-only">Toggle theme</span>
