@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
@@ -11,6 +13,8 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    // Only allow local/private IPs in development
+    dangerouslyAllowLocalIP: isDev,
   },
 };
 

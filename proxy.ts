@@ -1,7 +1,7 @@
 import type { NextRequest} from "next/server";
 import { NextResponse } from "next/server";
 
-// Simple slug-id parsing for middleware (Edge Runtime compatible)
+// Simple slug-id parsing for proxy (Node.js runtime only)
 function parseSlugIdSimple(slugWithId: string): { id: string } {
   const lastDashIndex = slugWithId.lastIndexOf("-");
 
@@ -57,7 +57,7 @@ function getLocale(request: NextRequest): string {
   return defaultLocale;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Ignore API, Next internals, well-known, and any file with an extension
@@ -106,6 +106,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match all paths; filtering happens inside middleware for simplicity
+  // Match all paths; filtering happens inside proxy for simplicity
   matcher: ["/:path*"],
 };
