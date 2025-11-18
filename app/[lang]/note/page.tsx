@@ -79,7 +79,7 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
           {notes.map((note) => (
             <Link
               key={note.topic}
-              href={`/${lang}/note/${note.topic}`}
+              href={`/${lang}/note/${encodeURIComponent(note.topic)}`}
               className="group"
             >
               <Card className="h-full transition-all hover:shadow-lg hover:border-primary/50">
