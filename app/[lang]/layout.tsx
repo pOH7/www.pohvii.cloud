@@ -142,7 +142,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
           easing="cubic-bezier(0.4, 0, 0.2, 1)"
           speed={200}
           shadow="0 0 10px var(--primary-red), 0 0 20px rgba(237, 37, 78, 0.3)"
-          zIndex={1031}
+          zIndex={1050}
         />
         <ThemeProvider
           attribute="class"
