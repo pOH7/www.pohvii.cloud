@@ -2,12 +2,8 @@ import Link from "next/link";
 import { getDictionary } from "./dictionaries";
 import { supportedLangs } from "@/lib/i18n";
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
+export default async function HomePage(props: PageProps<"/[lang]">) {
+  const { lang } = await props.params;
   const dictionary = await getDictionary(lang as "en" | "zh");
 
   return (

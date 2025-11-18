@@ -19,16 +19,10 @@ import type { Metadata } from "next";
 // Syntax highlighting
 import rehypePrettyCode from "rehype-pretty-code";
 
-interface BlogDetailPageProps {
-  params: Promise<{
-    lang: string;
-    slug: string;
-  }>;
-}
-
-export async function generateMetadata({
-  params,
-}: BlogDetailPageProps): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/[lang]/blog/[slug]">
+): Promise<Metadata> {
+  const params = props.params;
   const { lang, slug: slugWithId } = await params;
 
   // Try self-healing approach first
@@ -92,8 +86,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
-  const { lang, slug: slugWithId } = await params;
+export default async function BlogDetailPage(
+  props: PageProps<"/[lang]/blog/[slug]">
+) {
+  const { lang, slug: slugWithId } = await props.params;
 
   // Use self-healing blog functions
   const selfHealingResult = await getPostBySlugId(lang, slugWithId);

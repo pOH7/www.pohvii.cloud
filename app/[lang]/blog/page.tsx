@@ -27,12 +27,8 @@ import { supportedLangs } from "@/lib/i18n";
 
 const POSTS_PER_PAGE = 10;
 
-export default async function BlogPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
+export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
+  const { lang } = await props.params;
   const currentPage = 1;
 
   // Get featured posts (with self-healing URLs)

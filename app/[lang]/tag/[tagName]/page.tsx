@@ -25,12 +25,10 @@ import { TagLinksFooter } from "@/components/footer";
 
 const POSTS_PER_PAGE = 10;
 
-export default async function TagPage({
-  params,
-}: {
-  params: Promise<{ lang: string; tagName: string }>;
-}) {
-  const { lang, tagName } = await params;
+export default async function TagPage(
+  props: PageProps<"/[lang]/tag/[tagName]">
+) {
+  const { lang, tagName } = await props.params;
   const decodedTagName = decodeURIComponent(tagName);
 
   // Get all posts and filter by tag
@@ -224,12 +222,10 @@ export default async function TagPage({
   );
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string; tagName: string }>;
-}) {
-  const { tagName } = await params;
+export async function generateMetadata(
+  props: PageProps<"/[lang]/tag/[tagName]">
+) {
+  const { tagName } = await props.params;
   const decodedTagName = decodeURIComponent(tagName);
   return {
     title: `${decodedTagName} Articles`,

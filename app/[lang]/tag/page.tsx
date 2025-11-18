@@ -2,12 +2,8 @@ import Tag from "@/components/blog/tag";
 import { getAllTags } from "@/lib/blog";
 import { supportedLangs } from "@/lib/i18n";
 
-export default async function TagsPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
+export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
+  const { lang } = await props.params;
 
   // Get all tags with their post counts
   const tags = getAllTags(lang);

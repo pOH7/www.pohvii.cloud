@@ -100,14 +100,9 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-export default async function LangLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
+export default async function LangLayout(props: LayoutProps<"/[lang]">) {
+  const { lang } = await props.params;
+  const { children } = props;
   const dictionary = await getDictionary(lang as "en" | "zh");
 
   const jsonLd = {

@@ -25,12 +25,10 @@ import { TagLinksFooter } from "@/components/footer";
 
 const POSTS_PER_PAGE = 10;
 
-export default async function TagPaginationPage({
-  params,
-}: {
-  params: Promise<{ lang: string; tagName: string; pageNumber: string }>;
-}) {
-  const { lang, tagName, pageNumber } = await params;
+export default async function TagPaginationPage(
+  props: PageProps<"/[lang]/tag/[tagName]/page/[pageNumber]">
+) {
+  const { lang, tagName, pageNumber } = await props.params;
   const decodedTagName = decodeURIComponent(tagName);
   const currentPage = parseInt(pageNumber, 10);
 
@@ -251,13 +249,12 @@ export default async function TagPaginationPage({
   );
 }
 
-export function generateMetadata({
-  params,
-}: {
-  params: { lang: string; tagName: string; pageNumber: string };
-}) {
-  const decodedTagName = decodeURIComponent(params.tagName);
-  const pageNumber = parseInt(params.pageNumber, 10);
+export async function generateMetadata(
+  props: PageProps<"/[lang]/tag/[tagName]/page/[pageNumber]">
+) {
+  const { tagName, pageNumber: pageNumberStr } = await props.params;
+  const decodedTagName = decodeURIComponent(tagName);
+  const pageNumber = parseInt(pageNumberStr, 10);
   return {
     title: `${decodedTagName} Articles - Page ${pageNumber}`,
     description: `Discover articles about ${decodedTagName} - Page ${pageNumber}. Learn about web development, programming, and more.`,

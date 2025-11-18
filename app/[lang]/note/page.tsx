@@ -11,15 +11,10 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-interface NoteIndexPageProps {
-  params: Promise<{
-    lang: string;
-  }>;
-}
-
-export async function generateMetadata({
-  params,
-}: NoteIndexPageProps): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/[lang]/note">
+): Promise<Metadata> {
+  const params = props.params;
   const { lang } = await params;
 
   const title = lang === "zh" ? "所有笔记" : "All Notes";
@@ -49,8 +44,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function NoteIndexPage({ params }: NoteIndexPageProps) {
-  const { lang } = await params;
+export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
+  const { lang } = await props.params;
   const notes = getAllNotesMetadata(lang);
 
   const title = lang === "zh" ? "所有笔记" : "All Notes";

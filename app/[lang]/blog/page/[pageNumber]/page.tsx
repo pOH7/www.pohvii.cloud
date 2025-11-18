@@ -25,12 +25,10 @@ import { TagLinksFooter } from "@/components/footer";
 
 const POSTS_PER_PAGE = 10;
 
-export default async function BlogPaginationPage({
-  params,
-}: {
-  params: Promise<{ lang: string; pageNumber: string }>;
-}) {
-  const { lang, pageNumber } = await params;
+export default async function BlogPaginationPage(
+  props: PageProps<"/[lang]/blog/page/[pageNumber]">
+) {
+  const { lang, pageNumber } = await props.params;
   const currentPage = parseInt(pageNumber, 10);
 
   // Validate page number
@@ -242,12 +240,10 @@ export default async function BlogPaginationPage({
   );
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string; pageNumber: string }>;
-}) {
-  const { pageNumber } = await params;
+export async function generateMetadata(
+  props: PageProps<"/[lang]/blog/page/[pageNumber]">
+) {
+  const { pageNumber } = await props.params;
   const page = parseInt(pageNumber, 10);
   return {
     title: `Blog - Page ${page}`,

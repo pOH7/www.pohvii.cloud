@@ -10,16 +10,10 @@ import { ProtectedNoteGuard } from "@/components/note/protected-note-guard";
 // Force dynamic rendering for protected notes
 export const dynamic = "force-dynamic";
 
-interface NotePageProps {
-  params: Promise<{
-    lang: string;
-    topic: string;
-  }>;
-}
-
-export async function generateMetadata({
-  params,
-}: NotePageProps): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/[lang]/note/[topic]">
+): Promise<Metadata> {
+  const params = props.params;
   const { lang, topic } = await params;
   const note = await getNoteByTopic(lang, topic);
 
@@ -65,8 +59,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function NotePage({ params }: NotePageProps) {
-  const { lang, topic } = await params;
+export default async function NotePage(
+  props: PageProps<"/[lang]/note/[topic]">
+) {
+  const { lang, topic } = await props.params;
   const note = await getNoteByTopic(lang, topic);
 
   if (!note) {
