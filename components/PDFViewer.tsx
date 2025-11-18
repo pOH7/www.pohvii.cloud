@@ -12,6 +12,7 @@ import React, {
   type CSSProperties,
   useCallback,
   useEffect,
+  useEffectEvent,
   useMemo,
   useRef,
   useState,
@@ -214,19 +215,20 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     void init();
   }, [isMounted]);
 
+  // React 19.2 useEffectEvent: Resize handler that always uses latest handleFitToScreen
+  const onResize = useEffectEvent(() => {
+    handleFitToScreen();
+  });
+
   useEffect(() => {
     if (!isMounted) return;
 
-    const handleResize = () => {
-      handleFitToScreen();
-    };
-
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", onResize);
     };
-  }, [handleFitToScreen, isMounted]);
+  }, [isMounted]); // ✨ No need to include handleFitToScreen dependency
 
   useEffect(() => {
     const loadPDF = async () => {
@@ -325,33 +327,31 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     });
   }, [pdfDoc]);
 
-  const handleKeyboardNavigation = useCallback(
-    (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
+  // React 19.2 useEffectEvent: Keyboard navigation that always uses latest page functions
+  const handleKeyboardNavigation = useEffectEvent((event: KeyboardEvent) => {
+    const target = event.target as HTMLElement | null;
 
-      if (target) {
-        const tag = target.tagName;
+    if (target) {
+      const tag = target.tagName;
 
-        if (
-          target.isContentEditable ||
-          tag === "INPUT" ||
-          tag === "TEXTAREA" ||
-          tag === "SELECT"
-        ) {
-          return;
-        }
+      if (
+        target.isContentEditable ||
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT"
+      ) {
+        return;
       }
+    }
 
-      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-        event.preventDefault();
-        goToNextPage();
-      } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-        event.preventDefault();
-        goToPrevPage();
-      }
-    },
-    [goToNextPage, goToPrevPage]
-  );
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      goToNextPage();
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      goToPrevPage();
+    }
+  });
 
   const isFullscreenSupported = () => {
     const fullscreenDoc = document as FullscreenDocument;
@@ -475,7 +475,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return () => {
       window.removeEventListener("keydown", handleKeyboardNavigation);
     };
-  }, [handleKeyboardNavigation]);
+  }, []); // ✨ No dependencies needed with useEffectEvent
 
   if (!isMounted) {
     return (

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useEffectEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LenisScrollEvent } from "@/types/lenis";
@@ -30,17 +31,19 @@ export function BackToTop({
   const [isVisible, setIsVisible] = React.useState(false);
   const [scrollProgress, setScrollProgress] = React.useState(0);
 
+  // Extract non-reactive scroll logic using React 19.2's useEffectEvent
+  // This allows us to access the latest threshold value without re-running the effect
+  const handleScroll = useEffectEvent((e?: LenisScrollEvent | Event) => {
+    const scrollY = e && "scroll" in e ? e.scroll : window.scrollY;
+    const documentHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollY / documentHeight) * 100;
+
+    setIsVisible(scrollY > threshold);
+    setScrollProgress(Math.min(progress, 100));
+  });
+
   React.useEffect(() => {
-    const handleScroll = (e?: LenisScrollEvent | Event) => {
-      const scrollY = e && "scroll" in e ? e.scroll : window.scrollY;
-      const documentHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (scrollY / documentHeight) * 100;
-
-      setIsVisible(scrollY > threshold);
-      setScrollProgress(Math.min(progress, 100));
-    };
-
     // Listen to Lenis scroll events if available
     const lenis = window.lenis;
 
@@ -74,7 +77,7 @@ export function BackToTop({
         window.removeEventListener("scroll", () => {});
       }
     };
-  }, [threshold]);
+  }, []); // ✨ No dependencies needed! useEffectEvent always reads latest values
 
   const scrollToTop = () => {
     const lenis = window.lenis;

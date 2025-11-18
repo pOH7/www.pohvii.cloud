@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useId } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Activity } from "react";
+import { motion } from "framer-motion";
 import { List, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -92,96 +93,99 @@ export function TableOfContents({
         </Button>
       </motion.div>
 
-      {/* Mobile TOC Overlay */}
-      <AnimatePresence>
-        {isMobileOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 bg-black/50 z-50"
-              onClick={() => setIsMobileOpen(false)}
-            />
+      {/* Mobile TOC Overlay - Using React 19.2 Activity API */}
+      {/* Activity preserves the TOC panel's scroll position when hidden */}
+      <Activity mode={isMobileOpen ? "visible" : "hidden"} name="mobile-toc">
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isMobileOpen ? 1 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden fixed inset-0 bg-black/50 z-50"
+            style={{ display: isMobileOpen ? "block" : "none" }}
+            onClick={() => setIsMobileOpen(false)}
+          />
 
-            {/* Mobile TOC Panel */}
-            <motion.div
-              initial={{ opacity: 0, y: "100%" }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 500 }}
-              className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl max-h-[80vh] overflow-y-auto"
-              id={mobilePanelId}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby={mobileTitleId}
-              ref={mobileScrollRef}
-            >
-              <div className="p-4">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <List className="w-4 h-4 text-primary" />
-                    <h3 id={mobileTitleId} className="font-semibold">
-                      In this article
-                    </h3>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsMobileOpen(false)}
-                    className="rounded-full w-8 h-8 p-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+          {/* Mobile TOC Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{
+              opacity: isMobileOpen ? 1 : 0,
+              y: isMobileOpen ? 0 : "100%",
+            }}
+            transition={{ type: "spring", damping: 25, stiffness: 500 }}
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl max-h-[80vh] overflow-y-auto"
+            style={{ display: isMobileOpen ? "block" : "none" }}
+            id={mobilePanelId}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={mobileTitleId}
+            ref={mobileScrollRef}
+          >
+            <div className="p-4">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <List className="w-4 h-4 text-primary" />
+                  <h3 id={mobileTitleId} className="font-semibold">
+                    In this article
+                  </h3>
                 </div>
-
-                {/* Progress Bar */}
-                <div
-                  className="w-full bg-muted rounded-full mb-4"
-                  style={{ height: "1px" }}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="rounded-full w-8 h-8 p-0"
                 >
-                  <div
-                    className="rounded-full bg-primary transition-all duration-100 ease-out"
-                    style={{ width: `${readingProgress}%`, height: "1px" }}
-                  />
-                </div>
-
-                {/* TOC Navigation */}
-                <nav className="space-y-1" aria-labelledby={mobileTitleId}>
-                  {items.map((item, index) => (
-                    <motion.button
-                      key={item.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      onClick={() => handleItemClick(item.id)}
-                      data-id={item.id}
-                      aria-current={
-                        activeSection === item.id ? "true" : undefined
-                      }
-                      className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 border-l-2 border-transparent ${
-                        item.level === 4
-                          ? "pl-8 text-sm"
-                          : item.level === 3
-                            ? "pl-6 text-sm"
-                            : "text-base"
-                      } ${
-                        activeSection === item.id
-                          ? "border-l-primary bg-accent text-accent-foreground"
-                          : "hover:border-l-border hover:bg-accent/50"
-                      }`}
-                    >
-                      {item.title}
-                    </motion.button>
-                  ))}
-                </nav>
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+
+              {/* Progress Bar */}
+              <div
+                className="w-full bg-muted rounded-full mb-4"
+                style={{ height: "1px" }}
+              >
+                <div
+                  className="rounded-full bg-primary transition-all duration-100 ease-out"
+                  style={{ width: `${readingProgress}%`, height: "1px" }}
+                />
+              </div>
+
+              {/* TOC Navigation */}
+              <nav className="space-y-1" aria-labelledby={mobileTitleId}>
+                {items.map((item, index) => (
+                  <motion.button
+                    key={item.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleItemClick(item.id)}
+                    data-id={item.id}
+                    aria-current={
+                      activeSection === item.id ? "true" : undefined
+                    }
+                    className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 border-l-2 border-transparent ${
+                      item.level === 4
+                        ? "pl-8 text-sm"
+                        : item.level === 3
+                          ? "pl-6 text-sm"
+                          : "text-base"
+                    } ${
+                      activeSection === item.id
+                        ? "border-l-primary bg-accent text-accent-foreground"
+                        : "hover:border-l-border hover:bg-accent/50"
+                    }`}
+                  >
+                    {item.title}
+                  </motion.button>
+                ))}
+              </nav>
+            </div>
+          </motion.div>
+        </>
+      </Activity>
 
       {/* Desktop TOC - Sticky Sidebar */}
       <motion.aside
