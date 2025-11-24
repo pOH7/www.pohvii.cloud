@@ -13,6 +13,7 @@ All blog posts in this project use MDX format with YAML frontmatter for metadata
 | `title` | string | slug name | The main title of the blog post | `"How to Write a Tech Blog: A Comprehensive Guide"` |
 | `description` | string | `""` (empty) | A brief summary of the post content | `"Master the art of technical writing..."` |
 | `date` | string/Date | current date | Publication date (various formats accepted) | `2025-09-15T00:00:00.000Z`, `2025-09-15` |
+| `lastModified` | string/Date | undefined | Last modification date (used in sitemap) | `2025-10-11`, `2025-10-11T00:00:00.000Z` |
 | `author` | string | `""` (empty) | The author's name | `"Léon Zhang"`, `"pOH7"` |
 | `category` | string | `""` (empty) | Primary category for the post | `"Web Development"`, `"Spring"`, `"Infrastructure"` |
 | `tags` | array | `[]` (empty) | Array of relevant tags for categorization | `["SEO", "HTML", "Web Development"]` |
@@ -38,6 +39,13 @@ The system is flexible with date formats:
 ### Display Format
 All dates are automatically formatted to a localized string format: `"Sep 15, 2025"` (month abbreviated, day, year)
 
+### Last Modified Date
+The `lastModified` field tracks when a post was last updated:
+- **Purpose**: Used in sitemap generation for SEO (`lastmod` attribute)
+- **When to use**: Add when making significant content updates to existing posts
+- **Fallback**: If not provided, the sitemap uses the original `date` field
+- **Format**: Same as `date` field (ISO 8601 or date-only string)
+
 ## Required vs Optional Fields
 
 ### Required Fields
@@ -49,6 +57,7 @@ While most fields have defaults, it's strongly recommended to provide them expli
 - **title**: Falls back to the slug name if not provided
 - **description**: Defaults to empty string
 - **date**: Falls back to current date if not provided
+- **lastModified**: Only included if explicitly provided; used in sitemap generation
 - **author**: Defaults to empty string
 - **category**: Defaults to empty string
 - **tags**: Defaults to empty array
@@ -140,6 +149,7 @@ description: >-
   Practical notes on configuring VMware Fusion virtual networks, DHCP/NAT
   settings, and useful commands on macOS.
 date: 2025-09-06T00:00:00.000Z
+lastModified: 2025-11-24
 author: Léon Zhang
 category: Infrastructure
 tags:
