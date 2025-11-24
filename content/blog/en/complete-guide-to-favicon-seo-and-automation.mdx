@@ -6,7 +6,8 @@ description: >-
   Master favicon implementation with this comprehensive guide covering technical
   specs, SEO benefits, automation scripts, and modern web development best
   practices.
-date: 2025-09-11T00:00:00.000Z
+date: 2025-09-11
+lastModified: 2025-11-24
 author: Léon Zhang
 category: Web Development
 tags:
@@ -351,43 +352,41 @@ Modern browsers support SVG favicons, offering infinite scalability:
 
 ### Next.js Implementation
 
-For Next.js projects, place favicon files in the `public` directory and add meta tags to your `_app.js` or layout component:
+For Next.js projects using the App Router, place favicon files in the `public` directory and use the Metadata API in your root layout:
 
-```jsx
-import Head from 'next/head';
+```tsx
+// app/layout.tsx
+import type { Metadata } from 'next'
 
-export default function Layout({ children }) {
+export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
+  themeColor: '#ffffff',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <>
-      <Head>
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#ffffff" />
-      </Head>
-      {children}
-    </>
-  );
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
 }
 ```
 
-### React and Webpack Integration
-
-For React applications, use the `html-webpack-plugin` to automatically inject favicon links:
-
-```javascript
-// webpack.config.js
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-module.exports = {
-  plugins: [
-    new HtmlWebpackPlugin({
-      favicon: './src/favicon.ico'
-    })
-  ]
-};
-```
+> **Note**: Next.js also supports [file-based metadata](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons) where you can place `icon.png` or `apple-icon.png` directly in the `app/` directory. However, this approach doesn't include the `sizes` attribute, so the Metadata API is recommended for complete favicon implementation.
 
 ## Troubleshooting Common Issues
 
@@ -396,6 +395,10 @@ module.exports = {
 Browser caching can prevent favicon updates:
 
 - **Clear browser cache**: Hard refresh (Ctrl+F5)
+- **Clear Safari favicon cache (macOS)**: Remove the cache directory at `~/Library/Safari/Favicon Cache/`
+  ```bash
+  rm -rf ~/Library/Safari/Favicon\ Cache/
+  ```
 - **Check file paths**: Verify all links point to correct locations
 - **Validate HTML**: Ensure proper syntax in meta tags
 - **Server headers**: Confirm correct MIME types are being served
