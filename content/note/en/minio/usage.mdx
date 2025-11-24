@@ -2,3 +2,15 @@
 ```bash
 mc anonymous set download homelab/videos
 ```
+
+## Delete Bucket
+
+```bash
+mc rb homelab/videos
+```
+
+Force delete (removes all objects first):
+
+```bash
+mc rb --force homelab/videos
+```
