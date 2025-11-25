@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { TopBar } from "@/components/top-bar";
 import { BackToTop } from "@/components/back-to-top";
 import { LenisProvider } from "@/components/lenis-provider";
+import { WebVitals } from "@/components/analytics/web-vitals";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: {
@@ -104,6 +107,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
   const { lang } = await props.params;
   const { children } = props;
   const dictionary = await getDictionary(lang as "en" | "zh");
+  const isProduction = process.env.NODE_ENV === "production";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -126,6 +130,14 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
   return (
     <html lang={lang} suppressHydrationWarning>
       <head>
+        {isProduction && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+            data-enabled="true"
+          />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -156,6 +168,14 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
             <main>{children}</main>
             <BackToTop />
           </LenisProvider>
+
+          {/* Analytics Components - Only in production */}
+          {isProduction && (
+            <>
+              <GoogleAnalytics gaId="G-MV6S5XS1V6" />
+              <WebVitals />
+            </>
+          )}
         </ThemeProvider>
       </body>
     </html>
