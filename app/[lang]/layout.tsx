@@ -160,7 +160,6 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
         >
           <LenisProvider>
             <TopBar />

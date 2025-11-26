@@ -16,6 +16,7 @@ type DocumentWithViewTransition = Document & {
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const handleThemeToggle = async () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -24,6 +25,7 @@ export function ThemeToggle() {
     // Check if View Transitions API is supported or user prefers reduced motion
     if (
       !buttonRef.current ||
+      !containerRef.current ||
       typeof doc.startViewTransition !== "function" ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
@@ -43,15 +45,12 @@ export function ThemeToggle() {
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
-    // Give the icon container a view-transition-name so it's captured
-    const iconContainer = buttonRef.current.querySelector<HTMLElement>(
-      ".col-start-1"
-    );
-    if (iconContainer) {
-      iconContainer.style.viewTransitionName = "theme-icon";
-    }
+    // Assign view-transition-name to the icon container
+    containerRef.current.style.viewTransitionName = "theme-icon";
 
     const transition = doc.startViewTransition(() => {
+      // Disable CSS transitions during the snapshot to capture the final state
+      containerRef.current?.classList.add("disable-transitions");
       flushSync(() => {
         setTheme(newTheme);
       });
@@ -61,8 +60,9 @@ export function ThemeToggle() {
       .catch(() => undefined)
       .finally(() => {
         delete root.dataset.themeTransition;
-        if (iconContainer) {
-          iconContainer.style.viewTransitionName = "";
+        if (containerRef.current) {
+          containerRef.current.style.viewTransitionName = "";
+          containerRef.current.classList.remove("disable-transitions");
         }
       });
 
@@ -164,11 +164,12 @@ export function ThemeToggle() {
       onClick={() => void handleThemeToggle()}
       className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground"
     >
-      <div className="inline-grid relative">
-        <div className="col-start-1 row-start-1 relative">
-          <Sun className="h-[1.2rem] w-[1.2rem] dark:hidden" />
-          <Moon className="h-[1.2rem] w-[1.2rem] hidden dark:block" />
-        </div>
+      <div
+        ref={containerRef}
+        className="relative flex items-center justify-center group"
+      >
+        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 opacity-100 transition-all duration-500 group-[.disable-transitions]:!duration-0 dark:-rotate-90 dark:opacity-0" />
+        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-0 opacity-0 transition-all duration-500 group-[.disable-transitions]:!duration-0 dark:-rotate-90 dark:opacity-100" />
       </div>
       <span className="sr-only">Toggle theme</span>
     </Button>
