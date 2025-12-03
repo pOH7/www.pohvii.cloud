@@ -6,6 +6,7 @@ import { TopBar } from "@/components/top-bar";
 import { BackToTop } from "@/components/back-to-top";
 import { LenisProvider } from "@/components/lenis-provider";
 import { WebVitals } from "@/components/analytics/web-vitals";
+import { ReactScan } from "@/components/ReactScan";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
@@ -144,6 +145,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
         />
       </head>
       <body>
+        {!isProduction && <ReactScan />}
         <NextTopLoader
           color="var(--primary-red)"
           initialPosition={0.08}

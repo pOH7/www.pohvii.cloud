@@ -3,6 +3,8 @@
 import {
   useRef,
   useState,
+  useMemo,
+  useCallback,
   Children,
   cloneElement,
   isValidElement,
@@ -32,14 +34,15 @@ export function NoteArticleClient({
   const { readingProgress, activeSection, tocItems, scrollToSection } =
     useNoteReadingProgress(contentRef, activeTab);
 
-  const handleTabChange = (tabKey: string, sectionKey?: string) => {
+  const handleTabChange = useCallback((tabKey: string, sectionKey?: string) => {
     if (sectionKey) {
       setActiveTab({ section: sectionKey, tab: tabKey });
     }
-  };
+  }, []);
 
   // Inject onTabChange handler into SectionTabs components
-  const enhancedChildren = Children.map(children, (child) => {
+  // Memoize to prevent re-rendering children when only scroll position changes
+  const enhancedChildren = useMemo(() => Children.map(children, (child) => {
     if (
       isValidElement<{ children?: React.ReactNode; id?: string }>(child) &&
       child.type === "section"
@@ -69,7 +72,7 @@ export function NoteArticleClient({
       return cloneElement(child, {}, sectionChildren);
     }
     return child;
-  });
+  }), [children, handleTabChange]);
 
   return (
     <div className="container mx-auto px-4 py-8">

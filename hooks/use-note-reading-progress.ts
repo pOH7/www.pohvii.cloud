@@ -159,13 +159,30 @@ export function useNoteReadingProgress(
 
   // Handle scroll for reading progress (separate from observer-based section tracking)
   useEffect(() => {
+    let rafId: number | null = null;
+    let lastUpdate = 0;
+    const THROTTLE_MS = 100; // Update max 10 times per second
+
     const handleScroll = (e?: LenisScrollEvent | Event) => {
-      const scrollTop =
-        e && "scroll" in e ? e.scroll : window.pageYOffset;
-      const documentHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (scrollTop / documentHeight) * 100;
-      setReadingProgress(Math.min(100, Math.max(0, progress)));
+      if (rafId) return; // Already scheduled
+
+      rafId = requestAnimationFrame(() => {
+        const now = Date.now();
+        if (now - lastUpdate < THROTTLE_MS) {
+          rafId = null;
+          return;
+        }
+
+        const scrollTop =
+          e && "scroll" in e ? e.scroll : window.pageYOffset;
+        const documentHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (scrollTop / documentHeight) * 100;
+        setReadingProgress(Math.min(100, Math.max(0, progress)));
+
+        lastUpdate = now;
+        rafId = null;
+      });
     };
 
     // Listen to Lenis scroll events if available
@@ -181,6 +198,7 @@ export function useNoteReadingProgress(
     handleScroll();
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       if (lenis) {
         lenis.off("scroll", handleScroll);
       } else {
