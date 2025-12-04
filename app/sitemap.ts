@@ -39,10 +39,10 @@ function getBlogPostDate(locale: string, slug: string): Date {
     const { data } = matter(raw);
 
     // Use lastModified if available, fall back to date, then current date
-    if (data.lastModified && typeof data.lastModified === 'string') {
+    if (data.lastModified && typeof data.lastModified === "string") {
       return new Date(data.lastModified);
     }
-    if (data.date && typeof data.date === 'string') {
+    if (data.date && typeof data.date === "string") {
       return new Date(data.date);
     }
   } catch {

@@ -52,26 +52,26 @@ export function BlogArticle({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-clip">
+    <div className="bg-background text-foreground min-h-screen overflow-x-clip">
       {/* Back Button - Full Width */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full px-4 md:px-8 max-w-6xl mx-auto pt-8 pb-4"
+        className="mx-auto w-full max-w-6xl px-4 pt-8 pb-4 md:px-8"
       >
         <Link href={`/${lang}/blog`}>
           <Button
             variant="outline"
-            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Blog
           </Button>
         </Link>
       </motion.div>
 
       {/* Article Header - Full Width */}
-      <div className="w-full px-4 md:px-8 max-w-6xl mx-auto mb-8">
+      <div className="mx-auto mb-8 w-full max-w-6xl px-4 md:px-8">
         <ArticleHeader
           title={post.title}
           description={post.description}
@@ -88,9 +88,9 @@ export function BlogArticle({
       </div>
 
       {/* Content Area with Sidebar - Two Column Layout */}
-      <div className="flex max-w-6xl mx-auto px-4 md:px-8 gap-8">
+      <div className="mx-auto flex max-w-6xl gap-8 px-4 md:px-8">
         {/* Main Article Content */}
-        <article className="min-w-0 flex-1 max-w-4xl">
+        <article className="max-w-4xl min-w-0 flex-1">
           {/* Article Content */}
           <motion.div
             ref={contentRef}
@@ -107,11 +107,11 @@ export function BlogArticle({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="border-t border-border pt-8 mb-12"
+            className="border-border mb-12 border-t pt-8"
           >
-            <div className="flex items-center gap-2 mb-6">
-              <Folder className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">
+            <div className="mb-6 flex items-center gap-2">
+              <Folder className="text-primary h-4 w-4" />
+              <span className="text-primary text-sm font-medium">
                 {post.category}
               </span>
             </div>
@@ -120,9 +120,9 @@ export function BlogArticle({
               <Link href={`/${lang}/blog`}>
                 <Button
                   variant="outline"
-                  className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform cursor-pointer"
+                  className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="h-4 w-4" />
                   All Posts
                 </Button>
               </Link>
@@ -140,7 +140,7 @@ export function BlogArticle({
       </div>
 
       {/* Comments Section - Full Width */}
-      <div className="w-full px-4 md:px-8 max-w-6xl mx-auto">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <div id="comments">
           <UtterancesComments
             repo={utterancesRepo}
@@ -151,7 +151,7 @@ export function BlogArticle({
       </div>
 
       {/* Related Posts - Full Width */}
-      <div className="w-full px-4 md:px-8 max-w-6xl mx-auto">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <RelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
       </div>
     </div>

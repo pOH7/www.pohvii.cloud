@@ -162,73 +162,11 @@
   }
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Blog-specific animations */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulseSubtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-/* Blog card hover effects */
-.blog-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.blog-card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-.dark .blog-card-hover:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-}
-
-/* Animation utilities */
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.animate-slide-in-up {
-  animation: slideInUp 0.4s ease-out;
-}
-
-.animate-pulse-subtle {
-  animation: pulseSubtle 2s ease-in-out infinite;
-}
-
-/* Stagger animation delays */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-.stagger-6 { animation-delay: 0.6s; }
-
 /* Enhanced Blog Article Styles */
-.blog-article-content {
+.blog-article-content,
+.prose {
   @apply prose prose-lg max-w-none;
-  
+
   /* Custom prose colors using CSS variables */
   --tw-prose-body: var(--foreground);
   --tw-prose-headings: var(--foreground);
@@ -252,8 +190,12 @@
   /* CSS counters for hierarchical heading numbering */
   counter-reset: h2;
 }
-.blog-article-content h2 { counter-reset: h3; }
-.blog-article-content h3 { counter-reset: h4; }
+.blog-article-content h2 {
+  counter-reset: h3;
+}
+.blog-article-content h3 {
+  counter-reset: h4;
+}
 
 /* Prefix visible numbers before headings (H2–H4) */
 .blog-article-content h2::before {
@@ -282,7 +224,7 @@
 }
 
 .blog-article-content code {
-  @apply bg-muted px-1 py-0.5 rounded text-sm;
+  @apply bg-muted rounded px-1 py-0.5 text-sm;
 
   &::before,
   &::after {
@@ -292,11 +234,11 @@
 
 /* Remove padding for code inside pre blocks to fix alignment */
 .blog-article-content pre code {
-  @apply px-0 py-0 bg-transparent;
+  @apply bg-transparent px-0 py-0;
 }
 
 .blog-article-content pre {
-  @apply bg-muted rounded-lg overflow-x-auto;
+  @apply bg-muted overflow-x-auto rounded-lg;
   /* Prevent pre blocks from expanding flex items */
   max-width: 100%;
 }
@@ -306,7 +248,9 @@
 }
 
 /* Syntax highlighting (rehype-pretty-code / Shiki) */
-.blog-article-content pre code { counter-reset: line; }
+.blog-article-content pre code {
+  counter-reset: line;
+}
 
 .blog-article-content pre code [data-line] {
   display: inline-block;
@@ -339,29 +283,46 @@
 
 /* Diff-style lines */
 .blog-article-content pre code [data-line][data-diff="add"] {
-  background-color: color-mix(in oklab, #10b981 18%, transparent); /* emerald-500 */
+  background-color: color-mix(
+    in oklab,
+    #10b981 18%,
+    transparent
+  ); /* emerald-500 */
 }
 .blog-article-content pre code [data-line][data-diff="remove"] {
   background-color: color-mix(in oklab, #ef4444 18%, transparent); /* red-500 */
 }
 .blog-article-content pre code [data-line][data-diff="change"] {
-  background-color: color-mix(in oklab, #f59e0b 18%, transparent); /* amber-500 */
+  background-color: color-mix(
+    in oklab,
+    #f59e0b 18%,
+    transparent
+  ); /* amber-500 */
 }
 
-.blog-article-content pre code [data-line][data-diff="add"]::before { color: #10b981; content: "+ " counter(line); }
-.blog-article-content pre code [data-line][data-diff="remove"]::before { color: #ef4444; content: "- " counter(line); }
-.blog-article-content pre code [data-line][data-diff="change"]::before { color: #f59e0b; content: "~ " counter(line); }
+.blog-article-content pre code [data-line][data-diff="add"]::before {
+  color: #10b981;
+  content: "+ " counter(line);
+}
+.blog-article-content pre code [data-line][data-diff="remove"]::before {
+  color: #ef4444;
+  content: "- " counter(line);
+}
+.blog-article-content pre code [data-line][data-diff="change"]::before {
+  color: #f59e0b;
+  content: "~ " counter(line);
+}
 
 /* Map Shiki token variables to actual colors for light/dark themes */
-.blog-article-content code[data-theme*='github-'] {
+.blog-article-content code[data-theme*="github-"] {
   color: var(--shiki-foreground);
 }
 
-html:not(.dark) .blog-article-content code[data-theme*='github-light'] span {
+html:not(.dark) .blog-article-content code[data-theme*="github-light"] span {
   color: var(--shiki-light);
 }
 
-html.dark .blog-article-content code[data-theme*='github-dark'] span {
+html.dark .blog-article-content code[data-theme*="github-dark"] span {
   color: var(--shiki-dark);
 }
 
@@ -431,7 +392,7 @@ html.dark .blog-article-content code[data-theme*='github-dark'] span {
 }
 
 .toc-item:hover {
-  @apply translate-x-1 text-primary;
+  @apply text-primary translate-x-1;
 }
 
 .toc-item.active {
@@ -440,12 +401,12 @@ html.dark .blog-article-content code[data-theme*='github-dark'] span {
 
 /* Progress bar animation */
 .progress-bar {
-  @apply h-1 rounded-full bg-primary transition-all duration-100 ease-out;
+  @apply bg-primary h-1 rounded-full transition-all duration-100 ease-out;
 }
 
 /* Comment card animations */
 .comment-card {
-  @apply bg-card border border-border rounded-lg p-4 mb-4;
+  @apply bg-card border-border mb-4 rounded-lg border p-4;
   transition: all 0.2s ease-out;
 }
 
@@ -495,7 +456,7 @@ html.dark .blog-article-content code[data-theme*='github-dark'] span {
 
 /* The iframe itself - we can only control the frame, not the content */
 .utterances-frame {
-  @apply w-full border-0 rounded-lg;
+  @apply w-full rounded-lg border-0;
   min-height: 200px;
   background: transparent !important;
   /* Remove any default iframe styling */
@@ -527,7 +488,7 @@ html.dark .blog-article-content code[data-theme*='github-dark'] span {
 
 .utterances-container:not(:has(.utterances-frame))::before {
   content: "💬 Loading comments...";
-  @apply block text-center text-muted-foreground py-12 animate-pulse text-lg;
+  @apply text-muted-foreground block animate-pulse py-12 text-center text-lg;
   background: var(--muted);
   border-radius: var(--radius-lg);
   margin: 1rem 0;
@@ -539,7 +500,7 @@ html.dark .blog-article-content code[data-theme*='github-dark'] span {
 }
 
 .utterances-container:has(.utterances-frame)::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -1rem;
   background: var(--card);

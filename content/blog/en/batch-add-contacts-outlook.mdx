@@ -28,15 +28,17 @@ Let's analyze the API used to add emails to a contact list:
 1. Open the Outlook web interface and navigate to your distribution list.
 2. Open DevTools (F12) and switch to the **Network** tab.
 3. Add **4 or more contacts** manually to trigger the correct body format (clear the network records before clicking the save button).
-    
-    > [!NOTE]
-    > It is interesting to note that the request format changes based on the number of contacts:
-    > - **≤3 contacts**: Request data is sent in the `x-owa-urlpostdata` header.
-    > - **≥4 contacts**: Request data is moved to the request body.
+
+   > [!NOTE]
+   > It is interesting to note that the request format changes based on the number of contacts:
+   >
+   > - **≤3 contacts**: Request data is sent in the `x-owa-urlpostdata` header.
+   > - **≥4 contacts**: Request data is moved to the request body.
 
 4. Locate the request.
 
 The request URL is:
+
 ```
 https://outlook.office.com/owa/service.svc?action=UpdatePersona
 ```

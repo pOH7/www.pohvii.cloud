@@ -1,18 +1,23 @@
-
 ## 1. Check ImageRepository status (checks if it can access the registry)
+
 flux get image repository sub-store
 
 ## 2. Check ImagePolicy status (checks if it can find matching tags)
+
 flux get image policy sub-store
 
 ## 3. Get detailed information about the ImageRepository
+
 kubectl describe imagerepository sub-store -n flux-system
 
 ## 4. Get detailed information about the ImagePolicy
+
 kubectl describe imagepolicy sub-store -n flux-system
 
 ## 5. View logs from the image-reflector-controller
+
 kubectl logs -n flux-system deployment/image-reflector-controller -f
 
 ## 6. View logs from the image-automation-controller
+
 kubectl logs -n flux-system deployment/image-automation-controller -f

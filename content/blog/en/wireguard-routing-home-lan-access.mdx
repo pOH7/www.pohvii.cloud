@@ -25,6 +25,7 @@ id: 7ac4f457
 You have a WireGuard VPN set up, and you can connect to it from your phone or laptop when you're away from home. However, there's a limitation: you can only access the VPN server itself, not the other devices on your home LAN network.
 
 For example, imagine this scenario:
+
 - Your home network uses the `192.168.1.0/24` subnet
 - You have a macOS machine at `192.168.1.100` connected to your home network
 - This machine also connects to your WireGuard VPN and gets IP `10.0.0.3`
@@ -36,10 +37,12 @@ This guide shows you how to configure your macOS machine as a gateway, allowing 
 ## Solution Overview
 
 The solution involves configuring your macOS machine (`10.0.0.3`) to act as a gateway/router between two networks:
+
 1. **WireGuard network**: `10.0.0.0/24`
 2. **Home LAN network**: `192.168.1.0/24`
 
 This requires four main steps:
+
 1. Enable IP forwarding on macOS
 2. Configure NAT (Network Address Translation)
 3. Update WireGuard server configuration
@@ -133,6 +136,7 @@ AllowedIPs = 10.0.0.3/32, 192.168.1.0/24
 ```
 
 The key change is adding `192.168.1.0/24` to the `AllowedIPs` for your macOS peer. This tells the server:
+
 - Accept traffic destined for `192.168.1.0/24` from this peer
 - Route traffic for `192.168.1.0/24` to this peer
 
@@ -166,6 +170,7 @@ PersistentKeepalive = 25
 ```
 
 The crucial change is adding `192.168.1.0/24` to `AllowedIPs`. This tells the client:
+
 - Route traffic for `10.0.0.0/24` through the VPN (WireGuard network)
 - **Also** route traffic for `192.168.1.0/24` through the VPN (home LAN)
 
@@ -268,13 +273,16 @@ You should see the route going through `10.0.0.3` (your macOS gateway).
 ### Problem: Can't ping home LAN devices
 
 **Possible causes:**
+
 1. IP forwarding not enabled
+
    ```bash
    sysctl net.inet.ip.forwarding
    # Should return: net.inet.ip.forwarding: 1
    ```
 
 2. NAT rules not active
+
    ```bash
    sudo pfctl -s nat
    # Should show your wireguard.nat rules
@@ -290,7 +298,9 @@ You should see the route going through `10.0.0.3` (your macOS gateway).
 ### Problem: Connection works but is very slow
 
 **Solutions:**
+
 1. Check MTU settings - WireGuard default is 1420, you may need to adjust
+
    ```ini
    [Interface]
    MTU = 1380
@@ -314,6 +324,7 @@ This usually means devices on your home LAN don't know how to route back to `10.
 Some devices on your home LAN might have firewalls blocking traffic from unknown sources.
 
 **Solution:**
+
 - Check firewall rules on specific devices
 - Some devices only respond to traffic from their own subnet - NAT should fix this
 
@@ -358,6 +369,7 @@ Only add the home LAN subnet to `AllowedIPs` for clients that truly need it. Not
 If you have multiple subnets at home (e.g., separate IoT network), you can route all of them:
 
 ### macOS NAT Config
+
 ```bash
 sudo tee /etc/pf.anchors/wireguard.nat <<EOF
 # NAT for main home network
@@ -368,6 +380,7 @@ EOF
 ```
 
 ### Server Config
+
 ```ini
 [Peer]
 PublicKey = <macos_public_key>
@@ -375,6 +388,7 @@ AllowedIPs = 10.0.0.3/32, 192.168.1.0/24, 192.168.2.0/24
 ```
 
 ### Client Config
+
 ```ini
 AllowedIPs = 10.0.0.0/24, 192.168.1.0/24, 192.168.2.0/24
 ```
@@ -398,6 +412,7 @@ WireGuard uses modern crypto by default (ChaCha20-Poly1305), but ensure your ser
 ### Use PersistentKeepalive Wisely
 
 For mobile devices behind NAT:
+
 ```ini
 PersistentKeepalive = 25
 ```
@@ -425,6 +440,7 @@ By setting up your macOS machine as a WireGuard gateway, you can seamlessly acce
 - Remote desktop to home computers
 
 The key components are:
+
 1. **IP Forwarding**: Allows packet routing
 2. **NAT**: Translates addresses for seamless communication
 3. **WireGuard Routing**: Directs traffic through the appropriate tunnels

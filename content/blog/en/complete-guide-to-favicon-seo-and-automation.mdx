@@ -90,7 +90,7 @@ A complete favicon setup requires these files in your public directory:
 public/
 ├── favicon.ico              # Legacy multi-size ICO
 ├── favicon-16x16.png       # Browser tab icon
-├── favicon-32x32.png       # Taskbar icon  
+├── favicon-32x32.png       # Taskbar icon
 ├── android-chrome-192x192.png  # Android home screen
 ├── android-chrome-512x512.png  # Android splash screen
 ├── apple-touch-icon.png    # iOS home screen (180x180)
@@ -103,16 +103,16 @@ Your HTML `<head>` section should include these meta tags:
 
 ```html
 <!-- Core favicon files -->
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
 
 <!-- PWA manifest -->
-<link rel="manifest" href="/site.webmanifest">
+<link rel="manifest" href="/site.webmanifest" />
 
 <!-- Theme color for browser UI -->
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#ffffff" />
 ```
 
 ### Web Manifest Configuration
@@ -122,7 +122,7 @@ The `site.webmanifest` file enables PWA features:
 ```json
 {
   "name": "Your App Name",
-  "short_name": "YourApp", 
+  "short_name": "YourApp",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -130,7 +130,7 @@ The `site.webmanifest` file enables PWA features:
       "type": "image/png"
     },
     {
-      "src": "/android-chrome-512x512.png", 
+      "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
@@ -282,7 +282,7 @@ With HTTP/2, multiple small PNG files often perform better than a single large I
 ### Design Principles
 
 - **Simplicity**: Complex designs become illegible at small sizes
-- **High Contrast**: Ensure visibility across light and dark backgrounds  
+- **High Contrast**: Ensure visibility across light and dark backgrounds
 - **Brand Consistency**: Maintain visual connection to your main logo
 - **Scalability**: Design should work from 16x16 to 512x512 pixels
 
@@ -327,16 +327,17 @@ For applications requiring real-time favicon updates:
 
 ```javascript
 function updateFavicon(iconUrl) {
-  const link = document.querySelector("link[rel*='icon']") || 
-               document.createElement('link');
-  link.type = 'image/x-icon';
-  link.rel = 'shortcut icon';
+  const link =
+    document.querySelector("link[rel*='icon']") ||
+    document.createElement("link");
+  link.type = "image/x-icon";
+  link.rel = "shortcut icon";
   link.href = iconUrl;
-  document.getElementsByTagName('head')[0].appendChild(link);
+  document.getElementsByTagName("head")[0].appendChild(link);
 }
 
 // Example: notification badges
-updateFavicon('/favicon-notification.ico');
+updateFavicon("/favicon-notification.ico");
 ```
 
 ### SVG Favicons for Modern Browsers
@@ -344,8 +345,8 @@ updateFavicon('/favicon-notification.ico');
 Modern browsers support SVG favicons, offering infinite scalability:
 
 ```html
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
 ```
 
 ## Integration with Modern Development Workflows
@@ -356,33 +357,33 @@ For Next.js projects using the App Router, place favicon files in the `public` d
 
 ```tsx
 // app/layout.tsx
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  manifest: '/site.webmanifest',
-  themeColor: '#ffffff',
-}
+  manifest: "/site.webmanifest",
+  themeColor: "#ffffff",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <body>{children}</body>
     </html>
-  )
+  );
 }
 ```
 

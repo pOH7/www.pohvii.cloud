@@ -195,6 +195,7 @@ Authorization: {ACCESS_TOKEN}
 ```
 
 Response example:
+
 ```json
 {
   "value": [
@@ -313,11 +314,11 @@ Always validate and sanitize user input before creating list items:
 
 ```javascript
 function sanitizeInput(input) {
-    // Remove potentially harmful characters
-    return input
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/[<>]/g, '')
-        .trim();
+  // Remove potentially harmful characters
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/[<>]/g, "")
+    .trim();
 }
 ```
 
@@ -345,27 +346,28 @@ Cache frequently used IDs to reduce API calls:
 
 ```javascript
 class SharePointCache {
-    constructor(ttl = 3600000) { // 1 hour default
-        this.cache = new Map();
-        this.ttl = ttl;
-    }
+  constructor(ttl = 3600000) {
+    // 1 hour default
+    this.cache = new Map();
+    this.ttl = ttl;
+  }
 
-    set(key, value) {
-        this.cache.set(key, {
-            value,
-            expires: Date.now() + this.ttl
-        });
-    }
+  set(key, value) {
+    this.cache.set(key, {
+      value,
+      expires: Date.now() + this.ttl,
+    });
+  }
 
-    get(key) {
-        const item = this.cache.get(key);
-        if (!item) return null;
-        if (Date.now() > item.expires) {
-            this.cache.delete(key);
-            return null;
-        }
-        return item.value;
+  get(key) {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    if (Date.now() > item.expires) {
+      this.cache.delete(key);
+      return null;
     }
+    return item.value;
+  }
 }
 ```
 
@@ -376,6 +378,7 @@ class SharePointCache {
 **Error**: "Access denied. You do not have permission to perform this action."
 
 **Solutions**:
+
 - Verify Sites.Selected permission is granted
 - Ensure site-specific permissions are configured
 - Check token has not expired
@@ -386,6 +389,7 @@ class SharePointCache {
 **Error**: "The request is malformed or incorrect."
 
 **Solutions**:
+
 - Add @odata.type annotation for collection fields
 - Ensure date fields use ISO 8601 format
 - Verify choice field values match allowed options
@@ -395,6 +399,7 @@ class SharePointCache {
 **Error**: "429 Too Many Requests"
 
 **Solutions**:
+
 - Implement exponential backoff
 - Use batch operations
 - Cache frequently accessed data
@@ -405,6 +410,7 @@ class SharePointCache {
 SharePoint development with Microsoft Graph API and Sites.Selected permissions provides a powerful, secure approach to building enterprise applications. By following the patterns and best practices outlined in this guide, you can create robust SharePoint solutions that maintain security while delivering functionality.
 
 Key takeaways:
+
 - Sites.Selected offers granular permission control
 - Proper field type handling is crucial for success
 - Image and attachment handling requires a two-step process

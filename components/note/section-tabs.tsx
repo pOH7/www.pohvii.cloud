@@ -70,11 +70,11 @@ export function SectionTabs({
   return (
     <div className="my-8">
       {/* Section Title */}
-      <h2 className="text-3xl font-bold mb-4 section-title">{sectionTitle}</h2>
+      <h2 className="section-title mb-4 text-3xl font-bold">{sectionTitle}</h2>
 
       {/* Tabs Navigation */}
       <div
-        className="flex flex-wrap gap-2 mb-6 border-b border-border pb-2"
+        className="border-border mb-6 flex flex-wrap gap-2 border-b pb-2"
         role="tablist"
         aria-label={`${sectionTitle} tabs`}
       >
@@ -86,8 +86,8 @@ export function SectionTabs({
             aria-selected={activeTab === subsection.key}
             aria-controls={`panel-${subsection.key}`}
             className={cn(
-              "px-4 py-2 rounded-md font-medium transition-colors",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              "rounded-md px-4 py-2 font-medium transition-colors",
+              "focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none",
               activeTab === subsection.key
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"

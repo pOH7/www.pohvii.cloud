@@ -147,17 +147,17 @@ export function NoteTableOfContents({
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5 }}
-        className="lg:hidden fixed bottom-[5.5rem] right-6 z-40"
+        className="fixed right-6 bottom-[5.5rem] z-40 lg:hidden"
       >
         <Button
           onClick={() => setIsMobileOpen(true)}
           size="icon"
-          className="rounded-full size-12 shadow-lg hover:shadow-xl transition-all duration-200"
+          className="size-12 rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
           aria-label="Open table of contents"
           aria-expanded={isMobileOpen}
           aria-controls={mobilePanelId}
         >
-          <List className="w-5 h-5" />
+          <List className="h-5 w-5" />
         </Button>
       </motion.div>
 
@@ -170,7 +170,7 @@ export function NoteTableOfContents({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 bg-black/50 z-50"
+              className="fixed inset-0 z-50 bg-black/50 lg:hidden"
               onClick={() => setIsMobileOpen(false)}
             />
 
@@ -180,7 +180,7 @@ export function NoteTableOfContents({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 500 }}
-              className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl max-h-[80vh] overflow-y-auto"
+              className="bg-background border-border fixed right-0 bottom-0 left-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden"
               id={mobilePanelId}
               role="dialog"
               aria-modal="true"
@@ -189,9 +189,9 @@ export function NoteTableOfContents({
             >
               <div className="p-4">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-3">
+                <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <List className="w-4 h-4 text-primary" />
+                    <List className="text-primary h-4 w-4" />
                     <h3 id={mobileTitleId} className="font-semibold">
                       On this page
                     </h3>
@@ -200,19 +200,19 @@ export function NoteTableOfContents({
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsMobileOpen(false)}
-                    className="rounded-full w-8 h-8 p-0"
+                    className="h-8 w-8 rounded-full p-0"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
 
                 {/* Progress Bar */}
                 <div
-                  className="w-full bg-muted rounded-full mb-4"
+                  className="bg-muted mb-4 w-full rounded-full"
                   style={{ height: "2px" }}
                 >
                   <div
-                    className="rounded-full bg-primary transition-all duration-100 ease-out"
+                    className="bg-primary rounded-full transition-all duration-100 ease-out"
                     style={{ width: `${readingProgress}%`, height: "2px" }}
                   />
                 </div>
@@ -222,20 +222,22 @@ export function NoteTableOfContents({
                   {items.map((item, index) => {
                     const derivedSectionKey = item.isSection
                       ? (sectionKeyByHeading[item.id] ?? "")
-                      : (item.sectionKey || "");
+                      : item.sectionKey || "";
                     const sectionPlatforms =
-                      (derivedSectionKey ? platformsBySection[derivedSectionKey] : undefined) || [];
+                      (derivedSectionKey
+                        ? platformsBySection[derivedSectionKey]
+                        : undefined) || [];
                     const chosenTab = derivedSectionKey
                       ? activeTab?.section === derivedSectionKey
                         ? activeTab.tab
-                        : (defaultTabBySection[derivedSectionKey] ||
+                        : defaultTabBySection[derivedSectionKey] ||
                           sectionPlatforms[0] ||
-                          "")
+                          ""
                       : "";
                     const showSwitcher = Boolean(
                       item.isSection &&
-                        derivedSectionKey &&
-                        sectionPlatforms.length > 1
+                      derivedSectionKey &&
+                      sectionPlatforms.length > 1
                     );
                     if (
                       !item.isSection &&
@@ -265,22 +267,22 @@ export function NoteTableOfContents({
                           aria-current={
                             activeSection === item.id ? "true" : undefined
                           }
-                          className={`block w-full text-left py-2 rounded transition-all duration-200 border-l-2 border-transparent ${
+                          className={`block w-full rounded border-l-2 border-transparent py-2 text-left transition-all duration-200 ${
                             item.isSection
                               ? "px-3 text-base font-semibold"
                               : item.level === 3
-                                ? "pl-8 pr-3 text-sm"
-                                : "pl-6 pr-3 text-base"
+                                ? "pr-3 pl-8 text-sm"
+                                : "pr-3 pl-6 text-base"
                           } ${
                             activeSection === item.id
                               ? "border-l-primary bg-accent text-accent-foreground"
                               : "hover:border-l-border hover:bg-accent/50"
                           }`}
                         >
-                          <span className="flex items-center gap-2 flex-wrap">
+                          <span className="flex flex-wrap items-center gap-2">
                             {item.title}
                             {item.tabKey && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium uppercase">
+                              <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-[10px] font-medium uppercase">
                                 {item.tabKey}
                               </span>
                             )}
@@ -297,7 +299,7 @@ export function NoteTableOfContents({
                                     platform
                                   )
                                 }
-                                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                                   activeTab?.section === derivedSectionKey &&
                                   activeTab.tab === platform
                                     ? "bg-primary text-primary-foreground"
@@ -324,25 +326,25 @@ export function NoteTableOfContents({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
-        className="w-72 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto hidden lg:block"
+        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 overflow-y-auto lg:block"
         ref={desktopScrollRef}
       >
-        <Card className="p-4 gap-0">
-          <div className="flex items-center gap-2 mb-3">
-            <List className="w-4 h-4 text-primary" />
-            <h3 id={desktopTitleId} className="font-medium text-sm">
+        <Card className="gap-0 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <List className="text-primary h-4 w-4" />
+            <h3 id={desktopTitleId} className="text-sm font-medium">
               On this page
             </h3>
           </div>
 
           {/* Progress Bar */}
           <div
-            className="w-full bg-muted rounded-full mb-3"
+            className="bg-muted mb-3 w-full rounded-full"
             style={{ height: "2px" }}
           >
             <div
               ref={progressBarRef}
-              className="rounded-full bg-primary transition-all duration-100 ease-out"
+              className="bg-primary rounded-full transition-all duration-100 ease-out"
               style={{ width: `${readingProgress}%`, height: "2px" }}
             />
           </div>
@@ -354,18 +356,20 @@ export function NoteTableOfContents({
                 ? (sectionKeyByHeading[item.id] ?? "")
                 : (item.sectionKey ?? "");
               const sectionPlatforms =
-                (derivedSectionKey ? platformsBySection[derivedSectionKey] : undefined) || [];
+                (derivedSectionKey
+                  ? platformsBySection[derivedSectionKey]
+                  : undefined) || [];
               const chosenTab = derivedSectionKey
                 ? activeTab?.section === derivedSectionKey
                   ? activeTab.tab
-                  : (defaultTabBySection[derivedSectionKey] ||
+                  : defaultTabBySection[derivedSectionKey] ||
                     sectionPlatforms[0] ||
-                    "")
+                    ""
                 : "";
               const showSwitcher = Boolean(
                 item.isSection &&
-                  derivedSectionKey &&
-                  sectionPlatforms.length > 1
+                derivedSectionKey &&
+                sectionPlatforms.length > 1
               );
               if (
                 !item.isSection &&
@@ -395,22 +399,22 @@ export function NoteTableOfContents({
                     aria-current={
                       activeSection === item.id ? "true" : undefined
                     }
-                    className={`block w-full text-left py-1.5 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent ${
+                    className={`hover:text-primary block w-full rounded border-l-2 border-transparent py-1.5 text-left transition-all duration-200 hover:translate-x-1 ${
                       item.isSection
                         ? "px-2 text-sm font-semibold"
                         : item.level === 3
-                          ? "pl-6 pr-2 text-xs"
-                          : "pl-4 pr-2 text-sm"
+                          ? "pr-2 pl-6 text-xs"
+                          : "pr-2 pl-4 text-sm"
                     } ${
                       activeSection === item.id
                         ? "border-l-primary bg-accent text-accent-foreground translate-x-1 font-medium"
                         : "hover:border-l-border text-muted-foreground"
                     }`}
                   >
-                    <span className="flex items-center gap-1.5 flex-wrap">
+                    <span className="flex flex-wrap items-center gap-1.5">
                       {item.title}
                       {item.tabKey && (
-                        <span className="text-[9px] px-1 py-0.5 rounded bg-primary/10 text-primary font-medium uppercase leading-none">
+                        <span className="bg-primary/10 text-primary rounded px-1 py-0.5 text-[9px] leading-none font-medium uppercase">
                           {item.tabKey}
                         </span>
                       )}
@@ -424,7 +428,7 @@ export function NoteTableOfContents({
                           onClick={() =>
                             handlePlatformSwitch(derivedSectionKey, platform)
                           }
-                          className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
+                          className={`rounded px-2.5 py-1 text-[11px] font-medium transition-colors ${
                             activeTab?.section === derivedSectionKey &&
                             activeTab.tab === platform
                               ? "bg-primary text-primary-foreground"

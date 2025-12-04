@@ -19,10 +19,12 @@ id: ef79b0dd
 # VMware Fusion Networking Configuration
 
 ## Configuration File Location
+
 - Path: `/Library/Preferences/VMware Fusion/networking`
 - Requires sudo access for editing
 
 ### Current Configuration Content
+
 ```
 VERSION=1,0
 answer VNET_1_DHCP no
@@ -40,13 +42,16 @@ answer VNET_8_VIRTUAL_ADAPTER yes
 ```
 
 ### Network Configuration
+
 - VNET_1: Host-only network (192.168.1.0/24, no DHCP, no internet)
 - VNET_8: NAT network (172.16.54.0/24, DHCP enabled, internet access)
 
 ## Advanced Configuration Files
 
 ### DHCP Configuration
+
 Location: `/Library/Preferences/VMware Fusion/vmnet8/dhcpd.conf`
+
 ```bash
 subnet 172.16.54.0 netmask 255.255.255.0 {
     range 172.16.54.128 172.16.54.254;
@@ -66,7 +71,9 @@ host myvm {
 ```
 
 ### NAT Configuration
+
 Location: `/Library/Preferences/VMware Fusion/vmnet8/nat.conf`
+
 ```bash
 [incomingtcp]
 # Forward host port 2222 to SSH on VM
@@ -97,9 +104,9 @@ sudo chmod 644 /Library/Preferences/VMware\ Fusion/networking
 ```
 
 ## References
+
 - VMware Fusion Pro VMnet Configuration Guide
 - Customizing VMware Fusion Virtual Networks
 - Modifying DHCP settings of vmnet1 and vmnet8 in Fusion
 - Understanding networking types in VMware Fusion
 - VMware Fusion Network Configuration Gist
-

@@ -20,7 +20,9 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     resetTransform: () => void;
     centerView: (scale?: number) => void;
   } | null>(null);
-  const originalSvgSizeRef = useRef<{ width: number; height: number } | null>(null);
+  const originalSvgSizeRef = useRef<{ width: number; height: number } | null>(
+    null
+  );
   const hasInitializedRef = useRef(false);
   const isFirstRenderRef = useRef(true);
   const isThemeChangeRef = useRef(false);
@@ -32,7 +34,10 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
 
   // Detect theme changes
   useEffect(() => {
-    if (previousThemeRef.current !== undefined && previousThemeRef.current !== mermaidTheme) {
+    if (
+      previousThemeRef.current !== undefined &&
+      previousThemeRef.current !== mermaidTheme
+    ) {
       isThemeChangeRef.current = true;
     }
     previousThemeRef.current = mermaidTheme;
@@ -188,7 +193,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
               const svgRect = svgElement.getBoundingClientRect();
               originalSvgSizeRef.current = {
                 width: svgRect.width,
-                height: svgRect.height
+                height: svgRect.height,
               };
               hasInitializedRef.current = true;
 
@@ -226,19 +231,19 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
 
   if (error) {
     return (
-      <div className="relative group">
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-          <p className="text-sm text-destructive font-medium mb-2">
+      <div className="group relative">
+        <div className="border-destructive bg-destructive/10 rounded-lg border p-4">
+          <p className="text-destructive mb-2 text-sm font-medium">
             Mermaid Diagram Error
           </p>
-          <pre className="text-xs text-muted-foreground overflow-auto">
+          <pre className="text-muted-foreground overflow-auto text-xs">
             {error}
           </pre>
           <details className="mt-3">
-            <summary className="text-xs cursor-pointer text-muted-foreground hover:text-foreground">
+            <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-xs">
               View source
             </summary>
-            <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto max-h-[200px]">
+            <pre className="bg-muted mt-2 max-h-[200px] overflow-auto rounded p-2 text-xs">
               {chart}
             </pre>
           </details>
@@ -250,7 +255,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   return (
     <div
       ref={containerRef}
-      className={`relative group my-6 ${isFullscreen ? "fixed inset-0 z-50 bg-background m-0" : ""}`}
+      className={`group relative my-6 ${isFullscreen ? "bg-background fixed inset-0 z-50 m-0" : ""}`}
     >
       <TransformWrapper
         initialScale={1}
@@ -271,81 +276,85 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
           transformRef.current = { resetTransform, centerView };
 
           return (
-          <>
-            {/* Control buttons */}
-            <div className="absolute top-2 right-2 z-20 flex items-center gap-2">
-              {/* Zoom controls */}
-              <div className="flex items-center gap-1 rounded-md border border-border bg-background/80 backdrop-blur shadow-sm">
+            <>
+              {/* Control buttons */}
+              <div className="absolute top-2 right-2 z-20 flex items-center gap-2">
+                {/* Zoom controls */}
+                <div className="border-border bg-background/80 flex items-center gap-1 rounded-md border shadow-sm backdrop-blur">
+                  <button
+                    type="button"
+                    onClick={() => zoomIn()}
+                    aria-label="Zoom in"
+                    className="text-foreground hover:bg-muted rounded-l-md p-2 transition-colors"
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => zoomOut()}
+                    aria-label="Zoom out"
+                    className="text-foreground hover:bg-muted p-2 transition-colors"
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={fitToViewport}
+                    aria-label="Fit to viewport"
+                    className="text-foreground hover:bg-muted p-2 transition-colors"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void toggleFullscreen()}
+                    aria-label={
+                      isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+                    }
+                    className="text-foreground hover:bg-muted rounded-r-md p-2 transition-colors"
+                  >
+                    {isFullscreen ? (
+                      <Minimize className="h-4 w-4" />
+                    ) : (
+                      <Maximize className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Copy button */}
                 <button
                   type="button"
-                  onClick={() => zoomIn()}
-                  aria-label="Zoom in"
-                  className="p-2 text-foreground hover:bg-muted transition-colors rounded-l-md"
+                  onClick={() => void onCopy()}
+                  aria-label="Copy diagram source"
+                  className="border-border bg-background/80 text-foreground hover:bg-muted flex h-9 items-center rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
                 >
-                  <ZoomIn className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => zoomOut()}
-                  aria-label="Zoom out"
-                  className="p-2 text-foreground hover:bg-muted transition-colors"
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={fitToViewport}
-                  aria-label="Fit to viewport"
-                  className="p-2 text-foreground hover:bg-muted transition-colors"
-                >
-                  <Maximize2 className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void toggleFullscreen()}
-                  aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                  className="p-2 text-foreground hover:bg-muted transition-colors rounded-r-md"
-                >
-                  {isFullscreen ? (
-                    <Minimize className="h-4 w-4" />
-                  ) : (
-                    <Maximize className="h-4 w-4" />
-                  )}
+                  {copied ? "Copied" : "Copy"}
                 </button>
               </div>
 
-              {/* Copy button */}
-              <button
-                type="button"
-                onClick={() => void onCopy()}
-                aria-label="Copy diagram source"
-                className="rounded-md border border-border bg-background/80 backdrop-blur px-2 py-1 text-xs text-foreground shadow-sm transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 hover:bg-muted h-9 flex items-center"
-              >
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
+              {/* Mermaid badge */}
+              <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-20 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                mermaid
+              </span>
 
-            {/* Mermaid badge */}
-            <span className="pointer-events-none absolute left-2 top-2 z-20 select-none rounded-md bg-background/80 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground border border-border opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity">
-              mermaid
-            </span>
-
-            {/* Diagram container with pan/zoom */}
-            <div className={`rounded-lg border border-border bg-background overflow-hidden w-full ${isFullscreen ? "h-screen w-screen" : "h-[500px]"}`}>
-              <TransformComponent
-                wrapperClass="w-full h-full"
-                wrapperStyle={{
-                  width: "100%",
-                  height: "100%",
-                }}
+              {/* Diagram container with pan/zoom */}
+              <div
+                className={`border-border bg-background w-full overflow-hidden rounded-lg border ${isFullscreen ? "h-screen w-screen" : "h-[500px]"}`}
               >
-                <div
-                  dangerouslySetInnerHTML={{ __html: svg }}
-                  style={{ cursor: "grab" }}
-                />
-              </TransformComponent>
-            </div>
-          </>
+                <TransformComponent
+                  wrapperClass="w-full h-full"
+                  wrapperStyle={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  <div
+                    dangerouslySetInnerHTML={{ __html: svg }}
+                    style={{ cursor: "grab" }}
+                  />
+                </TransformComponent>
+              </div>
+            </>
           );
         }}
       </TransformWrapper>

@@ -1,5 +1,5 @@
 ---
-title: 'Essential Algorithms and Data Structures: A Comprehensive Programming Guide'
+title: "Essential Algorithms and Data Structures: A Comprehensive Programming Guide"
 description: >-
   Master fundamental algorithms and data structures with practical Java implementations.
   From binary search to graph algorithms, learn the patterns that power efficient code.
@@ -81,6 +81,7 @@ private static int binarySearchRecursive(int[] arr, int target, int left, int ri
 ```
 
 **Key Points:**
+
 - Always use `(left + right) >>> 1` to prevent integer overflow
 - Ensure the array is sorted before applying binary search
 - Time complexity: O(log n), Space complexity: O(1) for iterative, O(log n) for recursive
@@ -123,6 +124,7 @@ public int slidingWindow(int[] nums, int k) {
 ```
 
 **Applications:**
+
 - Maximum sum of subarray of size k
 - Longest substring without repeating characters
 - Minimum window substring problems
@@ -180,6 +182,7 @@ public int[] maxSubArrayWithIndices(int[] nums) {
 ```
 
 **Algorithm Steps:**
+
 1. `maxSoFar` tracks the overall maximum sum
 2. `maxEndingHere` tracks the maximum sum ending at current index
 3. At each step, decide whether to extend the current subarray or start fresh
@@ -286,6 +289,7 @@ public static int findCycleLength(ListNode head) {
 ```
 
 **Algorithm Phases:**
+
 1. **Detection**: Use two pointers at different speeds to detect if a cycle exists
 2. **Start Finding**: Reset one pointer to the beginning and move both at the same speed
 3. **Meeting Point**: Where they meet is the cycle start
@@ -373,6 +377,7 @@ public int bfsWithDepth(Node startNode) {
 ```
 
 **BFS Algorithm Steps:**
+
 1. **Initialization**: Start from a given node and mark it as visited
 2. **Queue Management**: Use a queue to store nodes to be explored
 3. **Level Processing**: Process all nodes at the current level before moving to the next
@@ -510,6 +515,7 @@ private void dfsPath(
 ```
 
 **DFS Characteristics:**
+
 1. **Deep Exploration**: Goes as deep as possible before backtracking
 2. **Stack-Based**: Uses recursion stack or explicit stack
 3. **Memory Efficient**: Uses less memory than BFS for wide trees
@@ -574,6 +580,7 @@ public static List<Integer> topologicalSort(int vertices, List<int[]> edges) {
 ```
 
 **Kahn's Algorithm Steps:**
+
 1. **Calculate In-Degrees**: Count incoming edges for each vertex
 2. **Initialize Queue**: Add all vertices with zero in-degree
 3. **Process Queue**: Remove vertex from queue, add to result, decrease neighbors' in-degrees
@@ -632,6 +639,7 @@ public boolean startsWith(TrieNode root, String prefix) {
 ```
 
 **Trie Applications:**
+
 - Autocomplete systems
 - Spell checkers
 - IP routing tables
@@ -731,6 +739,7 @@ private boolean backtrackPath(char[][] grid, int row, int col, boolean[][] visit
 ```
 
 **Backtracking Steps:**
+
 1. **Choose**: Make a choice and add it to the current solution
 2. **Constraint Check**: Verify if the current solution is still valid
 3. **Goal Check**: Check if we've reached a complete solution
@@ -765,6 +774,7 @@ public List<int[]> selectActivities(int[][] activities) {
 ```
 
 **Greedy Algorithm Framework:**
+
 1. **Initialization**: Start with an empty solution set
 2. **Selection**: Make the greedy choice that looks best at the moment
 3. **Feasibility**: Check if the choice maintains solution validity
@@ -806,6 +816,7 @@ public static int[] computeLPS(String pattern) {
 ```
 
 **LPS (Longest Prefix Suffix) Properties:**
+
 - `lps[i]` stores the length of the longest proper prefix which is also a suffix
 - Used to skip characters during pattern matching
 - Enables O(n + m) time complexity for string searching
@@ -871,6 +882,7 @@ public List<Department> buildDepartmentTree(List<Department> allDepartments) {
 ```
 
 **Tree Construction Steps:**
+
 1. **Index Creation**: Create a map for O(1) lookups
 2. **Root Identification**: Identify nodes without parents
 3. **Parent-Child Linking**: Establish relationships between nodes
@@ -910,6 +922,7 @@ public ListNode processLinkedList(ListNode head) {
 ```
 
 **Dummy Node Benefits:**
+
 - Eliminates special cases for head node operations
 - Simplifies insertion and deletion logic
 - Reduces edge case handling complexity
@@ -918,17 +931,17 @@ public ListNode processLinkedList(ListNode head) {
 
 ### Time Complexity Summary
 
-| Algorithm | Best Case | Average Case | Worst Case | Space Complexity |
-|-----------|-----------|--------------|------------|------------------|
-| Binary Search | O(1) | O(log n) | O(log n) | O(1) |
-| Sliding Window | O(n) | O(n) | O(n) | O(1) |
-| Kadane's Algorithm | O(n) | O(n) | O(n) | O(1) |
-| Floyd's Cycle Detection | O(n) | O(n) | O(n) | O(1) |
-| BFS | O(V + E) | O(V + E) | O(V + E) | O(V) |
-| DFS | O(V + E) | O(V + E) | O(V + E) | O(V) |
-| Topological Sort | O(V + E) | O(V + E) | O(V + E) | O(V) |
-| Trie Insert/Search | O(m) | O(m) | O(m) | O(ALPHABET_SIZE * N * M) |
-| KMP Pattern Matching | O(n + m) | O(n + m) | O(n + m) | O(m) |
+| Algorithm               | Best Case | Average Case | Worst Case | Space Complexity          |
+| ----------------------- | --------- | ------------ | ---------- | ------------------------- |
+| Binary Search           | O(1)      | O(log n)     | O(log n)   | O(1)                      |
+| Sliding Window          | O(n)      | O(n)         | O(n)       | O(1)                      |
+| Kadane's Algorithm      | O(n)      | O(n)         | O(n)       | O(1)                      |
+| Floyd's Cycle Detection | O(n)      | O(n)         | O(n)       | O(1)                      |
+| BFS                     | O(V + E)  | O(V + E)     | O(V + E)   | O(V)                      |
+| DFS                     | O(V + E)  | O(V + E)     | O(V + E)   | O(V)                      |
+| Topological Sort        | O(V + E)  | O(V + E)     | O(V + E)   | O(V)                      |
+| Trie Insert/Search      | O(m)      | O(m)         | O(m)       | O(ALPHABET*SIZE * N \_ M) |
+| KMP Pattern Matching    | O(n + m)  | O(n + m)     | O(n + m)   | O(m)                      |
 
 ### When to Use Each Algorithm
 

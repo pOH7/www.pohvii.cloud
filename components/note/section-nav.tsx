@@ -56,9 +56,9 @@ export function SectionNav({ sections }: SectionNavProps) {
   };
 
   return (
-    <nav className="hidden lg:block sticky top-24 h-fit">
-      <div className="border-l-2 border-border pl-4">
-        <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
+    <nav className="sticky top-24 hidden h-fit lg:block">
+      <div className="border-border border-l-2 pl-4">
+        <h3 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
           Sections
         </h3>
         <ul className="space-y-2">
@@ -67,7 +67,7 @@ export function SectionNav({ sections }: SectionNavProps) {
               <button
                 onClick={() => scrollToSection(section.sectionKey)}
                 className={cn(
-                  "text-sm transition-colors text-left w-full hover:text-foreground",
+                  "hover:text-foreground w-full text-left text-sm transition-colors",
                   activeSection === section.sectionKey
                     ? "text-foreground font-medium"
                     : "text-muted-foreground"

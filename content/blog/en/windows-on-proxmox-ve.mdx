@@ -23,16 +23,20 @@ This guide covers the process of installing Windows 11 on Proxmox Virtual Enviro
 ## Prerequisites
 
 ### Required Files
+
 1. Windows 11 ISO — download using crystalfetch
 2. VirtIO Drivers ISO — https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
 
 ### Documentation Reference
+
 - Official PVE Windows VirtIO Drivers guide: https://pve.proxmox.com/wiki/Windows_VirtIO_Drivers
 
 ## Step 1: Download Required Files
 
 ### Download Windows 11 ISO
+
 Use crystalfetch to download the Windows 11 ISO:
+
 ```bash
 # Install crystalfetch if not already installed
 # Then download Windows 11 ISO
@@ -40,6 +44,7 @@ crystalfetch --windows-11
 ```
 
 ### Download VirtIO Drivers
+
 ```bash
 wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
 ```
@@ -47,6 +52,7 @@ wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-vir
 ## Step 2: Create Virtual Machine
 
 ### VM Configuration
+
 1. Create new VM in Proxmox web interface
 2. OS Type: Microsoft Windows 11/2022
 3. Machine: q35
@@ -55,6 +61,7 @@ wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-vir
 6. TPM: Add TPM State (for Windows 11 requirements)
 
 ### Hardware Configuration
+
 - CPU: Host type recommended for best performance
 - Memory: Minimum 4GB, recommended 8GB+
 - Storage: VirtIO SCSI controller
@@ -68,6 +75,7 @@ wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-vir
 ## Step 4: Install Windows
 
 ### Boot Process
+
 1. Start VM and boot from Windows ISO
 2. When Windows installer asks for drivers (disk not found):
    - Browse to VirtIO drivers ISO
@@ -75,6 +83,7 @@ wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-vir
    - Install storage drivers (VirtIO SCSI)
 
 ### Driver Installation Order
+
 1. Storage drivers — During Windows installation
 2. Network drivers — After Windows installation
 3. Balloon driver — For memory management
@@ -83,6 +92,7 @@ wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-vir
 ## Step 5: Post-Installation Setup
 
 ### Install Remaining VirtIO Drivers
+
 ```text
 D:\guest-agent\qemu-ga-x86_64.msi    # Guest agent
 D:\Balloon\w11\amd64\                # Memory balloon
@@ -90,6 +100,7 @@ D:\NetKVM\w11\amd64\                 # Network adapter
 ```
 
 ### Performance Optimizations
+
 1. Enable VirtIO drivers for all devices
 2. Install QEMU Guest Agent
 3. Configure Windows for virtualized environment
@@ -98,18 +109,22 @@ D:\NetKVM\w11\amd64\                 # Network adapter
 ## Troubleshooting
 
 ### Common Issues
+
 - No disk found during install: Load VirtIO storage drivers
 - No network after install: Install VirtIO network drivers
 - Poor performance: Ensure VirtIO drivers are properly installed
 - TPM required error: Add TPM State to VM hardware
 
 ### Driver Locations
+
 VirtIO drivers are organized by:
+
 - OS version: w10, w11, 2k19, 2k22
 - Architecture: amd64, x86
 - Component: NetKVM, viostor, vioscsi, etc.
 
 ## Best Practices
+
 1. Always use VirtIO drivers for best performance
 2. Install guest agent for proper VM management
 3. Use UEFI firmware for modern Windows versions
@@ -120,4 +135,3 @@ VirtIO drivers are organized by:
 
 - Proxmox VE Windows VirtIO Drivers
 - VirtIO Drivers Download
-

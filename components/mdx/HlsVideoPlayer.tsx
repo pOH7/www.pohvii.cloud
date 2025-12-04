@@ -3,7 +3,11 @@
 import { useEffect, useRef, type VideoHTMLAttributes } from "react";
 import type Plyr from "plyr";
 import type Hls from "hls.js";
-import type { LoaderContext, LoaderConfiguration, LoaderCallbacks } from "hls.js";
+import type {
+  LoaderContext,
+  LoaderConfiguration,
+  LoaderCallbacks,
+} from "hls.js";
 
 import { cn } from "@/lib/utils";
 
@@ -11,8 +15,7 @@ type PlyrInstance = Plyr;
 
 type HlsInstance = Hls | null;
 
-export interface HlsVideoPlayerProps
-  extends VideoHTMLAttributes<HTMLVideoElement> {
+export interface HlsVideoPlayerProps extends VideoHTMLAttributes<HTMLVideoElement> {
   src: string;
   /**
    * Override Plyr controls array. Defaults to standard playback controls.
@@ -264,9 +267,7 @@ export function HlsVideoPlayer({
         if (!deviceIsIOS || !player) return;
 
         player.on("ready", () => {
-          fullscreenButton = document.querySelector(
-            '[data-plyr="fullscreen"]'
-          );
+          fullscreenButton = document.querySelector('[data-plyr="fullscreen"]');
 
           if (fullscreenButton) {
             const handleFullscreenClick = (e: Event) => {

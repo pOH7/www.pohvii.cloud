@@ -42,55 +42,59 @@ export function NoteArticleClient({
 
   // Inject onTabChange handler into SectionTabs components
   // Memoize to prevent re-rendering children when only scroll position changes
-  const enhancedChildren = useMemo(() => Children.map(children, (child) => {
-    if (
-      isValidElement<{ children?: React.ReactNode; id?: string }>(child) &&
-      child.type === "section"
-    ) {
-      const sectionChildren = Children.map(
-        child.props.children,
-        (sectionChild) => {
-          if (
-            isValidElement(sectionChild) &&
-            typeof sectionChild.type !== "string"
-          ) {
-            // This is likely a SectionTabs component
-            return cloneElement(
-              sectionChild as React.ReactElement<{
-                onTabChange?: (tabKey: string, sectionKey?: string) => void;
-                sectionKey?: string;
-              }>,
-              {
-                onTabChange: handleTabChange,
-                ...(child.props.id && { sectionKey: child.props.id }),
+  const enhancedChildren = useMemo(
+    () =>
+      Children.map(children, (child) => {
+        if (
+          isValidElement<{ children?: React.ReactNode; id?: string }>(child) &&
+          child.type === "section"
+        ) {
+          const sectionChildren = Children.map(
+            child.props.children,
+            (sectionChild) => {
+              if (
+                isValidElement(sectionChild) &&
+                typeof sectionChild.type !== "string"
+              ) {
+                // This is likely a SectionTabs component
+                return cloneElement(
+                  sectionChild as React.ReactElement<{
+                    onTabChange?: (tabKey: string, sectionKey?: string) => void;
+                    sectionKey?: string;
+                  }>,
+                  {
+                    onTabChange: handleTabChange,
+                    ...(child.props.id && { sectionKey: child.props.id }),
+                  }
+                );
               }
-            );
-          }
-          return sectionChild;
+              return sectionChild;
+            }
+          );
+          return cloneElement(child, {}, sectionChildren);
         }
-      );
-      return cloneElement(child, {}, sectionChildren);
-    }
-    return child;
-  }), [children, handleTabChange]);
+        return child;
+      }),
+    [children, handleTabChange]
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex max-w-6xl mx-auto gap-8">
+      <div className="mx-auto flex max-w-6xl gap-8">
         {/* Main Content */}
-        <article className="min-w-0 flex-1 max-w-4xl" ref={contentRef}>
+        <article className="max-w-4xl min-w-0 flex-1" ref={contentRef}>
           {/* Header */}
-          <header className="mb-8 pb-6 border-b border-border">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-              <BookOpen className="w-4 h-4" />
+          <header className="border-border mb-8 border-b pb-6">
+            <div className="text-muted-foreground mb-3 flex items-center gap-2 text-sm">
+              <BookOpen className="h-4 w-4" />
               <span className="capitalize">{lang}</span>
               <span className="text-muted-foreground/60">•</span>
-              <Clock className="w-4 h-4" />
+              <Clock className="h-4 w-4" />
               <span>{note.readTime}</span>
             </div>
-            <h1 className="text-4xl font-bold mb-3">{note.title}</h1>
+            <h1 className="mb-3 text-4xl font-bold">{note.title}</h1>
             {note.description && (
-              <p className="text-lg text-muted-foreground">
+              <p className="text-muted-foreground text-lg">
                 {note.description}
               </p>
             )}

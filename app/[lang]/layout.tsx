@@ -6,7 +6,6 @@ import { TopBar } from "@/components/top-bar";
 import { BackToTop } from "@/components/back-to-top";
 import { LenisProvider } from "@/components/lenis-provider";
 import { WebVitals } from "@/components/analytics/web-vitals";
-import { ReactScan } from "@/components/ReactScan";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
@@ -131,13 +130,20 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
   return (
     <html lang={lang} suppressHydrationWarning>
       <head>
-        {isProduction && (
-          <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-            data-enabled="true"
-          />
+        {!isProduction && (
+          <>
+            <Script
+              src="//unpkg.com/react-scan/dist/auto.global.js"
+              crossOrigin="anonymous"
+              strategy="beforeInteractive"
+            />
+            <Script
+              src="//unpkg.com/react-grab/dist/index.global.js"
+              crossOrigin="anonymous"
+              strategy="beforeInteractive"
+              data-enabled="true"
+            />
+          </>
         )}
         <script
           type="application/ld+json"
@@ -145,7 +151,6 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
         />
       </head>
       <body>
-        {!isProduction && <ReactScan />}
         <NextTopLoader
           color="var(--primary-red)"
           initialPosition={0.08}
@@ -158,11 +163,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
           shadow="0 0 10px var(--primary-red), 0 0 20px rgba(237, 37, 78, 0.3)"
           zIndex={1050}
         />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LenisProvider>
             <TopBar />
             <Header dictionary={dictionary} lang={lang} />

@@ -28,12 +28,12 @@ export function ProtectedNoteGuard({
   };
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="max-w-md w-full mx-auto text-center space-y-6 px-4">
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="mx-auto w-full max-w-md space-y-6 px-4 text-center">
         {/* Lock Icon */}
         <div className="flex justify-center">
-          <div className="rounded-full bg-primary/10 p-6">
-            <Lock className="h-12 w-12 text-primary" />
+          <div className="bg-primary/10 rounded-full p-6">
+            <Lock className="text-primary h-12 w-12" />
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export function ProtectedNoteGuard({
         </div>
 
         {/* Info */}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {dictionary.Auth.protectedNoteInfo}
         </p>
       </div>

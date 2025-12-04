@@ -26,8 +26,7 @@ export default function CodeBlock(props: PreProps) {
   if (React.isValidElement(children)) {
     const child = children as React.ReactElement<DataProps>;
     const raw = child.props.children;
-    const cls: string | undefined =
-      child.props.className || child.props.class;
+    const cls: string | undefined = child.props.className || child.props.class;
     const dataLang: string | undefined = child.props["data-language"];
     if (typeof dataLang === "string" && dataLang.trim()) {
       language = dataLang;
@@ -43,8 +42,7 @@ export default function CodeBlock(props: PreProps) {
       if (Array.isArray(node)) return node.map(getText).join("");
       if (React.isValidElement(node)) {
         const n = node as React.ReactElement<DataProps>;
-        const nodeCls: string | undefined =
-          n.props.className || n.props.class;
+        const nodeCls: string | undefined = n.props.className || n.props.class;
         const isLine =
           (typeof nodeCls === "string" && /(^|\s)line(\s|$)/.test(nodeCls)) ||
           n.props["data-line"] !== undefined;
@@ -113,20 +111,20 @@ export default function CodeBlock(props: PreProps) {
   }
 
   return (
-    <div className="relative group">
+    <div className="group relative">
       {/* Copy button */}
       <button
         type="button"
         onClick={() => void onCopy()}
         aria-label="Copy code"
-        className="absolute top-2 right-2 z-10 rounded-md border border-border bg-background/80 backdrop-blur px-2 py-1 text-xs text-foreground shadow-sm transition-opacity opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 hover:bg-muted"
+        className="border-border bg-background/80 text-foreground hover:bg-muted absolute top-2 right-2 z-10 rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
       >
         {copied ? "Copied" : "Copy"}
       </button>
 
       {/* Optional language badge */}
       {language ? (
-        <span className="pointer-events-none absolute left-2 top-2 z-10 select-none rounded-md bg-background/80 backdrop-blur px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground border border-border opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity">
+        <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-10 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
           {language}
         </span>
       ) : null}
@@ -134,7 +132,7 @@ export default function CodeBlock(props: PreProps) {
       <pre
         ref={preRef}
         {...rest}
-        className={`overflow-auto max-h-[60vh] rounded-lg bg-muted p-4 pr-12 ${className}`.trim()}
+        className={`bg-muted max-h-[60vh] overflow-auto rounded-lg p-4 pr-12 ${className}`.trim()}
       >
         {children}
       </pre>

@@ -79,17 +79,17 @@ export function TableOfContents({
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5 }}
-        className="lg:hidden fixed bottom-[5.5rem] right-6 z-40"
+        className="fixed right-6 bottom-[5.5rem] z-40 lg:hidden"
       >
         <Button
           onClick={() => setIsMobileOpen(true)}
           size="icon"
-          className="rounded-full size-12 shadow-lg hover:shadow-xl transition-all duration-200"
+          className="size-12 rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
           aria-label="Open table of contents"
           aria-expanded={isMobileOpen}
           aria-controls={mobilePanelId}
         >
-          <List className="w-5 h-5" />
+          <List className="h-5 w-5" />
         </Button>
       </motion.div>
 
@@ -102,7 +102,7 @@ export function TableOfContents({
             initial={{ opacity: 0 }}
             animate={{ opacity: isMobileOpen ? 1 : 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 z-50 bg-black/50 lg:hidden"
             style={{ display: isMobileOpen ? "block" : "none" }}
             onClick={() => setIsMobileOpen(false)}
           />
@@ -115,7 +115,7 @@ export function TableOfContents({
               y: isMobileOpen ? 0 : "100%",
             }}
             transition={{ type: "spring", damping: 25, stiffness: 500 }}
-            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border rounded-t-2xl max-h-[80vh] overflow-y-auto"
+            className="bg-background border-border fixed right-0 bottom-0 left-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden"
             style={{ display: isMobileOpen ? "block" : "none" }}
             id={mobilePanelId}
             role="dialog"
@@ -125,9 +125,9 @@ export function TableOfContents({
           >
             <div className="p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <List className="w-4 h-4 text-primary" />
+                  <List className="text-primary h-4 w-4" />
                   <h3 id={mobileTitleId} className="font-semibold">
                     In this article
                   </h3>
@@ -136,19 +136,19 @@ export function TableOfContents({
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMobileOpen(false)}
-                  className="rounded-full w-8 h-8 p-0"
+                  className="h-8 w-8 rounded-full p-0"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
 
               {/* Progress Bar */}
               <div
-                className="w-full bg-muted rounded-full mb-4"
+                className="bg-muted mb-4 w-full rounded-full"
                 style={{ height: "1px" }}
               >
                 <div
-                  className="rounded-full bg-primary transition-all duration-100 ease-out"
+                  className="bg-primary rounded-full transition-all duration-100 ease-out"
                   style={{ width: `${readingProgress}%`, height: "1px" }}
                 />
               </div>
@@ -166,7 +166,7 @@ export function TableOfContents({
                     aria-current={
                       activeSection === item.id ? "true" : undefined
                     }
-                    className={`block w-full text-left py-2 px-3 rounded transition-all duration-200 border-l-2 border-transparent ${
+                    className={`block w-full rounded border-l-2 border-transparent px-3 py-2 text-left transition-all duration-200 ${
                       item.level === 4
                         ? "pl-8 text-sm"
                         : item.level === 3
@@ -192,25 +192,25 @@ export function TableOfContents({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
-        className="w-72 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto hidden lg:block"
+        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 overflow-y-auto lg:block"
         ref={desktopScrollRef}
       >
-        <Card className="p-3 gap-0">
-          <div className="flex items-center gap-2 mb-2">
-            <List className="w-3 h-3 text-primary" />
-            <h3 id={desktopTitleId} className="font-medium text-xs">
+        <Card className="gap-0 p-3">
+          <div className="mb-2 flex items-center gap-2">
+            <List className="text-primary h-3 w-3" />
+            <h3 id={desktopTitleId} className="text-xs font-medium">
               In this article
             </h3>
           </div>
 
           {/* Progress Bar */}
           <div
-            className="w-full bg-muted rounded-full mb-2"
+            className="bg-muted mb-2 w-full rounded-full"
             style={{ height: "1px" }}
           >
             <div
               ref={progressBarRef}
-              className="rounded-full bg-primary transition-all duration-100 ease-out"
+              className="bg-primary rounded-full transition-all duration-100 ease-out"
               style={{ width: `${readingProgress}%`, height: "1px" }}
             />
           </div>
@@ -226,7 +226,7 @@ export function TableOfContents({
                 onClick={() => onItemClick(item.id)}
                 data-id={item.id}
                 aria-current={activeSection === item.id ? "true" : undefined}
-                className={`block w-full text-left py-0.5 px-1.5 rounded transition-all duration-200 hover:translate-x-1 hover:text-primary border-l-2 border-transparent leading-tight ${
+                className={`hover:text-primary block w-full rounded border-l-2 border-transparent px-1.5 py-0.5 text-left leading-tight transition-all duration-200 hover:translate-x-1 ${
                   item.level === 4
                     ? "pl-4 text-[10px]"
                     : item.level === 3

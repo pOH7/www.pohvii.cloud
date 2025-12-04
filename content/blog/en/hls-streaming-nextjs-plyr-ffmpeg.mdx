@@ -110,6 +110,7 @@ store serves the raw filename. Two practical safeguards solve this:
    appear raw inside the playlist because it performs an additional decode step
    before issuing the HTTP request. Pre-encoding them ensures the browser sees
    `segment%20001.ts` and matches the object storage key exactly.
+
 2. Provide `hls.js` with a custom loader that resolves relative URLs against the
    manifest’s base URL and normalises the encoding. That way Chromium/Firefox
    avoid double-encoding while Safari keeps working when the user switches to a

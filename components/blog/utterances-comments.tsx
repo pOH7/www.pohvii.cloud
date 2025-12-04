@@ -77,15 +77,15 @@ export function UtterancesComments({
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.0 }}
-      className="mt-16 pt-8 border-t border-border"
+      className="border-border mt-16 border-t pt-8"
     >
       <motion.h2
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 1.1 }}
-        className="text-2xl font-bold mb-8 flex items-center gap-2"
+        className="mb-8 flex items-center gap-2 text-2xl font-bold"
       >
-        <MessageCircle className="w-6 h-6 text-primary" />
+        <MessageCircle className="text-primary h-6 w-6" />
         Comments
       </motion.h2>
 

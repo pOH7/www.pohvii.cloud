@@ -119,17 +119,17 @@ export function BackToTop({
   return (
     <div
       className={cn(
-        "fixed bottom-6 right-6 z-30 transition-all duration-300 ease-out",
+        "fixed right-6 bottom-6 z-30 transition-all duration-300 ease-out",
         isVisible
-          ? "translate-y-0 opacity-100 scale-100"
-          : "translate-y-4 opacity-0 scale-90 pointer-events-none",
+          ? "translate-y-0 scale-100 opacity-100"
+          : "pointer-events-none translate-y-4 scale-90 opacity-0",
         className
       )}
     >
       <div className="relative">
         {/* Progress ring */}
         <svg
-          className="absolute inset-0 -rotate-90 size-12 pointer-events-none"
+          className="pointer-events-none absolute inset-0 size-12 -rotate-90"
           viewBox="0 0 48 48"
           fill="none"
         >
@@ -161,10 +161,10 @@ export function BackToTop({
           onClick={scrollToTop}
           size="icon"
           className={cn(
-            "size-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200",
+            "size-12 rounded-full shadow-lg transition-all duration-200 hover:shadow-xl",
             "bg-primary hover:bg-primary/90 text-primary-foreground",
             "hover:scale-105 active:scale-95",
-            "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            "focus-visible:ring-accent focus-visible:ring-2 focus-visible:ring-offset-2"
           )}
           aria-label="Back to top"
         >

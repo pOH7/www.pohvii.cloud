@@ -1,14 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -16,12 +7,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Calendar, ArrowRight, Clock } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
+import { BlogCard } from "@/components/blog/blog-card";
+import { AnimatedSectionHeader } from "@/components/blog/animated-section-header";
 
 const POSTS_PER_PAGE = 10;
 
@@ -61,112 +51,41 @@ export default async function BlogPaginationPage(
     .slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground min-h-screen">
       {/* Header Section */}
-      <section className="w-full py-12 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 animate-fade-in-up">
-            Blog - Page {currentPage}
-          </h1>
-          <p className="text-muted-foreground animate-fade-in-up stagger-1">
-            {allPosts.length} articles available
-          </p>
-        </div>
+      <section className="mx-auto w-full max-w-7xl px-4 py-12 md:px-8">
+        <AnimatedSectionHeader
+          title={`Blog - Page ${currentPage}`}
+          subtitle={`${allPosts.length} articles available`}
+        />
       </section>
 
       {/* Posts List - One per line */}
-      <section className="w-full px-4 md:px-8 max-w-7xl mx-auto pb-16">
-        <div className="space-y-6 mb-16">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-16 md:px-8">
+        <div className="mb-16 space-y-6">
           {paginatedPosts.map((post, index) => (
-            <Card
+            <BlogCard
               key={`${post.slug}-${currentPage}`}
-              className={`blog-card-hover group overflow-hidden animate-slide-in-up stagger-${index + 1} flex flex-col md:flex-row`}
-            >
-              <div className="md:w-1/3 aspect-video md:aspect-square bg-muted relative overflow-hidden">
-                {post.image ? (
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    width={400}
-                    height={300}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                    <span className="text-4xl">📝</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="md:w-2/3 p-6">
-                <CardHeader className="p-0 mb-4">
-                  <Link href={`/${lang}/blog/${post.slug}`}>
-                    <CardTitle className="text-xl leading-tight hover:text-primary transition-colors line-clamp-2 cursor-pointer">
-                      {post.title}
-                    </CardTitle>
-                  </Link>
-                  <CardDescription className="leading-relaxed line-clamp-3">
-                    {post.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="p-0">
-                  <div className="flex items-center gap-3 mb-4 text-sm text-muted-foreground">
-                    {post.author && (
-                      <>
-                        <span>{post.author}</span>
-                        <span>•</span>
-                      </>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {post.date}
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {post.readTime}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {post.tags.slice(0, 4).map((tag) => (
-                      <Link
-                        key={tag}
-                        href={`/${lang}/tag/${encodeURIComponent(tag)}`}
-                      >
-                        <Badge
-                          variant="outline"
-                          className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                        >
-                          #{tag}
-                        </Badge>
-                      </Link>
-                    ))}
-                  </div>
-
-                  <Button
-                    asChild
-                    className="flex items-center gap-2 group cursor-pointer"
-                  >
-                    <Link
-                      href={`/${lang}/blog/${post.slug}`}
-                      className="inline-flex cursor-pointer"
-                    >
-                      Read More
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </div>
-            </Card>
+              slug={post.slug}
+              title={post.title}
+              description={post.description}
+              image={
+                post.image ||
+                `https://placehold.co/400x300/ed254e/ffffff?text=${encodeURIComponent("📝")}`
+              }
+              date={post.date}
+              readTime={post.readTime}
+              tags={post.tags.slice(0, 4)}
+              lang={lang}
+              index={index}
+              layout="list"
+            />
           ))}
         </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mb-16">
+          <div className="mb-16 flex justify-center">
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
@@ -206,7 +125,7 @@ export default async function BlogPaginationPage(
                             : `/${lang}/blog/page/${pageNumber}`
                         }
                         isActive={currentPage === pageNumber}
-                        className="hover:scale-110 transition-transform"
+                        className="transition-transform hover:scale-110"
                       >
                         {pageNumber}
                       </PaginationLink>

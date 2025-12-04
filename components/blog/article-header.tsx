@@ -55,10 +55,10 @@ export function ArticleHeader({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="flex items-center gap-2 mb-4"
+          className="mb-4 flex items-center gap-2"
         >
-          <Folder className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">{category}</span>
+          <Folder className="text-primary h-4 w-4" />
+          <span className="text-primary text-sm font-medium">{category}</span>
         </motion.div>
 
         {/* Tags */}
@@ -66,7 +66,7 @@ export function ArticleHeader({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="flex flex-wrap gap-2 mb-4"
+          className="mb-4 flex flex-wrap gap-2"
         >
           {tags.map((tag, index) => (
             <motion.div
@@ -78,7 +78,7 @@ export function ArticleHeader({
               <Link href={`/${lang}/tag/${encodeURIComponent(tag)}`}>
                 <Badge
                   variant="outline"
-                  className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                  className="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs transition-colors"
                 >
                   #{tag}
                 </Badge>
@@ -92,7 +92,7 @@ export function ArticleHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-3xl md:text-4xl font-bold mb-4 leading-tight"
+          className="mb-4 text-3xl leading-tight font-bold md:text-4xl"
         >
           {title}
         </motion.h1>
@@ -102,7 +102,7 @@ export function ArticleHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-lg leading-relaxed mb-6 text-muted-foreground"
+          className="text-muted-foreground mb-6 text-lg leading-relaxed"
         >
           {description}
         </motion.p>
@@ -112,18 +112,18 @@ export function ArticleHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground mb-6"
+          className="text-muted-foreground mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm"
         >
           <span className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
+            <Calendar className="h-4 w-4" />
             {date}
           </span>
           <span className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
+            <Clock className="h-4 w-4" />
             {readTime}
           </span>
           <span className="flex items-center gap-2">
-            <User className="w-4 h-4" />
+            <User className="h-4 w-4" />
             {author}
           </span>
         </motion.div>
@@ -133,15 +133,15 @@ export function ArticleHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="flex items-center gap-3 mb-6"
+          className="mb-6 flex items-center gap-3"
         >
           <Button
             variant="outline"
             size="sm"
-            className="inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
             onClick={onScrollToComments}
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="h-4 w-4" />
             Comments
           </Button>
         </motion.div>
@@ -152,16 +152,16 @@ export function ArticleHeader({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.8 }}
-        className="aspect-[16/9] overflow-hidden rounded-lg mb-8 group relative"
+        className="group relative mb-8 aspect-[16/9] overflow-hidden rounded-lg"
       >
         {video ? (
-          <div className="relative w-full h-full">
+          <div className="relative h-full w-full">
             <video
               src={video}
               poster={image}
               controls
               muted
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
               preload="metadata"
             >
               {/* Empty track element to satisfy jsx-a11y/media-has-caption */}
@@ -169,8 +169,8 @@ export function ArticleHeader({
               Your browser does not support the video tag.
             </video>
             {/* Optional custom play button overlay */}
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <Play className="w-16 h-16 text-white drop-shadow-lg" />
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-colors group-hover:bg-black/10 group-hover:opacity-100">
+              <Play className="h-16 w-16 text-white drop-shadow-lg" />
             </div>
           </div>
         ) : (
@@ -179,14 +179,14 @@ export function ArticleHeader({
             alt={title}
             width={1200}
             height={600}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             priority
           />
         )}
       </motion.div>
 
       {/* Bottom border separator */}
-      <div className="border-b border-border mb-8" />
+      <div className="border-border mb-8 border-b" />
     </>
   );
 }

@@ -34,7 +34,7 @@ export function NoteArticle({ note, lang }: NoteArticleProps) {
           ) : section.content ? (
             // Single file section
             <div>
-              <h2 className="text-3xl font-bold mb-4 section-title">
+              <h2 className="section-title mb-4 text-3xl font-bold">
                 {section.title}
               </h2>
               <div className="blog-article-content">
@@ -62,8 +62,7 @@ export function NoteArticle({ note, lang }: NoteArticleProps) {
                                 node.children = [space];
                               }
                               const first = node.children[0];
-                              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                              if (first && "type" in first && first.type === "text") {
+                              if ("type" in first && first.type === "text") {
                                 const v = first.value;
                                 const mark = v.trimStart().charAt(0);
                                 const leading = v.match(/^\s*/)?.[0] || "";

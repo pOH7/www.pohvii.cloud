@@ -8,22 +8,23 @@ All blog posts in this project use MDX format with YAML frontmatter for metadata
 
 ### Core Fields
 
-| Field | Type | Default | Description | Examples |
-|-------|------|---------|-------------|----------|
-| `title` | string | slug name | The main title of the blog post | `"How to Write a Tech Blog: A Comprehensive Guide"` |
-| `description` | string | `""` (empty) | A brief summary of the post content | `"Master the art of technical writing..."` |
-| `date` | string/Date | current date | Publication date (various formats accepted) | `2025-09-15T00:00:00.000Z`, `2025-09-15` |
-| `lastModified` | string/Date | undefined | Last modification date (used in sitemap) | `2025-10-11`, `2025-10-11T00:00:00.000Z` |
-| `author` | string | `""` (empty) | The author's name | `"Léon Zhang"`, `"pOH7"` |
-| `category` | string | `""` (empty) | Primary category for the post | `"Web Development"`, `"Spring"`, `"Infrastructure"` |
-| `tags` | array | `[]` (empty) | Array of relevant tags for categorization | `["SEO", "HTML", "Web Development"]` |
-| `image` | string | `""` (empty) | URL to the featured image | `"https://images.unsplash.com/..."` |
-| `video` | string | undefined | Optional video URL | `"https://youtube.com/..."` |
-| `id` | string | **REQUIRED** | 8-character unique identifier for self-healing URLs | `"8f4e9d12"`, `"fe8adea7"` |
+| Field          | Type        | Default      | Description                                         | Examples                                            |
+| -------------- | ----------- | ------------ | --------------------------------------------------- | --------------------------------------------------- |
+| `title`        | string      | slug name    | The main title of the blog post                     | `"How to Write a Tech Blog: A Comprehensive Guide"` |
+| `description`  | string      | `""` (empty) | A brief summary of the post content                 | `"Master the art of technical writing..."`          |
+| `date`         | string/Date | current date | Publication date (various formats accepted)         | `2025-09-15T00:00:00.000Z`, `2025-09-15`            |
+| `lastModified` | string/Date | undefined    | Last modification date (used in sitemap)            | `2025-10-11`, `2025-10-11T00:00:00.000Z`            |
+| `author`       | string      | `""` (empty) | The author's name                                   | `"Léon Zhang"`, `"pOH7"`                            |
+| `category`     | string      | `""` (empty) | Primary category for the post                       | `"Web Development"`, `"Spring"`, `"Infrastructure"` |
+| `tags`         | array       | `[]` (empty) | Array of relevant tags for categorization           | `["SEO", "HTML", "Web Development"]`                |
+| `image`        | string      | `""` (empty) | URL to the featured image                           | `"https://images.unsplash.com/..."`                 |
+| `video`        | string      | undefined    | Optional video URL                                  | `"https://youtube.com/..."`                         |
+| `id`           | string      | **REQUIRED** | 8-character unique identifier for self-healing URLs | `"8f4e9d12"`, `"fe8adea7"`                          |
 
 ### Alternative Field Names
 
 The system also supports these alternative field names (based on observed usage):
+
 - `publishDate` → mapped to `date`
 - `featured` → not currently used in processing but can be included for future features
 
@@ -32,15 +33,19 @@ The system also supports these alternative field names (based on observed usage)
 The system is flexible with date formats:
 
 ### Accepted Formats
+
 - **ISO 8601 with time**: `2025-09-15T00:00:00.000Z`
 - **Date only**: `2025-09-15`
 - **JavaScript Date object**: When parsed by gray-matter
 
 ### Display Format
+
 All dates are automatically formatted to a localized string format: `"Sep 15, 2025"` (month abbreviated, day, year)
 
 ### Last Modified Date
+
 The `lastModified` field tracks when a post was last updated:
+
 - **Purpose**: Used in sitemap generation for SEO (`lastmod` attribute)
 - **When to use**: Add when making significant content updates to existing posts
 - **Fallback**: If not provided, the sitemap uses the original `date` field
@@ -49,9 +54,11 @@ The `lastModified` field tracks when a post was last updated:
 ## Required vs Optional Fields
 
 ### Required Fields
+
 - **id**: Must be a unique 8-character hexadecimal identifier (generated using `lib/post-id.ts`)
 
 ### Optional Fields (with defaults)
+
 While most fields have defaults, it's strongly recommended to provide them explicitly:
 
 - **title**: Falls back to the slug name if not provided
@@ -79,18 +86,19 @@ The `id` field is **mandatory** for the self-healing URL system implemented in `
 Use the `generatePostId` function from `lib/post-id.ts`:
 
 ```typescript
-import { generatePostId } from './lib/post-id';
+import { generatePostId } from "./lib/post-id";
 
 const postId = generatePostId({
-  slug: 'my-blog-post',
-  title: 'My Blog Post Title',
-  date: '2025-01-22',
-  lang: 'en'
+  slug: "my-blog-post",
+  title: "My Blog Post Title",
+  date: "2025-01-22",
+  lang: "en",
 });
 // Returns: "8f4e9d12" (8-character hex string)
 ```
 
 ### ID Format
+
 - **Length**: Exactly 8 characters
 - **Character set**: Hexadecimal (0-9, a-f)
 - **Uniqueness**: Generated from SHA-256 hash of post metadata
@@ -100,20 +108,22 @@ const postId = generatePostId({
 
 The following fields are automatically computed and added to the metadata:
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `slug` | Filename without extension | `"tech-blog-writing-guide"` |
-| `lang` | Language code from directory | `"en"` |
-| `readTime` | Estimated reading time | `"5 min read"` |
+| Field      | Description                  | Example                     |
+| ---------- | ---------------------------- | --------------------------- |
+| `slug`     | Filename without extension   | `"tech-blog-writing-guide"` |
+| `lang`     | Language code from directory | `"en"`                      |
+| `readTime` | Estimated reading time       | `"5 min read"`              |
 
 ## File Naming Convention
 
 Blog post files should follow this naming pattern:
+
 ```
 [topic-name-kebab-case].mdx
 ```
 
 Examples:
+
 - `sharepoint-development-graph-api.mdx`
 - `zero-knowledge-password-proofs-opaque-authentication.mdx`
 - `tech-blog-writing-guide.mdx`
@@ -121,6 +131,7 @@ Examples:
 ## Language Organization
 
 Blog posts are organized by language:
+
 ```
 /content/blog/
   ├── en/          # English posts
@@ -132,6 +143,7 @@ Blog posts are organized by language:
 ## Example Metadata Blocks
 
 ### Minimal Example
+
 ```yaml
 ---
 title: Basic Post Title
@@ -142,6 +154,7 @@ id: ab123cd4
 ```
 
 ### Standard Example
+
 ```yaml
 ---
 title: VMware Fusion Networking Configuration
@@ -164,6 +177,7 @@ id: ef79b0dd
 ```
 
 ### Full Example with Multi-line Values
+
 ```yaml
 ---
 title: >-
@@ -191,6 +205,7 @@ image: >-
 ## Tag Guidelines
 
 ### Common Categories Used
+
 - **Web Development**: SEO, HTML, PWA, Performance
 - **Programming Languages**: Java, TypeScript, JavaScript
 - **Frameworks**: Spring Boot, Next.js, React
@@ -200,6 +215,7 @@ image: >-
 - **APIs**: REST, GraphQL, Microsoft Graph
 
 ### Tag Best Practices
+
 1. Use Title Case for consistency
 2. Include 3-8 tags per post
 3. Balance broad and specific tags
@@ -208,6 +224,7 @@ image: >-
 ## Category Examples
 
 Common categories observed in the codebase:
+
 - `Web Development`
 - `Spring`
 - `Infrastructure`
@@ -240,14 +257,14 @@ Common categories observed in the codebase:
 
 The blog system provides these functions:
 
-| Function | Purpose | Returns |
-|----------|---------|---------|
-| `getAllPostSlugs(lang)` | Get all post filenames | `string[]` |
-| `getPostBySlug(lang, slug)` | Get single post with content | Post object with meta and MDX |
-| `getAllPosts(lang)` | Get all posts metadata | `BlogMeta[]` sorted by date |
-| `getFeaturedPosts(lang, limit)` | Get recent posts | Limited `BlogMeta[]` |
-| `getRecentPosts(lang, limit, skip)` | Get paginated posts | `BlogMeta[]` |
-| `getAllTags(lang)` | Get all tags with counts | `TagWithCount[]` |
+| Function                            | Purpose                      | Returns                       |
+| ----------------------------------- | ---------------------------- | ----------------------------- |
+| `getAllPostSlugs(lang)`             | Get all post filenames       | `string[]`                    |
+| `getPostBySlug(lang, slug)`         | Get single post with content | Post object with meta and MDX |
+| `getAllPosts(lang)`                 | Get all posts metadata       | `BlogMeta[]` sorted by date   |
+| `getFeaturedPosts(lang, limit)`     | Get recent posts             | Limited `BlogMeta[]`          |
+| `getRecentPosts(lang, limit, skip)` | Get paginated posts          | `BlogMeta[]`                  |
+| `getAllTags(lang)`                  | Get all tags with counts     | `TagWithCount[]`              |
 
 ## Sorting and Display
 

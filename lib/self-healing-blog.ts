@@ -29,11 +29,10 @@ export interface BlogFrontmatter {
   id?: string; // Added for self-healing URLs
 }
 
-export interface BlogMeta
-  extends Omit<
-    BlogFrontmatter,
-    "image" | "author" | "category" | "tags" | "video"
-  > {
+export interface BlogMeta extends Omit<
+  BlogFrontmatter,
+  "image" | "author" | "category" | "tags" | "video"
+> {
   slug: string;
   lang: string;
   readTime: string;

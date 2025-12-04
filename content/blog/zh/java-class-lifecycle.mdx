@@ -51,6 +51,7 @@ id: a3f7abef
 - 解析时机：JVM 规范允许解析阶段在类初始化后延迟进行（惰性解析）。
 
 多态
+
 ```java
 Parent p = new Child();
 p.method(); // 静态解析确定调用 Parent 的方法，但运行时动态分派到 Child 的重写方法
@@ -74,4 +75,3 @@ p.method(); // 静态解析确定调用 Parent 的方法，但运行时动态分
 - 注意：
   - Bootstrap 类加载器加载的类（如`java.lang`包）不会被卸载。
   - 自定义类加载器加载的类可能被卸载，需谨慎管理。
-

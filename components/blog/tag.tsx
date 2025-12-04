@@ -9,7 +9,7 @@ type TagProps = {
 
 const Tag: React.FC<TagProps> = ({ children, href, count, className = "" }) => {
   const tagContent = (
-    <div className={`inline-flex items-center gap-1 group ${className}`}>
+    <div className={`group inline-flex items-center gap-1 ${className}`}>
       <span className="text-muted-foreground group-hover:text-primary transition-colors">
         #
       </span>
@@ -17,7 +17,7 @@ const Tag: React.FC<TagProps> = ({ children, href, count, className = "" }) => {
         {children}
       </span>
       {count && (
-        <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+        <span className="text-muted-foreground bg-muted group-hover:bg-primary group-hover:text-primary-foreground rounded-full px-1.5 py-0.5 text-xs transition-colors">
           {count}
         </span>
       )}
@@ -28,7 +28,7 @@ const Tag: React.FC<TagProps> = ({ children, href, count, className = "" }) => {
     return (
       <Link
         href={href}
-        className="cursor-pointer hover:underline underline-offset-2 decoration-primary mr-3 mb-2 inline-block"
+        className="decoration-primary mr-3 mb-2 inline-block cursor-pointer underline-offset-2 hover:underline"
       >
         {tagContent}
       </Link>

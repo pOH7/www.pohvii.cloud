@@ -66,8 +66,8 @@ export function Header({ dictionary, lang }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-6 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+    <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-6 z-50 w-full border-b backdrop-blur">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo & Brand */}
           <Link
@@ -77,27 +77,27 @@ export function Header({ dictionary, lang }: HeaderProps) {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-full overflow-hidden transition-all duration-200"
+              className="h-10 w-10 overflow-hidden rounded-full transition-all duration-200"
             >
               <Image
                 src="/android-chrome-192x192.png"
                 alt="Site logo"
                 width={40}
                 height={40}
-                className="w-10 h-10 object-cover"
+                className="h-10 w-10 object-cover"
                 priority
                 unoptimized
               />
             </motion.div>
             <div className="flex flex-col">
               <h1
-                className="font-semibold leading-tight"
+                className="leading-tight font-semibold"
                 style={{ color: "var(--foreground)", fontSize: "20px" }}
               >
                 {dictionary.Header.name}
               </h1>
               <p
-                className="text-sm leading-tight text-muted-foreground animate-pulse"
+                className="text-muted-foreground animate-pulse text-sm leading-tight"
                 style={{
                   color: "var(--muted-foreground)",
                   animation: "fadeInUp 400ms ease-out 200ms forwards",
@@ -110,17 +110,16 @@ export function Header({ dictionary, lang }: HeaderProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden items-center space-x-8 lg:flex">
             {navigationItems.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`relative text-base font-medium transition-colors hover:text-primary group 
-                    text-foreground`}
+                className={`hover:text-primary group text-foreground relative text-base font-medium transition-colors`}
               >
                 {dictionary.Navigation[item.key]}
                 <span
-                  className={`absolute -bottom-1 left-1/2 h-0.5 bg-primary transition-all duration-250 ease-out transform -translate-x-1/2 ${
+                  className={`bg-primary absolute -bottom-1 left-1/2 h-0.5 -translate-x-1/2 transform transition-all duration-250 ease-out ${
                     pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
                   }`}
                 />
@@ -129,11 +128,15 @@ export function Header({ dictionary, lang }: HeaderProps) {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden items-center space-x-4 lg:flex">
             {/* Language Picker */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="hover:!text-foreground h-10 w-10 [&_svg]:!text-current"
+                >
                   <Globe className="h-4 w-4" />
                   <span className="sr-only">Select language</span>
                 </Button>
@@ -158,11 +161,15 @@ export function Header({ dictionary, lang }: HeaderProps) {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center space-x-2">
+          <div className="flex items-center space-x-2 lg:hidden">
             {/* Mobile Language Picker */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-10 w-10 [&_svg]:!text-current hover:!text-foreground">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="hover:!text-foreground h-10 w-10 [&_svg]:!text-current"
+                >
                   <Globe className="h-4 w-4" />
                   <span className="sr-only">Select language</span>
                 </Button>
@@ -234,9 +241,9 @@ export function Header({ dictionary, lang }: HeaderProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden absolute top-full left-0 right-0 bg-background border-t border-border shadow-lg z-50"
+              className="bg-background border-border absolute top-full right-0 left-0 z-50 border-t shadow-lg lg:hidden"
             >
-              <div className="px-4 py-6 space-y-4">
+              <div className="space-y-4 px-4 py-6">
                 {navigationItems.map((item, index) => (
                   <motion.div
                     key={item.key}
@@ -247,7 +254,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
                     <Link
                       href={item.href}
                       onClick={() => setIsSheetOpen(false)}
-                      className={`block py-2 text-lg font-medium transition-colors hover:text-primary text-foreground`}
+                      className={`hover:text-primary text-foreground block py-2 text-lg font-medium transition-colors`}
                     >
                       {dictionary.Navigation[item.key]}
                     </Link>

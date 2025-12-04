@@ -7,13 +7,13 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
   const dictionary = await getDictionary(lang as "en" | "zh");
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="mb-4 text-4xl font-bold">
             {dictionary.HomePage.title}
           </h1>
-          <p className="text-lg mb-8">{dictionary.HomePage.description}</p>
+          <p className="mb-8 text-lg">{dictionary.HomePage.description}</p>
           {Array.from({ length: 30 }, (_, index) => (
             <p key={index} className="text-muted-foreground mb-8">
               ✅ Language route is working with native Next.js i18n! Current
@@ -24,13 +24,13 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
           <div className="flex justify-center gap-4">
             <Link
               href="/en"
-              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded px-4 py-2 transition-colors"
             >
               English
             </Link>
             <Link
               href="/zh"
-              className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 transition-colors"
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded px-4 py-2 transition-colors"
             >
               中文
             </Link>

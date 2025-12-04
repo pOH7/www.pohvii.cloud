@@ -80,8 +80,7 @@ export function useReadingProgress(
     const handleScroll = (e?: LenisScrollEvent | Event) => {
       // Respect a short lock window after a programmatic scroll-to-section
       // (Do not early-return; progress bar should keep updating.)
-      const scrollTop =
-        e && "scroll" in e ? e.scroll : window.pageYOffset;
+      const scrollTop = e && "scroll" in e ? e.scroll : window.pageYOffset;
       const documentHeight =
         document.documentElement.scrollHeight - window.innerHeight;
       const progress = (scrollTop / documentHeight) * 100;

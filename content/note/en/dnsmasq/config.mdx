@@ -70,6 +70,7 @@ cat /opt/homebrew/var/lib/misc/dnsmasq/dnsmasq.leases
 ## Troubleshooting
 
 **dnsmasq won't start:**
+
 ```bash
 # Check port conflicts
 sudo lsof -i :67
@@ -79,6 +80,7 @@ sudo lsof -i :67
 ```
 
 **Clients not getting leases:**
+
 ```bash
 # Verify running
 ps aux | grep dnsmasq
@@ -87,11 +89,13 @@ ps aux | grep dnsmasq
 ## macOS-Specific Notes
 
 Enable IP forwarding for custom gateway routing:
+
 ```bash
 sudo sysctl -w net.inet.ip.forwarding=1
 ```
 
 Ensure firewall allows dnsmasq:
+
 ```bash
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /opt/homebrew/sbin/dnsmasq
 ```

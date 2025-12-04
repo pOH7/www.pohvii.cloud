@@ -47,15 +47,16 @@ I created a custom image loader that integrates seamlessly with Next.js while us
 
 ```typescript
 // lib/imgproxyLoader.ts
-import type { ImageLoaderProps } from 'next/image';
+import type { ImageLoaderProps } from "next/image";
 
-const IMGPROXY_BASE_URL = process.env.IMGPROXY_BASE_URL || 'https://images.pohvii.cloud';
+const IMGPROXY_BASE_URL =
+  process.env.IMGPROXY_BASE_URL || "https://images.pohvii.cloud";
 const DEFAULT_QUALITY = 80;
 
 function generateImgproxyUrl(src: string, props: ImageLoaderProps): string {
   let imageUrl = src;
-  if (src.startsWith('/')) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://website.pohvii';
+  if (src.startsWith("/")) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://website.pohvii";
     imageUrl = new URL(src, baseUrl).toString();
   }
 
@@ -64,10 +65,10 @@ function generateImgproxyUrl(src: string, props: ImageLoaderProps): string {
 
   // Generate unsigned Imgproxy URL
   const base64Url = Buffer.from(imageUrl)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 
   // Format: /insecure/f:format/q:quality/rt:resizing_type/w:width/base64_url
   const imgproxyPath = `insecure/f:webp/q:${finalQuality}/rt:fit/w:${width}/${base64Url}`;
@@ -79,7 +80,7 @@ export default function imgproxyLoader(props: ImageLoaderProps): string {
   try {
     return generateImgproxyUrl(props.src, props);
   } catch (error) {
-    console.error('Error generating Imgproxy URL:', error);
+    console.error("Error generating Imgproxy URL:", error);
     return props.src; // Fallback to original
   }
 }
@@ -92,10 +93,10 @@ I updated my `next.config.ts` to use the custom loader:
 ```typescript
 const nextConfig: NextConfig = {
   images: {
-    loader: 'custom',
-    loaderFile: './lib/imgproxyLoader.ts',
+    loader: "custom",
+    loaderFile: "./lib/imgproxyLoader.ts",
     unoptimized: false,
-    domains: ['www.pohvii.cloud', 'images.pohvii.cloud', 's3.pohvii.cloud'],
+    domains: ["www.pohvii.cloud", "images.pohvii.cloud", "s3.pohvii.cloud"],
     minimumCacheTTL: 60,
   },
   // ... rest of config
@@ -112,7 +113,7 @@ Make the browser send an actual CORS request by passing `crossOrigin="anonymous"
 
 ```tsx
 // components/OptimizedImage.tsx
-import Image, { ImageProps } from 'next/image';
+import Image, { ImageProps } from "next/image";
 
 export function OptimizedImage(props: ImageProps) {
   return <Image {...props} crossOrigin="anonymous" />;
@@ -167,6 +168,7 @@ When implementing cross-origin image optimization, it's crucial to understand th
 The [`Access-Control-Allow-Origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Allow-Origin) header determines which origins are permitted to access the resource. In our Traefik configuration, we explicitly allow our production domains and localhost for development.
 
 This header is essential for:
+
 - Allowing your Next.js application to fetch optimized images from Imgproxy
 - Enabling browser-based CORS preflight requests
 - Supporting credential-enabled requests when needed
@@ -176,6 +178,7 @@ This header is essential for:
 The [`Cross-Origin-Resource-Policy`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Resource-Policy) header provides an additional layer of protection by allowing resources to declare their own cross-origin policy. We set it to `same-site` on Imgproxy responses.
 
 This header helps:
+
 - Prevent unauthorized embedding of your optimized images
 - Provide defense against Spectre-style attacks
 - Work in conjunction with Cross-Origin-Embedder-Policy for enhanced security
@@ -206,4 +209,4 @@ If you're experiencing similar memory issues with Next.js Image optimization, co
 
 ---
 
-*For more details on implementing Imgproxy with Next.js, check out the [official Imgproxy blog post](https://imgproxy.net/blog/image-optimization-for-nextjs-with-imgproxy/).*
+_For more details on implementing Imgproxy with Next.js, check out the [official Imgproxy blog post](https://imgproxy.net/blog/image-optimization-for-nextjs-with-imgproxy/)._

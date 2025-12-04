@@ -1,6 +1,7 @@
 ## DNS01 Challenge
 
 DNS01 challenge is recommended for:
+
 - **Wildcard certificates** (e.g., `*.example.com`)
 - **Internal services** not publicly accessible
 - **Multiple subdomains** under the same domain
@@ -95,10 +96,10 @@ kubectl create secret generic cloudflare-api-token-secret \
    - Include > Specific zone > `pohvii.cloud`
 7. Create token and copy it immediately (shown only once)
 
-
 ## HTTP01 Challenge
 
 HTTP01 challenge is recommended for:
+
 - **Public-facing services** with accessible HTTP endpoints
 - **Single domain certificates** (e.g., `example.com`, `www.example.com`)
 - **Simple setup** without DNS provider configuration
@@ -149,10 +150,10 @@ spec:
 
 ## Comparison
 
-| Feature | DNS01 | HTTP01 |
-|---------|-------|--------|
-| Wildcard certificates | ✅ Yes | ❌ No |
-| Internal services | ✅ Yes | ❌ No (requires public access) |
-| DNS provider required | ✅ Yes | ❌ No |
-| Setup complexity | Medium | Low |
-| Ingress required | ❌ No | ✅ Yes |
+| Feature               | DNS01  | HTTP01                         |
+| --------------------- | ------ | ------------------------------ |
+| Wildcard certificates | ✅ Yes | ❌ No                          |
+| Internal services     | ✅ Yes | ❌ No (requires public access) |
+| DNS provider required | ✅ Yes | ❌ No                          |
+| Setup complexity      | Medium | Low                            |
+| Ingress required      | ❌ No  | ✅ Yes                         |

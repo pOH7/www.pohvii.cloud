@@ -69,23 +69,23 @@ Add YAML frontmatter at the top of each `.mdx` file to control metadata:
 ---
 title: "Custom Title"
 description: "Brief description of the content"
-platform: "macOS"      # For subsections (e.g., 'Windows', 'Linux', 'macOS')
-order: 1               # Custom ordering (lower numbers appear first)
-icon: "terminal"       # Optional icon identifier
-protected: true        # Require authentication to view (overview.mdx only)
+platform: "macOS" # For subsections (e.g., 'Windows', 'Linux', 'macOS')
+order: 1 # Custom ordering (lower numbers appear first)
+icon: "terminal" # Optional icon identifier
+protected: true # Require authentication to view (overview.mdx only)
 ---
 ```
 
 ### Frontmatter Fields
 
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `title` | string | Display title for the section/subsection | Optional |
-| `description` | string | Brief description | Optional |
-| `platform` | string | Platform identifier (for subsections) | Optional |
-| `order` | number | Custom ordering within directory (default: 999) | Optional |
-| `icon` | string | Icon identifier | Optional |
-| `protected` | boolean | Require authentication (overview only) | Optional |
+| Field         | Type    | Description                                     | Required |
+| ------------- | ------- | ----------------------------------------------- | -------- |
+| `title`       | string  | Display title for the section/subsection        | Optional |
+| `description` | string  | Brief description                               | Optional |
+| `platform`    | string  | Platform identifier (for subsections)           | Optional |
+| `order`       | number  | Custom ordering within directory (default: 999) | Optional |
+| `icon`        | string  | Icon identifier                                 | Optional |
+| `protected`   | boolean | Require authentication (overview only)          | Optional |
 
 ## Content Guidelines
 
@@ -149,6 +149,7 @@ Use special markers at the start of lines for diff highlighting:
 ### Auto-linked Headings
 
 All headings automatically get:
+
 - Anchor links with IDs based on the heading text
 - Hover icons for easy linking
 - Slug generation (e.g., `## Installation Guide` → `#installation-guide`)
@@ -165,6 +166,7 @@ content/note/en/example-tool/
 ```
 
 **overview.mdx:**
+
 ```markdown
 ---
 title: "Example Tool"
@@ -194,7 +196,8 @@ content/note/en/dnsmasq/
 ```
 
 **install/macOS.mdx:**
-```markdown
+
+````markdown
 ---
 title: "Install on macOS"
 platform: "macOS"
@@ -208,11 +211,13 @@ order: 2
 ```bash
 brew install dnsmasq
 ```
+````
 
 ## Configuration
 
 Edit the configuration file...
-```
+
+````
 
 **install/windows.mdx:**
 ```markdown
@@ -225,7 +230,7 @@ order: 1
 # Installing dnsmasq on Windows
 
 Download the installer from...
-```
+````
 
 ## Protected Notes
 
@@ -250,7 +255,7 @@ Your notes support full MDX syntax:
 
 ### Standard Markdown
 
-- **Bold**, *italic*, ~~strikethrough~~
+- **Bold**, _italic_, ~~strikethrough~~
 - Lists (ordered and unordered)
 - Links: `[text](url)`
 - Images: `![alt](url)`
@@ -269,7 +274,7 @@ Your notes support full MDX syntax:
 Import and use React components in your MDX files:
 
 ```mdx
-import { CustomComponent } from '@/components/custom'
+import { CustomComponent } from "@/components/custom";
 
 # My Note
 

@@ -24,7 +24,7 @@ updates:
           - "server-only"
           - "@types/react*"
           - "eslint-config-next"
-      # Group UI/styling dependencies  
+      # Group UI/styling dependencies
       ui:
         patterns:
           - "@radix-ui/*"

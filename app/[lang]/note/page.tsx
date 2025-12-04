@@ -57,11 +57,11 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <header className="mb-12">
-        <div className="flex items-center gap-3 mb-4">
-          <BookOpen className="w-10 h-10 text-primary" />
+        <div className="mb-4 flex items-center gap-3">
+          <BookOpen className="text-primary h-10 w-10" />
           <h1 className="text-4xl font-bold">{title}</h1>
         </div>
-        <p className="text-lg text-muted-foreground max-w-2xl">
+        <p className="text-muted-foreground max-w-2xl text-lg">
           {lang === "zh"
             ? "浏览完整的技术笔记和参考文档集合。"
             : "Browse the complete collection of technical notes and reference documentation."}
@@ -70,19 +70,19 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
 
       {/* Notes Grid */}
       {notes.length === 0 ? (
-        <div className="text-center py-16">
-          <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-lg text-muted-foreground">{noNotesMessage}</p>
+        <div className="py-16 text-center">
+          <FileText className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
+          <p className="text-muted-foreground text-lg">{noNotesMessage}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {notes.map((note) => (
             <Link
               key={note.topic}
               href={`/${lang}/note/${note.topic}`}
               className="group"
             >
-              <Card className="h-full transition-all hover:shadow-lg hover:border-primary/50">
+              <Card className="hover:border-primary/50 h-full transition-all hover:shadow-lg">
                 <CardHeader>
                   <CardTitle className="group-hover:text-primary transition-colors">
                     {note.title}
@@ -92,8 +92,8 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <FileText className="w-4 h-4" />
+                  <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                    <FileText className="h-4 w-4" />
                     <span>
                       {note.sectionCount} {sectionsText}
                     </span>

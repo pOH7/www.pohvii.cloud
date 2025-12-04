@@ -2,6 +2,7 @@ import nextPlugin from "@next/eslint-plugin-next";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import tailwindcssPlugin from "eslint-plugin-better-tailwindcss";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import jsoncParser from "jsonc-eslint-parser";
@@ -39,6 +40,7 @@ const eslintConfig = tseslint.config(
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       "jsx-a11y": jsxA11yPlugin,
+      "better-tailwindcss": tailwindcssPlugin,
     },
     languageOptions: {
       parserOptions: {
@@ -50,6 +52,10 @@ const eslintConfig = tseslint.config(
     settings: {
       react: {
         version: "detect",
+      },
+      "better-tailwindcss": {
+        // Tailwind CSS 4 uses CSS-based configuration
+        entryPoint: "app/globals.css",
       },
     },
     rules: {
@@ -68,6 +74,23 @@ const eslintConfig = tseslint.config(
 
       // JSX A11y
       ...jsxA11yPlugin.configs.recommended.rules,
+
+      // Tailwind CSS - using recommended config but disabling formatting rules
+      // as Prettier with prettier-plugin-tailwindcss handles formatting
+      ...tailwindcssPlugin.configs.recommended.rules,
+      "better-tailwindcss/enforce-consistent-class-order": "off",
+      "better-tailwindcss/enforce-consistent-line-wrapping": "off",
+      // Allow complex prose/styling classes that are defined in globals.css
+      "better-tailwindcss/no-unregistered-classes": [
+        "error",
+        {
+          ignore: [
+            "blog-article-content",
+            "utterances-container",
+            "section-title",
+          ],
+        },
+      ],
 
       // General
       "no-console": ["warn", { allow: ["warn", "error"] }],

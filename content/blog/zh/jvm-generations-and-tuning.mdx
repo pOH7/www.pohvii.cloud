@@ -33,11 +33,13 @@ id: 0ef20c39
 ## 调优（Tuning）
 
 ### SurvivorRatio
+
 定义 Eden 与单个 Survivor 的大小比例。
 
 示例：当 `-XX:SurvivorRatio=8` 时，新生代被分为 8 份 Eden + 1 份 S0 + 1 份 S1。
 
 ### NewRatio（新生代与老年代的比例）
+
 `-XX:NewRatio`：新生代与老年代的比例。
 
 示例：`-XX:NewRatio=2` 表示老年代是新生代的 2 倍。
@@ -45,4 +47,3 @@ id: 0ef20c39
 ### `-Xmn`（新生代大小）
 
 ### `-XX:MaxTenuringThreshold`（对象晋升年龄阈值）
-

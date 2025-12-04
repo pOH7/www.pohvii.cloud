@@ -22,11 +22,10 @@ export interface BlogFrontmatter {
   video?: string;
 }
 
-export interface BlogMeta
-  extends Omit<
-    BlogFrontmatter,
-    "image" | "author" | "category" | "tags" | "video"
-  > {
+export interface BlogMeta extends Omit<
+  BlogFrontmatter,
+  "image" | "author" | "category" | "tags" | "video"
+> {
   slug: string;
   lang: string;
   readTime: string;
@@ -251,10 +250,7 @@ export function getAllPosts(lang: string): BlogMeta[] {
     .map(({ post }) => post);
 }
 
-export function getFeaturedPosts(
-  lang: string,
-  limit: number = 2
-): BlogMeta[] {
+export function getFeaturedPosts(lang: string, limit: number = 2): BlogMeta[] {
   const allPosts = getAllPosts(lang);
   return allPosts.slice(0, limit);
 }
