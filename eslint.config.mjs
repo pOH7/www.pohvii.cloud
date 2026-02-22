@@ -5,7 +5,14 @@ import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import tailwindcssPlugin from "eslint-plugin-better-tailwindcss";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
-import jsoncParser from "jsonc-eslint-parser";
+import * as jsoncParser from "jsonc-eslint-parser";
+import { fixupPluginRules } from "@eslint/compat";
+
+const compatNextPlugin = fixupPluginRules(nextPlugin);
+const compatReactPlugin = fixupPluginRules(reactPlugin);
+const compatReactHooksPlugin = fixupPluginRules(reactHooksPlugin);
+const compatJsxA11yPlugin = fixupPluginRules(jsxA11yPlugin);
+const compatTailwindcssPlugin = fixupPluginRules(tailwindcssPlugin);
 
 const eslintConfig = tseslint.config(
   {
@@ -26,7 +33,7 @@ const eslintConfig = tseslint.config(
   {
     files: ["package.json"],
     plugins: {
-      "@next/next": nextPlugin,
+      "@next/next": compatNextPlugin,
     },
     languageOptions: {
       parser: jsoncParser,
@@ -36,11 +43,11 @@ const eslintConfig = tseslint.config(
   {
     files: ["**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}"],
     plugins: {
-      "@next/next": nextPlugin,
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
-      "jsx-a11y": jsxA11yPlugin,
-      "better-tailwindcss": tailwindcssPlugin,
+      "@next/next": compatNextPlugin,
+      react: compatReactPlugin,
+      "react-hooks": compatReactHooksPlugin,
+      "jsx-a11y": compatJsxA11yPlugin,
+      "better-tailwindcss": compatTailwindcssPlugin,
     },
     languageOptions: {
       parserOptions: {
@@ -81,7 +88,7 @@ const eslintConfig = tseslint.config(
       "better-tailwindcss/enforce-consistent-class-order": "off",
       "better-tailwindcss/enforce-consistent-line-wrapping": "off",
       // Allow complex prose/styling classes that are defined in globals.css
-      "better-tailwindcss/no-unregistered-classes": [
+      "better-tailwindcss/no-unknown-classes": [
         "error",
         {
           ignore: [
