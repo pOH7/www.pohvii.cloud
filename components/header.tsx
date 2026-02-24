@@ -36,8 +36,62 @@ interface HeaderProps {
   lang: string;
 }
 
-export function Header({ dictionary, lang }: HeaderProps) {
+interface MobileNavigationMenuProps {
+  dictionary: Dictionary;
+  navigationItems: ReturnType<typeof getNavigationItems>;
+  isActiveNav: (href: string) => boolean;
+}
+
+function MobileNavigationMenu({
+  dictionary,
+  navigationItems,
+  isActiveNav,
+}: MobileNavigationMenuProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => setIsSheetOpen((open) => !open)}
+        aria-label="Toggle menu"
+        aria-expanded={isSheetOpen}
+      >
+        {isSheetOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+        <span className="sr-only">Toggle menu</span>
+      </Button>
+
+      {isSheetOpen && (
+        <div className="bg-background border-border absolute inset-x-0 top-full z-50 border-b p-4 lg:hidden">
+          <nav className="space-y-1">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                onClick={() => setIsSheetOpen(false)}
+                className="hover:text-primary data-[active=true]:text-primary data-[active=true]:border-b-primary block border-b-2 border-b-transparent py-2 text-base no-underline transition-colors"
+                data-active={isActiveNav(item.href)}
+              >
+                {dictionary.Navigation[item.key]}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
+
+      {isSheetOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
+          onClick={() => setIsSheetOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+    </>
+  );
+}
+
+export function Header({ dictionary, lang }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -165,49 +219,14 @@ export function Header({ dictionary, lang }: HeaderProps) {
 
             <ThemeToggle />
             <AuthButton dictionary={dictionary} />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setIsSheetOpen((open) => !open)}
-              aria-label="Toggle menu"
-              aria-expanded={isSheetOpen}
-            >
-              {isSheetOpen ? (
-                <X className="size-4" />
-              ) : (
-                <Menu className="size-4" />
-              )}
-              <span className="sr-only">Toggle menu</span>
-            </Button>
+            <MobileNavigationMenu
+              dictionary={dictionary}
+              navigationItems={navigationItems}
+              isActiveNav={isActiveNav}
+            />
           </div>
         </div>
-
-        {isSheetOpen && (
-          <div className="bg-background border-border absolute inset-x-0 top-full z-50 border-b p-4 lg:hidden">
-            <nav className="space-y-1">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  onClick={() => setIsSheetOpen(false)}
-                  className="hover:text-primary data-[active=true]:text-primary data-[active=true]:border-b-primary block border-b-2 border-b-transparent py-2 text-base no-underline transition-colors"
-                  data-active={isActiveNav(item.href)}
-                >
-                  {dictionary.Navigation[item.key]}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </div>
-
-      {isSheetOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
-          onClick={() => setIsSheetOpen(false)}
-          aria-hidden="true"
-        />
-      )}
     </header>
   );
 }
