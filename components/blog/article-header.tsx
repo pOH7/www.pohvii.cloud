@@ -93,7 +93,9 @@ export function ArticleHeader({
             <MessageCircle className="size-4" />
             Comments
           </Button>
-          <MemoizedCopyMarkdownButton onCopy={onCopyMarkdown} />
+          <MemoizedCopyMarkdownButton
+            {...(onCopyMarkdown ? { onCopy: onCopyMarkdown } : {})}
+          />
         </div>
       </header>
 
