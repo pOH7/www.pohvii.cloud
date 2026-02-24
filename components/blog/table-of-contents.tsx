@@ -155,7 +155,7 @@ export function TableOfContents({
       </Activity>
 
       <aside
-        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 overflow-y-auto lg:block"
+        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto lg:block"
         ref={desktopScrollRef}
       >
         <Card className="gap-0 rounded-md p-3">

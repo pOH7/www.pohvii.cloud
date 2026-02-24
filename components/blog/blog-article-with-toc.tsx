@@ -53,7 +53,7 @@ export function BlogArticleWithTOC({
         />
       </div>
 
-      <div className="mx-auto flex w-full max-w-6xl gap-8 px-4 md:px-8">
+      <div className="mx-auto flex w-full max-w-6xl items-start gap-8 px-4 md:px-8">
         <MemoizedBlogArticle contentRef={contentRef}>
           {children}
         </MemoizedBlogArticle>

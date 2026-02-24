@@ -80,7 +80,7 @@ export function NoteArticleClient({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mx-auto flex max-w-6xl gap-8">
+      <div className="mx-auto flex max-w-6xl items-start gap-8">
         {/* Main Content */}
         <article className="max-w-4xl min-w-0 flex-1" ref={contentRef}>
           {/* Header */}
