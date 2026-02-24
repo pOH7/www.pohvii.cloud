@@ -21,63 +21,131 @@ interface BackToTopProps {
    * @default 800
    */
   scrollDuration?: number;
+  /**
+   * Hide button while user is actively scrolling
+   * @default true
+   */
+  hideWhileScrolling?: boolean;
+  /**
+   * Delay before showing button again after scrolling stops (ms)
+   * @default 140
+   */
+  scrollEndDelay?: number;
 }
 
 export function BackToTop({
   threshold = 300,
   className,
   scrollDuration = 800,
+  hideWhileScrolling = true,
+  scrollEndDelay = 140,
 }: BackToTopProps) {
   const [isVisible, setIsVisible] = React.useState(false);
+  const [isScrolling, setIsScrolling] = React.useState(false);
   const [scrollProgress, setScrollProgress] = React.useState(0);
+  const isVisibleRef = React.useRef(false);
+  const isScrollingRef = React.useRef(false);
+  const scrollProgressRef = React.useRef(0);
 
   // Extract non-reactive scroll logic using React 19.2's useEffectEvent
   // This allows us to access the latest threshold value without re-running the effect
-  const handleScroll = useEffectEvent((e?: LenisScrollEvent | Event) => {
-    const scrollY = e && "scroll" in e ? e.scroll : window.scrollY;
-    const documentHeight =
-      document.documentElement.scrollHeight - window.innerHeight;
-    const progress = (scrollY / documentHeight) * 100;
+  const handleScroll = useEffectEvent((scrollY: number) => {
+    const documentHeight = Math.max(
+      document.documentElement.scrollHeight - window.innerHeight,
+      1
+    );
+    const progress = Math.min(
+      Math.max(Math.round((scrollY / documentHeight) * 100), 0),
+      100
+    );
+    const nextIsVisible = scrollY > threshold;
 
-    setIsVisible(scrollY > threshold);
-    setScrollProgress(Math.min(progress, 100));
+    if (nextIsVisible !== isVisibleRef.current) {
+      isVisibleRef.current = nextIsVisible;
+      setIsVisible(nextIsVisible);
+    }
+
+    if (progress !== scrollProgressRef.current) {
+      scrollProgressRef.current = progress;
+      setScrollProgress(progress);
+    }
   });
 
   React.useEffect(() => {
-    // Listen to Lenis scroll events if available
+    let rafId: number | null = null;
+    let latestScrollY = window.scrollY;
+    let scrollEndTimer: number | null = null;
+
+    if (!hideWhileScrolling && isScrollingRef.current) {
+      isScrollingRef.current = false;
+      setIsScrolling(false);
+    }
+
+    const scheduleScrollUpdate = (scrollY: number) => {
+      latestScrollY = scrollY;
+
+      if (hideWhileScrolling) {
+        if (!isScrollingRef.current) {
+          isScrollingRef.current = true;
+          setIsScrolling(true);
+        }
+
+        if (scrollEndTimer !== null) {
+          window.clearTimeout(scrollEndTimer);
+        }
+
+        scrollEndTimer = window.setTimeout(() => {
+          scrollEndTimer = null;
+          isScrollingRef.current = false;
+          setIsScrolling(false);
+          handleScroll(latestScrollY);
+        }, scrollEndDelay);
+
+        return;
+      }
+
+      if (rafId !== null) {
+        return;
+      }
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        handleScroll(latestScrollY);
+      });
+    };
+
     const lenis = window.lenis;
+    const nativeHandler = () => scheduleScrollUpdate(window.scrollY);
+    const lenisHandler = (e: LenisScrollEvent) =>
+      scheduleScrollUpdate(e.scroll);
 
     if (lenis) {
-      lenis.on("scroll", handleScroll);
+      lenis.on("scroll", lenisHandler);
     } else {
-      // Fallback to native scroll events if Lenis is not available
-      let ticking = false;
-      const throttledHandleScroll = () => {
-        if (!ticking) {
-          requestAnimationFrame(() => {
-            handleScroll();
-            ticking = false;
-          });
-          ticking = true;
-        }
-      };
-
-      window.addEventListener("scroll", throttledHandleScroll, {
+      window.addEventListener("scroll", nativeHandler, {
         passive: true,
       });
     }
 
     // Check initial position
-    handleScroll();
+    handleScroll(window.scrollY);
 
     return () => {
+      if (scrollEndTimer !== null) {
+        window.clearTimeout(scrollEndTimer);
+      }
+
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+
       if (lenis) {
-        lenis.off("scroll", handleScroll);
+        lenis.off("scroll", lenisHandler);
       } else {
-        window.removeEventListener("scroll", () => {});
+        window.removeEventListener("scroll", nativeHandler);
       }
     };
-  }, []); // ✨ No dependencies needed! useEffectEvent always reads latest values
+  }, [hideWhileScrolling, scrollEndDelay]);
 
   const scrollToTop = () => {
     const lenis = window.lenis;
@@ -120,7 +188,7 @@ export function BackToTop({
     <div
       className={cn(
         "fixed right-6 bottom-6 z-30 transition-all duration-300 ease-out",
-        isVisible
+        isVisible && !(hideWhileScrolling && isScrolling)
           ? "translate-y-0 scale-100 opacity-100"
           : "pointer-events-none translate-y-4 scale-90 opacity-0",
         className
@@ -149,7 +217,7 @@ export function BackToTop({
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className="text-primary transition-all duration-300"
+            className="text-primary"
             fill="none"
             strokeDasharray={`${2 * Math.PI * 20}`}
             strokeDashoffset={`${2 * Math.PI * 20 * (1 - scrollProgress / 100)}`}
