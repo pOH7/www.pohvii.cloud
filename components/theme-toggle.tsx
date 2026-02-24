@@ -162,14 +162,14 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       onClick={() => void handleThemeToggle()}
-      className="hover:!text-foreground h-10 w-10 [&_svg]:!text-current"
+      className="hover:text-foreground [&_svg]:text-current"
     >
       <div
         ref={containerRef}
         className="group relative flex items-center justify-center"
       >
-        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 opacity-100 transition-all duration-500 group-[.disable-transitions]:!duration-0 dark:-rotate-90 dark:opacity-0" />
-        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-0 opacity-0 transition-all duration-500 group-[.disable-transitions]:!duration-0 dark:-rotate-90 dark:opacity-100" />
+        <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 opacity-100 transition-all duration-500 group-[.disable-transitions]:duration-0! dark:-rotate-90 dark:opacity-0" />
+        <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-0 opacity-0 transition-all duration-500 group-[.disable-transitions]:duration-0! dark:-rotate-90 dark:opacity-100" />
       </div>
       <span className="sr-only">Toggle theme</span>
     </Button>

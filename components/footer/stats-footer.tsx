@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Tag } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface TagData {
   name: string;
@@ -24,61 +23,40 @@ export function StatsFooter({ tags, lang }: StatsFooterProps) {
     tags.length > 0 ? Math.round(totalArticles / tags.length) : 0;
 
   return (
-    <footer className="bg-muted/30 w-full px-4 py-12 md:px-8">
-      <div className="mx-auto max-w-7xl text-center">
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <div className="text-primary mb-2 text-3xl font-bold">
+    <footer className="border-t [border-top-style:dotted] px-4 py-10 md:px-8">
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="mb-8 grid grid-cols-1 gap-6 text-sm md:grid-cols-3">
+          <div>
+            <div className="text-primary mb-1 text-3xl font-bold">
               {tags.length}
             </div>
             <p className="text-muted-foreground">Total Tags</p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="text-accent mb-2 text-3xl font-bold">
+          <div>
+            <div className="text-primary mb-1 text-3xl font-bold">
               {totalArticles}
             </div>
             <p className="text-muted-foreground">Total Articles</p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <div className="text-secondary mb-2 text-3xl font-bold">
+          <div>
+            <div className="text-primary mb-1 text-3xl font-bold">
               {avgPerTag}
             </div>
             <p className="text-muted-foreground">Avg per Tag</p>
-          </motion.div>
+          </div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-border border-t pt-6"
-        >
+        <div className="border-t [border-top-style:dotted] pt-5">
           <Link
             href={`/${lang}/blog`}
-            className="text-primary hover:text-accent inline-flex items-center gap-2 underline-offset-4 transition-colors hover:underline"
+            className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex items-center gap-2 border-b-2 text-sm font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Browse all articles
-            <Tag className="h-4 w-4" />
+            <Tag className="size-4" />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </footer>
   );

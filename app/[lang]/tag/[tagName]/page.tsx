@@ -49,7 +49,7 @@ export default async function TagPage(
       {/* Header Section */}
       <section className="mx-auto w-full max-w-7xl px-4 py-12 md:px-8">
         <div className="mb-4 flex items-center gap-2">
-          <Tag className="text-primary h-6 w-6" />
+          <Tag className="text-primary size-6" />
           <Badge
             variant="secondary"
             className="cursor-default px-3 py-1 text-lg"

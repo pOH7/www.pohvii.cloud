@@ -1,11 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Folder, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export interface BlogPost {
   slug: string;
@@ -36,75 +33,61 @@ export function RelatedPosts({
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.3 }}
-      className="mt-16"
-    >
-      <h2 className="mb-8 text-2xl font-bold">Related Posts</h2>
+    <section className="mt-16 border-t [border-top-style:dotted] pt-8">
+      <h2 className="mb-6 text-2xl font-bold">Related Posts</h2>
       <div className="grid gap-6 md:grid-cols-2">
-        {displayPosts.map((post, index) => (
-          <motion.div
+        {displayPosts.map((post) => (
+          <article
             key={post.slug}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4 + index * 0.1 }}
-            className="group"
+            className="bg-card border-border rounded-md border"
           >
-            <Card className="h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <div className="aspect-video overflow-hidden">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={400}
-                  height={200}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+            <div className="border-border aspect-video overflow-hidden border-b">
+              <Image
+                src={post.image}
+                alt={post.title}
+                width={400}
+                height={200}
+                className="size-full object-cover"
+              />
+            </div>
+            <div className="space-y-3 p-4">
+              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                <Folder className="text-primary size-3.5" />
+                <span>{post.category}</span>
               </div>
-              <CardHeader className="pb-2">
-                <div className="mb-2 flex items-center gap-2">
-                  <Folder className="text-primary h-3 w-3" />
-                  <span className="text-primary text-xs font-medium">
-                    {post.category}
-                  </span>
-                </div>
-                <Link href={`/${lang}/blog/${post.slug}`}>
-                  <CardTitle className="group-hover:text-primary cursor-pointer text-lg leading-tight transition-colors">
-                    {post.title}
-                  </CardTitle>
-                </Link>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-muted-foreground mb-3 line-clamp-2 text-sm">
-                  {post.description}
-                </p>
-                <div className="text-muted-foreground mb-3 flex items-center gap-4 text-xs">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {post.date}
-                  </span>
-                  <span>{post.readTime}</span>
-                </div>
-                <Button
-                  asChild
-                  size="sm"
-                  className="group flex cursor-pointer items-center gap-2"
-                  variant="outline"
+
+              <h3 className="text-lg/tight font-semibold">
+                <Link
+                  href={`/${lang}/blog/${post.slug}`}
+                  className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
-                  <Link
-                    href={`/${lang}/blog/${post.slug}`}
-                    className="inline-flex cursor-pointer"
-                  >
-                    Read More
-                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
+                  {post.title}
+                </Link>
+              </h3>
+
+              <p className="text-muted-foreground line-clamp-2 text-sm">
+                {post.description}
+              </p>
+
+              <div className="text-muted-foreground flex items-center gap-4 text-xs">
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="size-3.5" />
+                  {post.date}
+                </span>
+                <span>{post.readTime}</span>
+              </div>
+
+              <Link
+                href={`/${lang}/blog/${post.slug}`}
+                className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex items-center gap-1 border-b-2 text-sm font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                Read more
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+          </article>
         ))}
       </div>
-    </motion.section>
+    </section>
   );
 }

@@ -24,13 +24,13 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
           <div className="flex justify-center gap-4">
             <Link
               href="/en"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded px-4 py-2 transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm px-4 py-2 transition-colors"
             >
               English
             </Link>
             <Link
               href="/zh"
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded px-4 py-2 transition-colors"
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-sm px-4 py-2 transition-colors"
             >
               中文
             </Link>

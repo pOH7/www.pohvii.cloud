@@ -20,6 +20,7 @@ export function useReadingProgress(
   // scroll handler prematurely switching to the next heading.
   const clickLockUntilRef = useRef<number>(0);
   const lastClickedIdRef = useRef<string>("");
+  const progressRafRef = useRef<number | null>(null);
 
   // Extract table of contents from content
   // This effect extracts TOC data from DOM, which is a legitimate use of setState in effect
@@ -78,13 +79,26 @@ export function useReadingProgress(
   // Handle scroll for reading progress (separate from observer-based section tracking)
   useEffect(() => {
     const handleScroll = (e?: LenisScrollEvent | Event) => {
-      // Respect a short lock window after a programmatic scroll-to-section
-      // (Do not early-return; progress bar should keep updating.)
       const scrollTop = e && "scroll" in e ? e.scroll : window.pageYOffset;
-      const documentHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (scrollTop / documentHeight) * 100;
-      setReadingProgress(Math.min(100, Math.max(0, progress)));
+
+      // Schedule on rAF to avoid a state update for every raw scroll event.
+      if (progressRafRef.current !== null) return;
+      progressRafRef.current = window.requestAnimationFrame(() => {
+        progressRafRef.current = null;
+
+        const documentHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const safeHeight = Math.max(documentHeight, 1);
+        const progress = (scrollTop / safeHeight) * 100;
+        const clamped = Math.min(100, Math.max(0, progress));
+        const rounded = Math.round(clamped * 10) / 10;
+
+        setReadingProgress((prev) => {
+          // Ignore tiny deltas to reduce unnecessary rerenders.
+          if (Math.abs(prev - rounded) < 0.2) return prev;
+          return rounded;
+        });
+      });
     };
 
     // Listen to Lenis scroll events if available
@@ -100,6 +114,10 @@ export function useReadingProgress(
     handleScroll();
 
     return () => {
+      if (progressRafRef.current !== null) {
+        window.cancelAnimationFrame(progressRafRef.current);
+        progressRafRef.current = null;
+      }
       if (lenis) {
         lenis.off("scroll", handleScroll);
       } else {

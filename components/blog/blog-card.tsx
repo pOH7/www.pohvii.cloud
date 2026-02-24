@@ -1,18 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 interface BlogCardProps {
   slug: string;
@@ -42,76 +32,77 @@ export function BlogCard({
   const isListLayout = layout === "list";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group h-full"
+    <article
+      data-index={index}
+      className={`bg-card border-border rounded-md border ${
+        isListLayout ? "md:flex" : "flex h-full flex-col"
+      }`}
     >
-      <Card
-        className={`h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
-          isListLayout ? "flex flex-col md:flex-row" : ""
+      <div
+        className={`border-border overflow-hidden ${
+          isListLayout
+            ? "aspect-video border-b md:aspect-square md:w-60 md:border-r md:border-b-0"
+            : "aspect-video border-b"
         }`}
       >
-        <div
-          className={`overflow-hidden ${
-            isListLayout
-              ? "bg-muted relative aspect-video md:aspect-square md:w-1/3"
-              : "aspect-video"
-          }`}
-        >
-          <Image
-            src={image}
-            alt={title}
-            width={isListLayout ? 400 : 800}
-            height={isListLayout ? 400 : 400}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
+        <Image
+          src={image}
+          alt={title}
+          width={isListLayout ? 400 : 800}
+          height={isListLayout ? 400 : 400}
+          className="size-full object-cover"
+        />
+      </div>
 
-        <div className={isListLayout ? "flex flex-1 flex-col" : ""}>
-          <CardHeader className={isListLayout ? "flex-1" : ""}>
-            <div className="mb-2 flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-            <Link href={`/${lang}/blog/${slug}`}>
-              <CardTitle className="hover:text-primary cursor-pointer leading-tight transition-colors">
-                {title}
-              </CardTitle>
-            </Link>
-            <CardDescription>{description}</CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <div className="text-muted-foreground mb-4 flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {date}
-              </span>
-              {readTime && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {readTime}
-                </span>
-              )}
-            </div>
-            <Button
-              asChild
-              className="group flex w-full cursor-pointer items-center gap-2 md:w-auto"
+      <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <Link
+              key={tag}
+              href={`/${lang}/tag/${encodeURIComponent(tag)}`}
+              className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 text-xs no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              <Link href={`/${lang}/blog/${slug}`}>
-                Read Article
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </CardContent>
+              #{tag}
+            </Link>
+          ))}
         </div>
-      </Card>
-    </motion.div>
+
+        <h2 className="text-xl/tight font-semibold">
+          <Link
+            href={`/${lang}/blog/${slug}`}
+            className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {title}
+          </Link>
+        </h2>
+
+        <p className="text-muted-foreground line-clamp-3 text-sm">
+          {description}
+        </p>
+
+        <div className="text-muted-foreground mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+          <span className="inline-flex items-center gap-1">
+            <Calendar className="size-3.5" />
+            {date}
+          </span>
+          {readTime && (
+            <span className="inline-flex items-center gap-1">
+              <Clock className="size-3.5" />
+              {readTime}
+            </span>
+          )}
+        </div>
+
+        <div>
+          <Link
+            href={`/${lang}/blog/${slug}`}
+            className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex items-center gap-1 border-b-2 text-sm font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Read article
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      </div>
+    </article>
   );
 }

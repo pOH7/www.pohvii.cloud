@@ -147,7 +147,7 @@ export function NoteTableOfContents({
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5 }}
-        className="fixed right-6 bottom-[5.5rem] z-40 lg:hidden"
+        className="fixed right-6 bottom-22 z-40 lg:hidden"
       >
         <Button
           onClick={() => setIsMobileOpen(true)}
@@ -157,7 +157,7 @@ export function NoteTableOfContents({
           aria-expanded={isMobileOpen}
           aria-controls={mobilePanelId}
         >
-          <List className="h-5 w-5" />
+          <List className="size-5" />
         </Button>
       </motion.div>
 
@@ -180,7 +180,7 @@ export function NoteTableOfContents({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 500 }}
-              className="bg-background border-border fixed right-0 bottom-0 left-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden"
+              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden"
               id={mobilePanelId}
               role="dialog"
               aria-modal="true"
@@ -191,7 +191,7 @@ export function NoteTableOfContents({
                 {/* Header */}
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <List className="text-primary h-4 w-4" />
+                    <List className="text-primary size-4" />
                     <h3 id={mobileTitleId} className="font-semibold">
                       On this page
                     </h3>
@@ -200,9 +200,9 @@ export function NoteTableOfContents({
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsMobileOpen(false)}
-                    className="h-8 w-8 rounded-full p-0"
+                    className="size-8 rounded-full p-0"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                   </Button>
                 </div>
 
@@ -267,7 +267,7 @@ export function NoteTableOfContents({
                           aria-current={
                             activeSection === item.id ? "true" : undefined
                           }
-                          className={`block w-full rounded border-l-2 border-transparent py-2 text-left transition-all duration-200 ${
+                          className={`block w-full rounded-sm border-l-2 border-transparent py-2 text-left transition-all duration-200 ${
                             item.isSection
                               ? "px-3 text-base font-semibold"
                               : item.level === 3
@@ -282,7 +282,7 @@ export function NoteTableOfContents({
                           <span className="flex flex-wrap items-center gap-2">
                             {item.title}
                             {item.tabKey && (
-                              <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-[10px] font-medium uppercase">
+                              <span className="bg-primary/10 text-primary rounded-sm px-1.5 py-0.5 text-[10px] font-medium uppercase">
                                 {item.tabKey}
                               </span>
                             )}
@@ -331,7 +331,7 @@ export function NoteTableOfContents({
       >
         <Card className="gap-0 p-4">
           <div className="mb-3 flex items-center gap-2">
-            <List className="text-primary h-4 w-4" />
+            <List className="text-primary size-4" />
             <h3 id={desktopTitleId} className="text-sm font-medium">
               On this page
             </h3>
@@ -399,7 +399,7 @@ export function NoteTableOfContents({
                     aria-current={
                       activeSection === item.id ? "true" : undefined
                     }
-                    className={`hover:text-primary block w-full rounded border-l-2 border-transparent py-1.5 text-left transition-all duration-200 hover:translate-x-1 ${
+                    className={`hover:text-primary block w-full rounded-sm border-l-2 border-transparent py-1.5 text-left transition-all duration-200 hover:translate-x-1 ${
                       item.isSection
                         ? "px-2 text-sm font-semibold"
                         : item.level === 3
@@ -414,7 +414,7 @@ export function NoteTableOfContents({
                     <span className="flex flex-wrap items-center gap-1.5">
                       {item.title}
                       {item.tabKey && (
-                        <span className="bg-primary/10 text-primary rounded px-1 py-0.5 text-[9px] leading-none font-medium uppercase">
+                        <span className="bg-primary/10 text-primary rounded-sm px-1 py-0.5 text-[9px] leading-none font-medium uppercase">
                           {item.tabKey}
                         </span>
                       )}
@@ -428,7 +428,7 @@ export function NoteTableOfContents({
                           onClick={() =>
                             handlePlatformSwitch(derivedSectionKey, platform)
                           }
-                          className={`rounded px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                          className={`rounded-sm px-2.5 py-1 text-[11px] font-medium transition-colors ${
                             activeTab?.section === derivedSectionKey &&
                             activeTab.tab === platform
                               ? "bg-primary text-primary-foreground"

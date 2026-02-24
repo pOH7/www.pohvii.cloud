@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { memo, useCallback, useRef, type RefObject } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowLeft, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArticleHeader } from "./article-header";
@@ -16,7 +15,7 @@ export interface BlogPost {
   title: string;
   description: string;
   image: string;
-  video?: string; // Optional video URL
+  video?: string;
   date: string;
   readTime: string;
   author: string;
@@ -41,38 +40,27 @@ export function BlogArticle({
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const { readingProgress, activeSection, tocItems, scrollToSection } =
-    useReadingProgress(contentRef);
 
-  const scrollToComments = () => {
+  const scrollToComments = useCallback(() => {
     const commentsSection = document.getElementById("comments");
     if (commentsSection) {
       commentsSection.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, []);
 
   return (
     <div className="bg-background text-foreground min-h-screen overflow-x-clip">
-      {/* Back Button - Full Width */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mx-auto w-full max-w-6xl px-4 pt-8 pb-4 md:px-8"
-      >
+      <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-4 md:px-8">
         <Link href={`/${lang}/blog`}>
-          <Button
-            variant="outline"
-            className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
-          >
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="outline" className="inline-flex items-center gap-2">
+            <ArrowLeft className="size-4" />
             Back to Blog
           </Button>
         </Link>
-      </motion.div>
+      </div>
 
-      {/* Article Header - Full Width */}
       <div className="mx-auto mb-8 w-full max-w-6xl px-4 md:px-8">
-        <ArticleHeader
+        <MemoizedArticleHeader
           title={post.title}
           description={post.description}
           image={post.image}
@@ -87,62 +75,19 @@ export function BlogArticle({
         />
       </div>
 
-      {/* Content Area with Sidebar - Two Column Layout */}
-      <div className="mx-auto flex max-w-6xl gap-8 px-4 md:px-8">
-        {/* Main Article Content */}
-        <article className="max-w-4xl min-w-0 flex-1">
-          {/* Article Content */}
-          <motion.div
-            ref={contentRef}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="blog-article-content mb-12"
-          >
-            {children}
-          </motion.div>
+      <div className="mx-auto flex w-full max-w-6xl gap-8 px-4 md:px-8">
+        <MemoizedBlogArticleContent contentRef={contentRef}>
+          {children}
+        </MemoizedBlogArticleContent>
 
-          {/* Article Footer */}
-          <motion.footer
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-            className="border-border mb-12 border-t pt-8"
-          >
-            <div className="mb-6 flex items-center gap-2">
-              <Folder className="text-primary h-4 w-4" />
-              <span className="text-primary text-sm font-medium">
-                {post.category}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Link href={`/${lang}/blog`}>
-                <Button
-                  variant="outline"
-                  className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  All Posts
-                </Button>
-              </Link>
-            </div>
-          </motion.footer>
-        </article>
-
-        {/* Table of Contents - Sticky Sidebar */}
-        <TableOfContents
-          items={tocItems}
-          activeSection={activeSection}
-          readingProgress={readingProgress}
-          onItemClick={scrollToSection}
-        />
+        <MemoizedReadingProgressTOC contentRef={contentRef} />
       </div>
 
-      {/* Comments Section - Full Width */}
+      <MemoizedArticleFooter category={post.category} lang={lang} />
+
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <div id="comments">
-          <UtterancesComments
+          <MemoizedUtterancesComments
             repo={utterancesRepo}
             issueTerm={post.id}
             label="comment"
@@ -150,10 +95,79 @@ export function BlogArticle({
         </div>
       </div>
 
-      {/* Related Posts - Full Width */}
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
-        <RelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
+      <div className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-8">
+        <MemoizedRelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
       </div>
     </div>
   );
 }
+
+interface BlogArticleContentProps {
+  contentRef: RefObject<HTMLDivElement | null>;
+  children?: BlogArticleProps["children"];
+}
+
+function BlogArticleContent({ contentRef, children }: BlogArticleContentProps) {
+  return (
+    <article className="max-w-4xl min-w-0 flex-1">
+      <div ref={contentRef} className="blog-article-content mb-12">
+        {children}
+      </div>
+    </article>
+  );
+}
+
+interface ReadingProgressTOCProps {
+  contentRef: RefObject<HTMLDivElement | null>;
+}
+
+function ReadingProgressTOC({ contentRef }: ReadingProgressTOCProps) {
+  const { readingProgress, activeSection, tocItems, scrollToSection } =
+    useReadingProgress(contentRef);
+
+  return (
+    <TableOfContents
+      items={tocItems}
+      activeSection={activeSection}
+      readingProgress={readingProgress}
+      onItemClick={scrollToSection}
+    />
+  );
+}
+
+interface ArticleFooterProps {
+  category: string;
+  lang: string;
+}
+
+function ArticleFooter({ category, lang }: ArticleFooterProps) {
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
+      <footer className="mb-12 border-t [border-top-style:dotted] pt-8">
+        <div className="mb-6 flex items-center gap-2 text-xs">
+          <Folder className="text-primary size-4" />
+          <span className="text-primary">{category}</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Link href={`/${lang}/blog`}>
+            <Button
+              variant="outline"
+              className="inline-flex items-center gap-2"
+            >
+              <ArrowLeft className="size-4" />
+              All Posts
+            </Button>
+          </Link>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+const MemoizedBlogArticleContent = memo(BlogArticleContent);
+const MemoizedReadingProgressTOC = memo(ReadingProgressTOC);
+const MemoizedArticleHeader = memo(ArticleHeader);
+const MemoizedArticleFooter = memo(ArticleFooter);
+const MemoizedUtterancesComments = memo(UtterancesComments);
+const MemoizedRelatedPosts = memo(RelatedPosts);

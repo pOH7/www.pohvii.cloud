@@ -2,10 +2,7 @@
   "mcpServers": {
     "playwright-extension": {
       "command": "npx",
-      "args": [
-        "@playwright/mcp@latest",
-        "--extension"
-      ]
+      "args": ["@playwright/mcp@latest", "--extension"]
     },
     "shadcn": {
       "command": "npx",

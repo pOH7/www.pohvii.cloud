@@ -2,7 +2,6 @@
 
 import { useRef, memo, type RefObject } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowLeft, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type BlogArticleProps } from "./blog-article";
@@ -12,15 +11,6 @@ import { UtterancesComments } from "./utterances-comments";
 import { RelatedPosts } from "./related-posts";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 
-/**
- * Wrapper component that manages reading progress state and layout.
- * This isolates state changes to prevent unnecessary rerenders of article content.
- *
- * Best Practice: Separate stateful logic from presentation components.
- * - This wrapper handles scroll tracking, TOC state, and layout
- * - Article content is memoized and only receives stable props
- * - Only TOC rerenders on scroll, not the article content
- */
 export function BlogArticleWithTOC({
   post,
   relatedPosts = [],
@@ -29,8 +19,6 @@ export function BlogArticleWithTOC({
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const { readingProgress, activeSection, tocItems, scrollToSection } =
-    useReadingProgress(contentRef);
 
   const scrollToComments = () => {
     const commentsSection = document.getElementById("comments");
@@ -41,24 +29,15 @@ export function BlogArticleWithTOC({
 
   return (
     <div className="bg-background text-foreground min-h-screen overflow-x-clip">
-      {/* Back Button - Full Width */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mx-auto w-full max-w-6xl px-4 pt-8 pb-4 md:px-8"
-      >
+      <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-4 md:px-8">
         <Link href={`/${lang}/blog`}>
-          <Button
-            variant="outline"
-            className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
-          >
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="outline" className="inline-flex items-center gap-2">
+            <ArrowLeft className="size-4" />
             Back to Blog
           </Button>
         </Link>
-      </motion.div>
+      </div>
 
-      {/* Article Header - Full Width */}
       <div className="mx-auto mb-8 w-full max-w-6xl px-4 md:px-8">
         <ArticleHeader
           title={post.title}
@@ -75,23 +54,14 @@ export function BlogArticleWithTOC({
         />
       </div>
 
-      {/* Content Area with Sidebar - Two Column Layout */}
-      <div className="mx-auto flex max-w-6xl gap-8 px-4 md:px-8">
-        {/* Main Article Content - Memoized to prevent rerenders */}
+      <div className="mx-auto flex w-full max-w-6xl gap-8 px-4 md:px-8">
         <MemoizedBlogArticle contentRef={contentRef}>
           {children}
         </MemoizedBlogArticle>
 
-        {/* Table of Contents - Only this rerenders on scroll */}
-        <TableOfContents
-          items={tocItems}
-          activeSection={activeSection}
-          readingProgress={readingProgress}
-          onItemClick={scrollToSection}
-        />
+        <MemoizedReadingProgressTOC contentRef={contentRef} />
       </div>
 
-      {/* Comments Section - Full Width */}
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <div id="comments">
           <UtterancesComments
@@ -102,38 +72,29 @@ export function BlogArticleWithTOC({
         </div>
       </div>
 
-      {/* Related Posts - Full Width */}
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <RelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
       </div>
 
-      {/* Article Footer - Inside wrapper for proper positioning */}
-      <div className="mx-auto max-w-6xl px-4 md:px-8">
-        <motion.footer
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="border-border mb-12 border-t pt-8"
-        >
-          <div className="mb-6 flex items-center gap-2">
-            <Folder className="text-primary h-4 w-4" />
-            <span className="text-primary text-sm font-medium">
-              {post.category}
-            </span>
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
+        <footer className="mb-12 border-t [border-top-style:dotted] pt-8">
+          <div className="mb-6 flex items-center gap-2 text-xs">
+            <Folder className="text-primary size-4" />
+            <span className="text-primary">{post.category}</span>
           </div>
 
           <div className="flex items-center justify-between">
             <Link href={`/${lang}/blog`}>
               <Button
                 variant="outline"
-                className="inline-flex cursor-pointer items-center gap-2 transition-transform hover:translate-y-[-1px]"
+                className="inline-flex items-center gap-2"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="size-4" />
                 All Posts
               </Button>
             </Link>
           </div>
-        </motion.footer>
+        </footer>
       </div>
     </div>
   );
@@ -147,21 +108,32 @@ interface BlogArticleContentProps {
 function BlogArticleContent({ contentRef, children }: BlogArticleContentProps) {
   return (
     <article className="max-w-4xl min-w-0 flex-1">
-      <motion.div
-        ref={contentRef}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="blog-article-content mb-12"
-      >
+      <div ref={contentRef} className="blog-article-content mb-12">
         {children}
-      </motion.div>
+      </div>
     </article>
   );
 }
 
-// Memoize the article content component to prevent rerenders
-const MemoizedBlogArticle = memo(BlogArticleContent);
+interface ReadingProgressTOCProps {
+  contentRef: RefObject<HTMLDivElement | null>;
+}
 
-// Optional: Memoize wrapper to prevent rerenders from parent
+function ReadingProgressTOC({ contentRef }: ReadingProgressTOCProps) {
+  const { readingProgress, activeSection, tocItems, scrollToSection } =
+    useReadingProgress(contentRef);
+
+  return (
+    <TableOfContents
+      items={tocItems}
+      activeSection={activeSection}
+      readingProgress={readingProgress}
+      onItemClick={scrollToSection}
+    />
+  );
+}
+
+const MemoizedBlogArticle = memo(BlogArticleContent);
+const MemoizedReadingProgressTOC = memo(ReadingProgressTOC);
+
 export const MemoizedBlogArticleWithTOC = memo(BlogArticleWithTOC);

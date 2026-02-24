@@ -58,7 +58,7 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
       {/* Header */}
       <header className="mb-12">
         <div className="mb-4 flex items-center gap-3">
-          <BookOpen className="text-primary h-10 w-10" />
+          <BookOpen className="text-primary size-10" />
           <h1 className="text-4xl font-bold">{title}</h1>
         </div>
         <p className="text-muted-foreground max-w-2xl text-lg">
@@ -71,7 +71,7 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
       {/* Notes Grid */}
       {notes.length === 0 ? (
         <div className="py-16 text-center">
-          <FileText className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
+          <FileText className="text-muted-foreground mx-auto mb-4 size-16" />
           <p className="text-muted-foreground text-lg">{noNotesMessage}</p>
         </div>
       ) : (
@@ -93,7 +93,7 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
                 </CardHeader>
                 <CardContent>
                   <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                    <FileText className="h-4 w-4" />
+                    <FileText className="size-4" />
                     <span>
                       {note.sectionCount} {sectionsText}
                     </span>

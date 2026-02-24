@@ -86,10 +86,10 @@ export function NoteArticleClient({
           {/* Header */}
           <header className="border-border mb-8 border-b pb-6">
             <div className="text-muted-foreground mb-3 flex items-center gap-2 text-sm">
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="size-4" />
               <span className="capitalize">{lang}</span>
               <span className="text-muted-foreground/60">•</span>
-              <Clock className="h-4 w-4" />
+              <Clock className="size-4" />
               <span>{note.readTime}</span>
             </div>
             <h1 className="mb-3 text-4xl font-bold">{note.title}</h1>

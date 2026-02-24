@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Globe } from "lucide-react";
+import { Globe, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -42,22 +41,21 @@ export function Header({ dictionary, lang }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Extract language from pathname to ensure consistency between server and client
   const currentLang = pathname.startsWith("/zh")
     ? "zh"
     : pathname.startsWith("/en")
       ? "en"
       : lang;
   const navigationItems = getNavigationItems(currentLang);
+  const isActiveNav = (href: string) =>
+    pathname === href || pathname === href.replace(/\/$/, "");
 
   const handleLanguageChange = (newLang: string) => {
     if (newLang === currentLang) return;
 
-    // Navigate to new locale path
     const path = pathname.replace(`/${currentLang}`, `/${newLang}`);
     router.push(path);
 
-    // Set cookie for language preference in a microtask to avoid direct modification during render
     void Promise.resolve().then(() => {
       document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
     });
@@ -66,78 +64,53 @@ export function Header({ dictionary, lang }: HeaderProps) {
   };
 
   return (
-    <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-6 z-50 w-full border-b backdrop-blur">
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo & Brand */}
-          <Link
-            href={`/${currentLang}`}
-            className="flex items-center space-x-3"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="h-10 w-10 overflow-hidden rounded-full transition-all duration-200"
-            >
+    <header className="bg-background/95 border-border sticky top-7 z-50 w-full border-b [border-bottom-style:dotted] backdrop-blur-sm">
+      <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-3">
+          <Link href={`/${currentLang}`} className="flex items-center gap-3">
+            <div className="border-border size-9 overflow-hidden rounded-sm border">
               <Image
                 src="/android-chrome-192x192.png"
                 alt="Site logo"
-                width={40}
-                height={40}
-                className="h-10 w-10 object-cover"
+                width={36}
+                height={36}
+                className="size-full object-contain"
                 priority
                 unoptimized
               />
-            </motion.div>
-            <div className="flex flex-col">
-              <h1
-                className="leading-tight font-semibold"
-                style={{ color: "var(--foreground)", fontSize: "20px" }}
-              >
+            </div>
+            <div className="min-w-0">
+              <h1 className="truncate text-base/tight font-semibold tracking-tight">
                 {dictionary.Header.name}
               </h1>
-              <p
-                className="text-muted-foreground animate-pulse text-sm leading-tight"
-                style={{
-                  color: "var(--muted-foreground)",
-                  animation: "fadeInUp 400ms ease-out 200ms forwards",
-                  opacity: 0,
-                }}
-              >
+              <p className="text-muted-foreground truncate text-xs/tight">
                 {dictionary.Header.tagline}
               </p>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden items-center space-x-8 lg:flex">
+          <nav className="hidden items-center gap-5 lg:flex">
             {navigationItems.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`hover:text-primary group text-foreground relative text-base font-medium transition-colors`}
+                className="hover:text-primary data-[active=true]:text-primary data-[active=true]:border-b-primary border-b-2 border-b-transparent text-sm font-medium no-underline transition-colors"
+                data-active={isActiveNav(item.href)}
               >
                 {dictionary.Navigation[item.key]}
-                <span
-                  className={`bg-primary absolute -bottom-1 left-1/2 h-0.5 -translate-x-1/2 transform transition-all duration-250 ease-out ${
-                    pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-                  }`}
-                />
               </Link>
             ))}
           </nav>
 
-          {/* Desktop Actions */}
-          <div className="hidden items-center space-x-4 lg:flex">
-            {/* Language Picker */}
+          <div className="hidden items-center gap-2 lg:flex">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="hover:!text-foreground h-10 w-10 [&_svg]:!text-current"
+                  className="[&_svg]:text-current"
                 >
-                  <Globe className="h-4 w-4" />
+                  <Globe className="size-4" />
                   <span className="sr-only">Select language</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -160,17 +133,15 @@ export function Header({ dictionary, lang }: HeaderProps) {
             <AuthButton dictionary={dictionary} />
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center space-x-2 lg:hidden">
-            {/* Mobile Language Picker */}
+          <div className="flex items-center gap-2 lg:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="hover:!text-foreground h-10 w-10 [&_svg]:!text-current"
+                  className="[&_svg]:text-current"
                 >
-                  <Globe className="h-4 w-4" />
+                  <Globe className="size-4" />
                   <span className="sr-only">Select language</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -197,76 +168,39 @@ export function Header({ dictionary, lang }: HeaderProps) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setIsSheetOpen(!isSheetOpen)}
+              onClick={() => setIsSheetOpen((open) => !open)}
+              aria-label="Toggle menu"
+              aria-expanded={isSheetOpen}
             >
               {isSheetOpen ? (
-                <motion.div
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </motion.div>
+                <X className="size-4" />
               ) : (
-                <motion.div
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  <Menu className="h-4 w-4" />
-                </motion.div>
+                <Menu className="size-4" />
               )}
               <span className="sr-only">Toggle menu</span>
             </Button>
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
-        <AnimatePresence>
-          {isSheetOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="bg-background border-border absolute top-full right-0 left-0 z-50 border-t shadow-lg lg:hidden"
-            >
-              <div className="space-y-4 px-4 py-6">
-                {navigationItems.map((item, index) => (
-                  <motion.div
-                    key={item.key}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.2 }}
-                  >
-                    <Link
-                      href={item.href}
-                      onClick={() => setIsSheetOpen(false)}
-                      className={`hover:text-primary text-foreground block py-2 text-lg font-medium transition-colors`}
-                    >
-                      {dictionary.Navigation[item.key]}
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isSheetOpen && (
+          <div className="bg-background border-border absolute inset-x-0 top-full z-50 border-b p-4 lg:hidden">
+            <nav className="space-y-1">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  onClick={() => setIsSheetOpen(false)}
+                  className="hover:text-primary data-[active=true]:text-primary data-[active=true]:border-b-primary block border-b-2 border-b-transparent py-2 text-base no-underline transition-colors"
+                  data-active={isActiveNav(item.href)}
+                >
+                  {dictionary.Navigation[item.key]}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
       </div>
 
-      {/* Mobile Menu Backdrop */}
       {isSheetOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/20 lg:hidden"

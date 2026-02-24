@@ -117,14 +117,14 @@ export default function CodeBlock(props: PreProps) {
         type="button"
         onClick={() => void onCopy()}
         aria-label="Copy code"
-        className="border-border bg-background/80 text-foreground hover:bg-muted absolute top-2 right-2 z-10 rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
+        className="border-border bg-background/80 text-foreground hover:bg-muted absolute top-2 right-2 z-10 rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur-sm transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
       >
         {copied ? "Copied" : "Copy"}
       </button>
 
       {/* Optional language badge */}
       {language ? (
-        <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-10 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+        <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-10 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur-sm transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
           {language}
         </span>
       ) : null}

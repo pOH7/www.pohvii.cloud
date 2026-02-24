@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/header";
 import { TopBar } from "@/components/top-bar";
@@ -10,6 +11,20 @@ import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
 import "../globals.css";
 import Script from "next/script";
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-markdown-sans",
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-markdown-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -150,9 +165,9 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body>
+      <body className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
         <NextTopLoader
-          color="var(--primary-red)"
+          color="var(--primary)"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
@@ -160,7 +175,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
           showSpinner={false}
           easing="cubic-bezier(0.4, 0, 0.2, 1)"
           speed={200}
-          shadow="0 0 10px var(--primary-red), 0 0 20px rgba(237, 37, 78, 0.3)"
+          shadow="0 0 10px color-mix(in oklab, var(--primary) 55%, transparent)"
           zIndex={1050}
         />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

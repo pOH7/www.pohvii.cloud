@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface TagLinksFooterProps {
   allTags: string[];
@@ -11,54 +10,36 @@ interface TagLinksFooterProps {
 
 export function TagLinksFooter({ allTags, lang }: TagLinksFooterProps) {
   return (
-    <footer className="bg-muted/30 w-full px-4 py-12 md:px-8">
-      <div className="mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-6"
-        >
-          <h3 className="mb-4 text-2xl font-bold">More great resources</h3>
-        </motion.div>
+    <footer className="border-t [border-top-style:dotted] px-4 py-10 md:px-8">
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="mb-5">
+          <h3 className="mb-2 text-2xl font-bold">More great resources</h3>
+          <p className="text-muted-foreground text-sm">
+            Browse topic pages to find grouped notes and articles.
+          </p>
+        </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {allTags.map((tag, index) => (
-            <motion.div
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {allTags.map((tag) => (
+            <Link
               key={tag}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              href={`/${lang}/tag/${encodeURIComponent(tag)}/`}
+              className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex w-fit border-b-2 text-sm no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              <Link
-                href={`/${lang}/tag/${encodeURIComponent(tag)}/`}
-                className="text-muted-foreground hover:text-primary group transition-colors"
-              >
-                <span className="underline-offset-4 group-hover:underline">
-                  Articles about {tag}
-                </span>
-              </Link>
-            </motion.div>
+              Articles about {tag}
+            </Link>
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-border mt-8 border-t pt-6"
-        >
+        <div className="mt-8 border-t [border-top-style:dotted] pt-5">
           <Link
             href={`/${lang}/tag/`}
-            className="text-primary inline-flex items-center gap-2 underline-offset-4 transition-all hover:underline hover:opacity-70"
+            className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex items-center gap-2 border-b-2 text-sm font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Browse all topics
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="size-4" />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </footer>
   );

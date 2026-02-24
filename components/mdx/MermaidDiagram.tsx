@@ -243,7 +243,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
             <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-xs">
               View source
             </summary>
-            <pre className="bg-muted mt-2 max-h-[200px] overflow-auto rounded p-2 text-xs">
+            <pre className="bg-muted mt-2 max-h-[200px] overflow-auto rounded-sm p-2 text-xs">
               {chart}
             </pre>
           </details>
@@ -280,14 +280,14 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
               {/* Control buttons */}
               <div className="absolute top-2 right-2 z-20 flex items-center gap-2">
                 {/* Zoom controls */}
-                <div className="border-border bg-background/80 flex items-center gap-1 rounded-md border shadow-sm backdrop-blur">
+                <div className="border-border bg-background/80 flex items-center gap-1 rounded-md border shadow-sm backdrop-blur-sm">
                   <button
                     type="button"
                     onClick={() => zoomIn()}
                     aria-label="Zoom in"
                     className="text-foreground hover:bg-muted rounded-l-md p-2 transition-colors"
                   >
-                    <ZoomIn className="h-4 w-4" />
+                    <ZoomIn className="size-4" />
                   </button>
                   <button
                     type="button"
@@ -295,7 +295,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                     aria-label="Zoom out"
                     className="text-foreground hover:bg-muted p-2 transition-colors"
                   >
-                    <ZoomOut className="h-4 w-4" />
+                    <ZoomOut className="size-4" />
                   </button>
                   <button
                     type="button"
@@ -303,7 +303,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                     aria-label="Fit to viewport"
                     className="text-foreground hover:bg-muted p-2 transition-colors"
                   >
-                    <Maximize2 className="h-4 w-4" />
+                    <Maximize2 className="size-4" />
                   </button>
                   <button
                     type="button"
@@ -314,9 +314,9 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                     className="text-foreground hover:bg-muted rounded-r-md p-2 transition-colors"
                   >
                     {isFullscreen ? (
-                      <Minimize className="h-4 w-4" />
+                      <Minimize className="size-4" />
                     ) : (
-                      <Maximize className="h-4 w-4" />
+                      <Maximize className="size-4" />
                     )}
                   </button>
                 </div>
@@ -326,14 +326,14 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                   type="button"
                   onClick={() => void onCopy()}
                   aria-label="Copy diagram source"
-                  className="border-border bg-background/80 text-foreground hover:bg-muted flex h-9 items-center rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
+                  className="border-border bg-background/80 text-foreground hover:bg-muted flex h-9 items-center rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur-sm transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
                 >
                   {copied ? "Copied" : "Copy"}
                 </button>
               </div>
 
               {/* Mermaid badge */}
-              <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-20 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+              <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-20 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur-sm transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
                 mermaid
               </span>
 

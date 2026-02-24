@@ -53,7 +53,7 @@ export default async function BlogPaginationPage(
   return (
     <div className="bg-background text-foreground min-h-screen">
       {/* Header Section */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-12 md:px-8">
+      <section className="mx-auto w-full max-w-5xl px-4 py-12 md:px-8">
         <AnimatedSectionHeader
           title={`Blog - Page ${currentPage}`}
           subtitle={`${allPosts.length} articles available`}
@@ -61,7 +61,7 @@ export default async function BlogPaginationPage(
       </section>
 
       {/* Posts List - One per line */}
-      <section className="mx-auto w-full max-w-7xl px-4 pb-16 md:px-8">
+      <section className="mx-auto w-full max-w-5xl px-4 pb-16 md:px-8">
         <div className="mb-16 space-y-6">
           {paginatedPosts.map((post, index) => (
             <BlogCard
@@ -125,7 +125,6 @@ export default async function BlogPaginationPage(
                             : `/${lang}/blog/page/${pageNumber}`
                         }
                         isActive={currentPage === pageNumber}
-                        className="transition-transform hover:scale-110"
                       >
                         {pageNumber}
                       </PaginationLink>

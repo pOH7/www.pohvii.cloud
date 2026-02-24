@@ -479,7 +479,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2" />
+          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
           <p className="text-muted-foreground">{messages.initializing}</p>
         </div>
       </div>
@@ -490,7 +490,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2" />
+          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
           <p className="text-muted-foreground">{messages.loading}</p>
         </div>
       </div>
@@ -516,7 +516,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2" />
+          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
           <p className="text-muted-foreground">{messages.rendering}</p>
         </div>
       </div>
@@ -560,7 +560,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
             variant="outline"
             onClick={goToPrevPage}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="size-4" />
           </Button>
           <span
             aria-label={messages.controls.pageIndicator({
@@ -581,7 +581,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
             variant="outline"
             onClick={goToNextPage}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="size-4" />
           </Button>
         </div>
 
@@ -598,7 +598,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
               }
             }}
           >
-            <ZoomOut className="h-4 w-4" />
+            <ZoomOut className="size-4" />
           </Button>
           <Button
             aria-label={messages.controls.zoomIn}
@@ -612,7 +612,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
               }
             }}
           >
-            <ZoomIn className="h-4 w-4" />
+            <ZoomIn className="size-4" />
           </Button>
           <Button
             aria-label={messages.controls.fitToScreen}
@@ -622,7 +622,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
             variant="outline"
             onClick={handleFitToScreen}
           >
-            <Maximize2 className="h-4 w-4" />
+            <Maximize2 className="size-4" />
           </Button>
           <Button
             aria-label={
@@ -641,9 +641,9 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
             onClick={() => void toggleFullscreen()}
           >
             {isAnyFullscreen ? (
-              <Shrink className="h-4 w-4" />
+              <Shrink className="size-4" />
             ) : (
-              <Expand className="h-4 w-4" />
+              <Expand className="size-4" />
             )}
           </Button>
         </div>
@@ -724,7 +724,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
       <div className="border-border bg-card border-t px-3 py-2">
         <p className="text-muted-foreground text-center text-xs">
-          <Move className="mr-1 inline h-3 w-3" />
+          <Move className="mr-1 inline size-3" />
           {messages.controls.helpText}
         </p>
       </div>

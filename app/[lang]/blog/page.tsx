@@ -50,7 +50,7 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
   return (
     <div className="bg-background text-foreground min-h-screen">
       {/* Featured Posts Section */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-12 md:px-8">
+      <section className="mx-auto w-full max-w-5xl px-4 py-12 md:px-8">
         <AnimatedSectionHeader
           title="Blog"
           subtitle="Discover my latest articles and tutorials"
@@ -76,7 +76,7 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
       </section>
 
       {/* All Posts Section */}
-      <section className="mx-auto w-full max-w-7xl px-4 pb-16 md:px-8">
+      <section className="mx-auto w-full max-w-5xl px-4 pb-16 md:px-8">
         <AnimatedSectionHeader
           title="All Posts"
           subtitle={`${allPosts.length} articles available`}
@@ -130,7 +130,6 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
                             : `/${lang}/blog/page/${pageNumber}`
                         }
                         isActive={currentPage === pageNumber}
-                        className="transition-transform hover:scale-110"
                       >
                         {pageNumber}
                       </PaginationLink>

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
 interface AnimatedSectionHeaderProps {
@@ -12,29 +11,15 @@ interface AnimatedSectionHeaderProps {
 export function AnimatedSectionHeader({
   title,
   subtitle,
-  delay = 0,
+  delay = 0, // kept for API compatibility
 }: AnimatedSectionHeaderProps) {
+  void delay;
+
   return (
-    <div className="mb-8">
-      <motion.h1
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay }}
-        className="mb-2 text-4xl font-bold md:text-5xl"
-      >
-        {title}
-      </motion.h1>
+    <div className="mb-8 border-b [border-bottom-style:dotted] pb-4">
+      <h1 className="mb-2 text-3xl font-bold md:text-4xl">{title}</h1>
       {subtitle && (
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: delay + 0.1 }}
-          className="text-muted-foreground"
-        >
-          {subtitle}
-        </motion.p>
+        <p className="text-muted-foreground text-sm md:text-base">{subtitle}</p>
       )}
     </div>
   );
