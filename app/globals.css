@@ -366,8 +366,12 @@
 }
 
 .blog-article-content a:not(.heading-anchor):hover,
+.prose a:not(.heading-anchor):hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
 .blog-article-content a:not(.heading-anchor):focus-visible,
-.prose a:not(.heading-anchor):hover,
 .prose a:not(.heading-anchor):focus-visible {
   background-color: var(--primary);
   color: var(--primary-foreground);
