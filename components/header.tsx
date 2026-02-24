@@ -68,7 +68,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
       <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
           <Link href={`/${currentLang}`} className="flex items-center gap-3">
-            <div className="border-border size-9 overflow-hidden rounded-sm border">
+            <div className="size-9 overflow-hidden rounded-sm">
               <Image
                 src="/android-chrome-192x192.png"
                 alt="Site logo"
