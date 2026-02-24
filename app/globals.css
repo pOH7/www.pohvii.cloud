@@ -329,6 +329,22 @@
 .blog-article-content h5 > a.heading-anchor::before,
 .blog-article-content h6 > a.heading-anchor::before {
   color: var(--primary);
+  font-weight: 600;
+}
+
+.blog-article-content h1:hover > a.heading-anchor::before,
+.blog-article-content h2:hover > a.heading-anchor::before,
+.blog-article-content h3:hover > a.heading-anchor::before,
+.blog-article-content h4:hover > a.heading-anchor::before,
+.blog-article-content h5:hover > a.heading-anchor::before,
+.blog-article-content h6:hover > a.heading-anchor::before,
+.blog-article-content h1 > a.heading-anchor:focus-visible::before,
+.blog-article-content h2 > a.heading-anchor:focus-visible::before,
+.blog-article-content h3 > a.heading-anchor:focus-visible::before,
+.blog-article-content h4 > a.heading-anchor:focus-visible::before,
+.blog-article-content h5 > a.heading-anchor:focus-visible::before,
+.blog-article-content h6 > a.heading-anchor:focus-visible::before {
+  font-weight: 800;
 }
 
 .blog-article-content h2,
