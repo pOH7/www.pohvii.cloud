@@ -137,12 +137,7 @@ export default async function BlogDetailPage(
   };
 
   return (
-    <BlogArticle
-      post={post}
-      relatedPosts={relatedPosts}
-      lang={lang}
-      utterancesRepo="pOH7/www.pohvii.cloud"
-    >
+    <BlogArticle post={post} relatedPosts={relatedPosts} lang={lang}>
       <MDXRemote
         source={mdx.rawContent}
         components={mdxComponents}

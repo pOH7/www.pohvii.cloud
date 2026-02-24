@@ -6,7 +6,7 @@ import { ArrowLeft, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArticleHeader } from "./article-header";
 import { TableOfContents } from "./table-of-contents";
-import { UtterancesComments } from "./utterances-comments";
+import { GiscusComments } from "./giscus-comments";
 import { RelatedPosts } from "./related-posts";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 
@@ -28,7 +28,6 @@ export interface BlogArticleProps {
   post: BlogPost;
   relatedPosts?: BlogPost[];
   lang?: string;
-  utterancesRepo?: string;
   children?: React.ReactNode;
 }
 
@@ -36,7 +35,6 @@ export function BlogArticle({
   post,
   relatedPosts = [],
   lang = "en",
-  utterancesRepo = "pOH7/www.pohvii.cloud",
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -87,11 +85,7 @@ export function BlogArticle({
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <div id="comments">
-          <MemoizedUtterancesComments
-            repo={utterancesRepo}
-            issueTerm={post.id}
-            label="comment"
-          />
+          <MemoizedGiscusComments term={post.id} />
         </div>
       </div>
 
@@ -169,5 +163,5 @@ const MemoizedBlogArticleContent = memo(BlogArticleContent);
 const MemoizedReadingProgressTOC = memo(ReadingProgressTOC);
 const MemoizedArticleHeader = memo(ArticleHeader);
 const MemoizedArticleFooter = memo(ArticleFooter);
-const MemoizedUtterancesComments = memo(UtterancesComments);
+const MemoizedGiscusComments = memo(GiscusComments);
 const MemoizedRelatedPosts = memo(RelatedPosts);

@@ -594,7 +594,7 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
   -webkit-line-clamp: 3;
 }
 
-.utterances-container {
+.giscus-container {
   @apply w-full;
   position: relative;
   padding: 0;
@@ -603,22 +603,22 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
   box-shadow: none;
 }
 
-.utterances {
+.giscus {
   @apply w-full max-w-none;
   color-scheme: var(--color-scheme, light);
 }
 
-.utterances-frame {
+.giscus-frame {
   @apply w-full border-0;
   min-height: 200px;
   background: transparent !important;
 }
 
-.dark .utterances {
+.dark .giscus {
   color-scheme: dark;
 }
 
-.utterances-container:not(:has(.utterances-frame))::before {
+.giscus-container:not(:has(.giscus-frame))::before {
   content: "Loading comments...";
   @apply text-muted-foreground block py-10 text-center text-base;
   border: 1px solid var(--border);
@@ -626,7 +626,7 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
   background: var(--muted);
 }
 
-.utterances-container:has(.utterances-frame)::before {
+.giscus-container:has(.giscus-frame)::before {
   content: "";
   position: absolute;
   inset: -0.85rem;
@@ -669,7 +669,7 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
     opacity: 1;
   }
 
-  .utterances-container {
+  .giscus-container {
     margin: 0 -0.5rem;
   }
 }
@@ -689,7 +689,7 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
 }
 
 @media (prefers-contrast: high) {
-  .utterances-container:has(.utterances-frame)::before {
+  .giscus-container:has(.giscus-frame)::before {
     border-width: 2px;
   }
 }

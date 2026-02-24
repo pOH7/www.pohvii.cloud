@@ -1,7 +1,7 @@
 ---
 title: "Testing Comment System"
 description: >-
-  A simple test blog post to verify that the Utterances comment system works correctly with our self-healing URL implementation.
+  A simple test blog post to verify that the Giscus comment system works correctly with our self-healing URL implementation.
 date: 2025-01-24
 author: Léon Zhang
 category: Testing
@@ -16,28 +16,28 @@ id: 795aade4
 
 ## Testing Our Comment System
 
-This is a test blog post to verify that our Utterances comment system is working correctly with the new self-healing URL implementation.
+This is a test blog post to verify that our Giscus comment system is working correctly with the new self-healing URL implementation.
 
 ### What We're Testing
 
-1. **Comment Loading**: The Utterances widget should load properly at the bottom of this post
-2. **Issue Term**: The GitHub issue should be created using our post ID (`795aade4`) as the issue term
+1. **Comment Loading**: The Giscus widget should load properly at the bottom of this post
+2. **Discussion Mapping**: The GitHub discussion should map to this post ID (`795aade4`) via `mapping="specific"`
 3. **Self-Healing URLs**: The comment system should work even if we change the title or slug of this post
 
-### How Utterances Works
+### How Giscus Works
 
-Utterances is a lightweight comments widget built on GitHub issues. When configured with `issue-term` set to a specific term (in our case, the post ID), it will:
+Giscus is a lightweight comments widget built on GitHub Discussions. When configured with `mapping="specific"` and `term` set to the post ID, it will:
 
-- Search for an existing GitHub issue with that term in the title
-- If no issue exists, create a new one automatically when the first comment is posted
-- Display all comments from that issue as blog comments
+- Search for an existing GitHub discussion mapped to that term
+- If no discussion exists, create one automatically when the first comment is posted
+- Display all comments from that discussion as blog comments
 
 ### Testing Instructions
 
 1. Scroll down to the comment section
 2. Try posting a test comment (requires GitHub login)
-3. Check that a new issue is created in the repository with the title containing `795aade4`
-4. Verify that the comment appears both in the blog and in the GitHub issue
+3. Check that a new discussion is created in the configured category
+4. Verify that the comment appears both in the blog and in the GitHub discussion
 
 This approach ensures our comments remain tied to the post even if we rename the file or change the title, thanks to the unique post ID system.
 

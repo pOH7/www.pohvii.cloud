@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { type BlogArticleProps } from "./blog-article";
 import { TableOfContents } from "./table-of-contents";
 import { ArticleHeader } from "./article-header";
-import { UtterancesComments } from "./utterances-comments";
+import { GiscusComments } from "./giscus-comments";
 import { RelatedPosts } from "./related-posts";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 
@@ -15,7 +15,6 @@ export function BlogArticleWithTOC({
   post,
   relatedPosts = [],
   lang = "en",
-  utterancesRepo = "pOH7/www.pohvii.cloud",
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -64,11 +63,7 @@ export function BlogArticleWithTOC({
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <div id="comments">
-          <UtterancesComments
-            repo={utterancesRepo}
-            issueTerm={post.id}
-            label="comment"
-          />
+          <GiscusComments term={post.id} />
         </div>
       </div>
 

@@ -9,8 +9,8 @@ export type { ArticleHeaderProps } from "./article-header";
 export { TableOfContents } from "./table-of-contents";
 export type { TableOfContentsProps } from "./table-of-contents";
 
-export { UtterancesComments } from "./utterances-comments";
-export type { UtterancesCommentsProps } from "./utterances-comments";
+export { GiscusComments } from "./giscus-comments";
+export type { GiscusCommentsProps } from "./giscus-comments";
 
 export { RelatedPosts } from "./related-posts";
 export type { RelatedPostsProps } from "./related-posts";

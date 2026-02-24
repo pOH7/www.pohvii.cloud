@@ -91,11 +91,7 @@ const eslintConfig = tseslint.config(
       "better-tailwindcss/no-unknown-classes": [
         "error",
         {
-          ignore: [
-            "blog-article-content",
-            "utterances-container",
-            "section-title",
-          ],
+          ignore: ["blog-article-content", "giscus-container", "section-title"],
         },
       ],
 
