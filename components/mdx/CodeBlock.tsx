@@ -1,6 +1,39 @@
 "use client";
 
 import React from "react";
+import { Check, Code2, Copy } from "lucide-react";
+import type { SimpleIcon } from "simple-icons";
+import {
+  siC,
+  siCplusplus,
+  siCss,
+  siDocker,
+  siDotnet,
+  siGo,
+  siGnubash,
+  siHtml5,
+  siJavascript,
+  siJson,
+  siKotlin,
+  siLua,
+  siMarkdown,
+  siMysql,
+  siNginx,
+  siNodedotjs,
+  siOpenjdk,
+  siPhp,
+  siPostgresql,
+  siPython,
+  siR,
+  siReact,
+  siRuby,
+  siRust,
+  siSwift,
+  siTypescript,
+  siXml,
+  siYaml,
+  siZsh,
+} from "simple-icons";
 import MermaidDiagram from "./MermaidDiagram";
 
 type DataProps = {
@@ -14,6 +47,123 @@ type DataProps = {
 type PreProps = React.ComponentProps<"pre"> & {
   children: React.ReactNode;
 };
+
+type CopyCodeButtonProps = {
+  onCopy: () => Promise<boolean>;
+};
+
+const LANGUAGE_ICONS: Partial<Record<string, SimpleIcon>> = {
+  bash: siGnubash,
+  c: siC,
+  "c#": siDotnet,
+  "c++": siCplusplus,
+  cpp: siCplusplus,
+  cs: siDotnet,
+  css: siCss,
+  docker: siDocker,
+  dockerfile: siDocker,
+  go: siGo,
+  golang: siGo,
+  html: siHtml5,
+  java: siOpenjdk,
+  javascript: siJavascript,
+  js: siJavascript,
+  json: siJson,
+  jsx: siReact,
+  kotlin: siKotlin,
+  lua: siLua,
+  markdown: siMarkdown,
+  md: siMarkdown,
+  mdx: siMarkdown,
+  mysql: siMysql,
+  nginx: siNginx,
+  node: siNodedotjs,
+  "node.js": siNodedotjs,
+  nodejs: siNodedotjs,
+  php: siPhp,
+  postgres: siPostgresql,
+  postgresql: siPostgresql,
+  py: siPython,
+  python: siPython,
+  r: siR,
+  rb: siRuby,
+  react: siReact,
+  ruby: siRuby,
+  rs: siRust,
+  rust: siRust,
+  sh: siGnubash,
+  shell: siGnubash,
+  sql: siPostgresql,
+  swift: siSwift,
+  ts: siTypescript,
+  tsx: siReact,
+  typescript: siTypescript,
+  xml: siXml,
+  yaml: siYaml,
+  yml: siYaml,
+  zsh: siZsh,
+};
+
+function LanguageIcon({ language }: { language: string }) {
+  const icon = LANGUAGE_ICONS[language];
+  if (!icon) {
+    return <Code2 className="size-3.5 shrink-0" aria-hidden="true" />;
+  }
+
+  const hex = icon.hex.toLowerCase();
+  const fill =
+    hex === "000000" || hex === "ffffff" ? "currentColor" : `#${icon.hex}`;
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-3.5 shrink-0"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d={icon.path} fill={fill} />
+    </svg>
+  );
+}
+
+function CopyCodeButton({ onCopy }: CopyCodeButtonProps) {
+  const [copied, setCopied] = React.useState(false);
+  const timeoutRef = React.useRef<number | undefined>(undefined);
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== undefined) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopy = React.useCallback(async () => {
+    const didCopy = await onCopy();
+    if (!didCopy) return;
+    setCopied(true);
+    if (timeoutRef.current !== undefined) {
+      window.clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = window.setTimeout(() => setCopied(false), 1500);
+  }, [onCopy]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleCopy()}
+      aria-label="Copy code"
+      className="border-border bg-background text-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors"
+    >
+      {copied ? (
+        <Check className="size-3.5" aria-hidden="true" />
+      ) : (
+        <Copy className="size-3.5" aria-hidden="true" />
+      )}
+      <span>{copied ? "Copied" : "Copy"}</span>
+    </button>
+  );
+}
 
 export default function CodeBlock(props: PreProps) {
   const { children, className = "", ...rest } = props;
@@ -54,28 +204,26 @@ export default function CodeBlock(props: PreProps) {
     codeText = getText(raw).replace(/\s+$/g, "");
   }
 
-  const [copied, setCopied] = React.useState(false);
   const preRef = React.useRef<HTMLPreElement>(null);
 
-  const extractTextFromDom = (): string => {
+  const onCopy = React.useCallback(async (): Promise<boolean> => {
     const pre = preRef.current;
-    if (!pre) return codeText;
-    const code = pre.querySelector("code");
-    if (!code) return codeText;
-    const lines = code.querySelectorAll("[data-line]");
-    if (lines.length > 0) {
-      const collected: string[] = [];
-      lines.forEach((ln) => {
-        // use textContent (line numbers are in ::before so not included)
-        collected.push((ln.textContent || "").replace(/\u00A0/g, " "));
-      });
-      return collected.join("\n").replace(/\s+$/g, "");
+    const code = pre?.querySelector("code");
+    let text = codeText;
+    if (code) {
+      const lines = code.querySelectorAll("[data-line]");
+      if (lines.length > 0) {
+        const collected: string[] = [];
+        lines.forEach((ln) => {
+          // use textContent (line numbers are in ::before so not included)
+          collected.push((ln.textContent || "").replace(/\u00A0/g, " "));
+        });
+        text = collected.join("\n").replace(/\s+$/g, "");
+      } else {
+        text = (code.textContent || codeText).replace(/\s+$/g, "");
+      }
     }
-    return (code.textContent || codeText).replace(/\s+$/g, "");
-  };
 
-  const onCopy = async () => {
-    const text = extractTextFromDom();
     try {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if ("clipboard" in navigator && navigator.clipboard) {
@@ -83,8 +231,7 @@ export default function CodeBlock(props: PreProps) {
       } else {
         throw new Error("clipboard API not available");
       }
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
+      return true;
     } catch {
       // Fallback for older browsers or denied permissions
       try {
@@ -97,42 +244,37 @@ export default function CodeBlock(props: PreProps) {
         ta.select();
         document.execCommand("copy");
         document.body.removeChild(ta);
-        setCopied(true);
-        window.setTimeout(() => setCopied(false), 1500);
+        return true;
       } catch {
-        // noop
+        return false;
       }
     }
-  };
+  }, [codeText]);
 
   // Check if this is a Mermaid diagram
   if (language === "mermaid") {
     return <MermaidDiagram chart={codeText} />;
   }
 
-  return (
-    <div className="group relative">
-      {/* Copy button */}
-      <button
-        type="button"
-        onClick={() => void onCopy()}
-        aria-label="Copy code"
-        className="border-border bg-background/80 text-foreground hover:bg-muted absolute top-2 right-2 z-10 rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur-sm transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
-      >
-        {copied ? "Copied" : "Copy"}
-      </button>
+  const languageLabel = (language ?? "text").trim().toLowerCase();
 
-      {/* Optional language badge */}
-      {language ? (
-        <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-10 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur-sm transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
-          {language}
+  return (
+    <div
+      data-mdx-code-block
+      className="group border-border bg-muted overflow-hidden rounded-lg border"
+    >
+      <div className="border-border bg-background/80 flex items-center justify-between border-b px-3 py-2">
+        <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[11px] tracking-wider uppercase">
+          <LanguageIcon language={languageLabel} />
+          {languageLabel}
         </span>
-      ) : null}
+        <CopyCodeButton onCopy={onCopy} />
+      </div>
 
       <pre
         ref={preRef}
         {...rest}
-        className={`bg-muted max-h-[60vh] overflow-auto rounded-lg p-4 pr-12 ${className}`.trim()}
+        className={`max-h-[60vh] overflow-auto p-4 ${className}`.trim()}
       >
         {children}
       </pre>

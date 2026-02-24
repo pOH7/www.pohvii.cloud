@@ -412,6 +412,16 @@
   padding: 1em;
 }
 
+/* Custom code blocks with dedicated header use a different pre shell. */
+.blog-article-content [data-mdx-code-block] > pre,
+.prose [data-mdx-code-block] > pre {
+  margin: 0;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 1rem;
+}
+
 .blog-article-content pre code,
 .prose pre code {
   background-color: transparent;
@@ -429,7 +439,7 @@
   display: inline-block;
   position: relative;
   width: 100%;
-  padding-left: 3.25rem;
+  padding-left: 2.7rem;
 }
 
 .blog-article-content pre code [data-line][data-highlighted] {
@@ -446,8 +456,8 @@
   counter-increment: line;
   content: counter(line);
   position: absolute;
-  left: 0.75rem;
-  width: 2.25rem;
+  left: 0.3rem;
+  width: 2.1rem;
   text-align: right;
   color: var(--muted-foreground);
   opacity: 0.85;
