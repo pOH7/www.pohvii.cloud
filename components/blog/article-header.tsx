@@ -11,6 +11,7 @@ import {
   Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MemoizedCopyMarkdownButton } from "./copy-markdown-button";
 
 export interface ArticleHeaderProps {
   title: string;
@@ -24,6 +25,7 @@ export interface ArticleHeaderProps {
   tags: string[];
   lang?: string;
   onScrollToComments?: () => void;
+  onCopyMarkdown?: () => Promise<boolean>;
 }
 
 export function ArticleHeader({
@@ -38,6 +40,7 @@ export function ArticleHeader({
   tags,
   lang = "en",
   onScrollToComments,
+  onCopyMarkdown,
 }: ArticleHeaderProps) {
   return (
     <>
@@ -80,7 +83,7 @@ export function ArticleHeader({
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button
             variant="outline"
             size="sm"
@@ -90,6 +93,7 @@ export function ArticleHeader({
             <MessageCircle className="size-4" />
             Comments
           </Button>
+          <MemoizedCopyMarkdownButton onCopy={onCopyMarkdown} />
         </div>
       </header>
 

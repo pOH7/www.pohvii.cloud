@@ -26,6 +26,7 @@ export interface BlogPost {
 
 export interface BlogArticleProps {
   post: BlogPost;
+  markdownSource: string;
   relatedPosts?: BlogPost[];
   lang?: string;
   children?: React.ReactNode;
@@ -33,6 +34,7 @@ export interface BlogArticleProps {
 
 export function BlogArticle({
   post,
+  markdownSource,
   relatedPosts = [],
   lang = "en",
   children,
@@ -45,6 +47,39 @@ export function BlogArticle({
       commentsSection.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
+
+  const copyMarkdown = useCallback(async (): Promise<boolean> => {
+    const titleMarkdown = `# ${post.title}`.trim();
+    const bodyMarkdown = markdownSource.trim();
+    const markdownToCopy = bodyMarkdown
+      ? `${titleMarkdown}\n\n${bodyMarkdown}`
+      : titleMarkdown;
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if ("clipboard" in navigator && navigator.clipboard) {
+        await navigator.clipboard.writeText(markdownToCopy);
+      } else {
+        throw new Error("clipboard API not available");
+      }
+      return true;
+    } catch {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = markdownToCopy;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        return copied;
+      } catch {
+        return false;
+      }
+    }
+  }, [markdownSource, post.title]);
 
   return (
     <div className="bg-background text-foreground min-h-screen overflow-x-clip">
@@ -70,6 +105,7 @@ export function BlogArticle({
           tags={post.tags}
           lang={lang}
           onScrollToComments={scrollToComments}
+          onCopyMarkdown={copyMarkdown}
         />
       </div>
 

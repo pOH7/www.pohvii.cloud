@@ -137,7 +137,12 @@ export default async function BlogDetailPage(
   };
 
   return (
-    <BlogArticle post={post} relatedPosts={relatedPosts} lang={lang}>
+    <BlogArticle
+      post={post}
+      relatedPosts={relatedPosts}
+      lang={lang}
+      markdownSource={mdx.rawContent}
+    >
       <MDXRemote
         source={mdx.rawContent}
         components={mdxComponents}
