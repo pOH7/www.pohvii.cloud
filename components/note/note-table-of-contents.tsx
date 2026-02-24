@@ -147,7 +147,7 @@ export function NoteTableOfContents({
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5 }}
-        className="fixed right-6 bottom-22 z-40 lg:hidden"
+        className="fixed right-6 bottom-22 z-40 lg:hidden [&_button]:cursor-pointer"
       >
         <Button
           onClick={() => setIsMobileOpen(true)}
@@ -180,7 +180,7 @@ export function NoteTableOfContents({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 500 }}
-              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden"
+              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden [&_button]:cursor-pointer"
               id={mobilePanelId}
               role="dialog"
               aria-modal="true"
@@ -326,7 +326,7 @@ export function NoteTableOfContents({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
-        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto lg:block"
+        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto lg:block [&_button]:cursor-pointer"
         ref={desktopScrollRef}
       >
         <Card className="gap-0 p-4">
