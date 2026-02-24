@@ -23,6 +23,8 @@ export interface GiscusCommentsProps {
   loading?: "lazy" | "eager";
 }
 
+type GiscusColorMode = "light" | "dark";
+
 const GISCUS_CONFIG = {
   repo: process.env.NEXT_PUBLIC_GISCUS_REPO ?? "pOH7/www.pohvii.cloud",
   repoId: process.env.NEXT_PUBLIC_GISCUS_REPO_ID ?? "R_kgDOPlOFvA",
@@ -31,6 +33,15 @@ const GISCUS_CONFIG = {
 } as const;
 
 const SHOW_SETUP_HINT = process.env.NODE_ENV !== "production";
+
+function resolveGiscusTheme(mode: GiscusColorMode): string {
+  if (typeof window === "undefined") return mode;
+
+  // giscus runs in an https iframe and cannot load http custom themes.
+  if (window.location.protocol !== "https:") return mode;
+
+  return `${window.location.origin}/giscus/${mode}.css`;
+}
 
 export function GiscusComments({
   term,
@@ -46,7 +57,9 @@ export function GiscusComments({
   const mountedDiscussionKeyRef = useRef<string | null>(null);
   const { resolvedTheme } = useTheme();
 
-  const giscusTheme = resolvedTheme === "dark" ? "dark" : "light";
+  const giscusColorMode: GiscusColorMode =
+    resolvedTheme === "dark" ? "dark" : "light";
+  const giscusTheme = resolveGiscusTheme(giscusColorMode);
   const isThemeReady = resolvedTheme === "dark" || resolvedTheme === "light";
   const discussionKey = [
     mapping,
