@@ -166,12 +166,14 @@ export function NoteTableOfContents({
         {isMobileOpen && (
           <>
             {/* Backdrop */}
-            <motion.div
+            <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+              type="button"
+              className="fixed inset-0 z-50 border-0 bg-black/50 lg:hidden"
               onClick={() => setIsMobileOpen(false)}
+              aria-label="Close table of contents"
             />
 
             {/* Mobile TOC Panel */}
@@ -180,7 +182,7 @@ export function NoteTableOfContents({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 500 }}
-              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t lg:hidden [&_button]:cursor-pointer"
+              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto overscroll-contain rounded-t-2xl border-t lg:hidden [&_button]:cursor-pointer"
               id={mobilePanelId}
               role="dialog"
               aria-modal="true"
@@ -201,6 +203,7 @@ export function NoteTableOfContents({
                     size="sm"
                     onClick={() => setIsMobileOpen(false)}
                     className="size-8 rounded-full p-0"
+                    aria-label="Close table of contents"
                   >
                     <X className="size-4" />
                   </Button>
@@ -326,7 +329,7 @@ export function NoteTableOfContents({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
-        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto lg:block [&_button]:cursor-pointer"
+        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto overscroll-contain lg:block [&_button]:cursor-pointer"
         ref={desktopScrollRef}
       >
         <Card className="gap-0 p-4">

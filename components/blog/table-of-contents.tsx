@@ -91,7 +91,7 @@ export function TableOfContents({
             />
 
             <div
-              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-md border-t lg:hidden [&_button]:cursor-pointer"
+              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto overscroll-contain rounded-t-md border-t lg:hidden [&_button]:cursor-pointer"
               id={mobilePanelId}
               role="dialog"
               aria-modal="true"
@@ -111,6 +111,7 @@ export function TableOfContents({
                     size="sm"
                     onClick={() => setIsMobileOpen(false)}
                     className="size-8 rounded-full p-0"
+                    aria-label="Close table of contents"
                   >
                     <X className="size-4" />
                   </Button>
@@ -155,7 +156,7 @@ export function TableOfContents({
       </Activity>
 
       <aside
-        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto lg:block [&_button]:cursor-pointer"
+        className="sticky top-24 hidden max-h-[calc(100vh-8rem)] w-72 self-start overflow-y-auto overscroll-contain lg:block [&_button]:cursor-pointer"
         ref={desktopScrollRef}
       >
         <Card className="gap-0 rounded-md p-3">

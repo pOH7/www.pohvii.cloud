@@ -9,9 +9,15 @@ export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
   const tags = getAllTags(lang);
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-4 pt-16 pb-8">
+    <section
+      className="mx-auto flex max-w-5xl flex-col gap-8 px-4 pt-16 pb-8"
+      aria-labelledby="tags-page-title"
+    >
       <div>
-        <h1 className="mb-4 text-4xl font-bold md:text-5xl">
+        <h1
+          id="tags-page-title"
+          className="mb-4 text-4xl font-bold md:text-5xl"
+        >
           All <span className="text-muted-foreground">#</span>tags used on
           articles across the site
         </h1>
@@ -36,7 +42,7 @@ export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
           ))}
         </div>
       )}
-    </main>
+    </section>
   );
 }
 

@@ -114,6 +114,10 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#202124" },
+  ],
   manifest: "/site.webmanifest",
   category: "technology",
 };
@@ -123,6 +127,8 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
   const { children } = props;
   const dictionary = await getDictionary(lang as "en" | "zh");
   const isProduction = process.env.NODE_ENV === "production";
+  const skipToContentLabel =
+    lang === "zh" ? "跳到主要内容" : "Skip to main content";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -166,6 +172,12 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
         />
       </head>
       <body className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+        <a
+          href="#main-content"
+          className="focus:bg-background focus:text-foreground focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-1100 focus:rounded-sm focus:px-3 focus:py-2 focus:ring-2 focus:outline-none"
+        >
+          {skipToContentLabel}
+        </a>
         <NextTopLoader
           color="var(--primary)"
           initialPosition={0.08}
@@ -182,7 +194,9 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
           <LenisProvider>
             <TopBar />
             <Header dictionary={dictionary} lang={lang} />
-            <main>{children}</main>
+            <main id="main-content" tabIndex={-1}>
+              {children}
+            </main>
             <BackToTop />
           </LenisProvider>
 

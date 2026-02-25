@@ -93,6 +93,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --md-accent: #50fa7b;
   --md-accent-hover: #3dd458;
   --md-border: #0066ff;
@@ -140,6 +141,7 @@
 
   html {
     color: var(--foreground);
+    color-scheme: light;
     font-family:
       var(--font-markdown-mono), "IBM Plex Mono", "SFMono-Regular", Menlo,
       Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -635,7 +637,7 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
 }
 
 .giscus-container:not(:has(.giscus-frame))::before {
-  content: "Loading comments...";
+  content: "Loading comments…";
   @apply text-muted-foreground block py-10 text-center text-base;
   border: 1px solid var(--border);
   border-radius: var(--radius);

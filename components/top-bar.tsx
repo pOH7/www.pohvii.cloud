@@ -48,6 +48,7 @@ export function TopBar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={`Follow on ${social.name}`}
+                aria-label={`Follow on ${social.name} (opens in a new tab)`}
                 className={cn(
                   "text-muted-foreground hover:text-primary inline-flex size-4 items-center justify-center border-b-2 border-transparent transition-colors",
                   "focus-visible:border-primary focus-visible:text-primary focus-visible:outline-none",
