@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface NoteTOCItem {
   id: string;
@@ -17,11 +17,18 @@ export function useNoteReadingProgress(
 ) {
   const [activeSection, setActiveSection] = useState("");
   const [tocItems, setTocItems] = useState<NoteTOCItem[]>([]);
+  const activeSectionRef = useRef<string>("");
   // When user clicks a ToC item and we perform a programmatic smooth scroll,
   // temporarily lock the active section to the clicked target to avoid the
   // scroll handler prematurely switching to the next heading.
   const clickLockUntilRef = useRef<number>(0);
   const lastClickedIdRef = useRef<string>("");
+
+  const updateActiveSection = useCallback((nextSection: string) => {
+    if (nextSection === activeSectionRef.current) return;
+    activeSectionRef.current = nextSection;
+    setActiveSection(nextSection);
+  }, []);
 
   // Extract table of contents from content
   // This effect extracts TOC data from DOM, which is a legitimate use of setState in effect
@@ -177,7 +184,7 @@ export function useNoteReadingProgress(
     const pickActive = () => {
       // Respect click lock during programmatic scrolls
       if (Date.now() < clickLockUntilRef.current && lastClickedIdRef.current) {
-        setActiveSection(lastClickedIdRef.current);
+        updateActiveSection(lastClickedIdRef.current);
         return;
       }
 
@@ -186,7 +193,7 @@ export function useNoteReadingProgress(
         .filter((h) => visible.has(h.id))
         .map((h) => h.id);
       if (byOrder.length > 0) {
-        setActiveSection(byOrder[0]);
+        updateActiveSection(byOrder[0]);
         return;
       }
 
@@ -195,12 +202,12 @@ export function useNoteReadingProgress(
         (h) => h.getBoundingClientRect().top < headerOffset
       );
       if (above.length > 0) {
-        setActiveSection(above[above.length - 1].id);
+        updateActiveSection(above[above.length - 1].id);
         return;
       }
 
       // Edge: at very top with nothing visible/above
-      setActiveSection(headings[0].id);
+      updateActiveSection(headings[0].id);
     };
 
     const observer = new IntersectionObserver(
@@ -224,7 +231,7 @@ export function useNoteReadingProgress(
     pickActive();
 
     return () => observer.disconnect();
-  }, [contentRef, tocItems]);
+  }, [contentRef, tocItems, updateActiveSection]);
 
   const scrollToSection = (id: string) => {
     // Find the TOC item to check if it needs tab switching
@@ -252,7 +259,7 @@ export function useNoteReadingProgress(
     const element = document.getElementById(id);
     if (element) {
       // Lock active state on click so the next section isn't highlighted
-      setActiveSection(id);
+      updateActiveSection(id);
       lastClickedIdRef.current = id;
       clickLockUntilRef.current = Date.now() + 1200; // typical smooth-scroll duration
 

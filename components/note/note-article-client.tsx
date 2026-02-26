@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useRef,
   useState,
   useMemo,
@@ -30,11 +31,6 @@ export function NoteArticleClient({
     section: string;
     tab: string;
   } | null>(null);
-
-  const { activeSection, tocItems, scrollToSection } = useNoteReadingProgress(
-    contentRef,
-    activeTab
-  );
 
   const handleTabChange = useCallback((tabKey: string, sectionKey?: string) => {
     if (sectionKey) {
@@ -107,12 +103,31 @@ export function NoteArticleClient({
         </article>
 
         {/* Table of Contents - Sticky Sidebar */}
-        <TableOfContents
-          items={tocItems}
-          activeSection={activeSection}
-          onItemClick={scrollToSection}
-        />
+        <NoteTableOfContents contentRef={contentRef} activeTab={activeTab} />
       </div>
     </div>
   );
 }
+
+interface NoteTableOfContentsProps {
+  contentRef: React.RefObject<HTMLDivElement | null>;
+  activeTab: { section: string; tab: string } | null;
+}
+
+const NoteTableOfContents = memo(function NoteTableOfContents({
+  contentRef,
+  activeTab,
+}: NoteTableOfContentsProps) {
+  const { activeSection, tocItems, scrollToSection } = useNoteReadingProgress(
+    contentRef,
+    activeTab
+  );
+
+  return (
+    <TableOfContents
+      items={tocItems}
+      activeSection={activeSection}
+      onItemClick={scrollToSection}
+    />
+  );
+});
