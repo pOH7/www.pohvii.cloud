@@ -94,5 +94,6 @@
       "@excalidraw/mermaid-to-excalidraw>mermaid": "10.9.4",
       "mermaid@10.9.4>dompurify": "3.2.4"
     }
-  }
+  },
+  "packageManager": "pnpm@10.30.2"
 }

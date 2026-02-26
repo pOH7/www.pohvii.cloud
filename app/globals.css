@@ -593,11 +593,6 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
   transform: translateX(3px);
 }
 
-.progress-bar {
-  @apply bg-primary h-1 rounded-full;
-  transition: width 0.08s ease-out;
-}
-
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;

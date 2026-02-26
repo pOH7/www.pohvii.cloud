@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { LenisScrollEvent } from "@/types/lenis";
 
 export interface NoteTOCItem {
   id: string;
@@ -16,7 +15,6 @@ export function useNoteReadingProgress(
   contentRef: React.RefObject<HTMLDivElement | null>,
   activeTab?: { section: string; tab: string } | null
 ) {
-  const [readingProgress, setReadingProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("");
   const [tocItems, setTocItems] = useState<NoteTOCItem[]>([]);
   // When user clicks a ToC item and we perform a programmatic smooth scroll,
@@ -157,55 +155,6 @@ export function useNoteReadingProgress(
     setTocItems(items);
   }, [contentRef, activeTab]); // Re-extract when tab changes
 
-  // Handle scroll for reading progress (separate from observer-based section tracking)
-  useEffect(() => {
-    let rafId: number | null = null;
-    let lastUpdate = 0;
-    const THROTTLE_MS = 100; // Update max 10 times per second
-
-    const handleScroll = (e?: LenisScrollEvent | Event) => {
-      if (rafId) return; // Already scheduled
-
-      rafId = requestAnimationFrame(() => {
-        const now = Date.now();
-        if (now - lastUpdate < THROTTLE_MS) {
-          rafId = null;
-          return;
-        }
-
-        const scrollTop = e && "scroll" in e ? e.scroll : window.pageYOffset;
-        const documentHeight =
-          document.documentElement.scrollHeight - window.innerHeight;
-        const progress = (scrollTop / documentHeight) * 100;
-        setReadingProgress(Math.min(100, Math.max(0, progress)));
-
-        lastUpdate = now;
-        rafId = null;
-      });
-    };
-
-    // Listen to Lenis scroll events if available
-    const lenis = window.lenis;
-
-    if (lenis) {
-      lenis.on("scroll", handleScroll);
-    } else {
-      window.addEventListener("scroll", handleScroll);
-    }
-
-    // Run once on mount to initialize state (e.g., after hash nav or refresh)
-    handleScroll();
-
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      if (lenis) {
-        lenis.off("scroll", handleScroll);
-      } else {
-        window.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [contentRef]);
-
   // Observer-based scrollspy for active section
   useEffect(() => {
     if (!contentRef.current) return;
@@ -333,7 +282,6 @@ export function useNoteReadingProgress(
   };
 
   return {
-    readingProgress,
     activeSection,
     tocItems,
     scrollToSection,

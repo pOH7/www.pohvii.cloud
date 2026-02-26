@@ -58,7 +58,7 @@ export function BlogArticleWithTOC({
           {children}
         </MemoizedBlogArticle>
 
-        <MemoizedReadingProgressTOC contentRef={contentRef} />
+        <MemoizedArticleTOC contentRef={contentRef} />
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
@@ -110,25 +110,24 @@ function BlogArticleContent({ contentRef, children }: BlogArticleContentProps) {
   );
 }
 
-interface ReadingProgressTOCProps {
+interface ArticleTOCProps {
   contentRef: RefObject<HTMLDivElement | null>;
 }
 
-function ReadingProgressTOC({ contentRef }: ReadingProgressTOCProps) {
-  const { readingProgress, activeSection, tocItems, scrollToSection } =
+function ArticleTOC({ contentRef }: ArticleTOCProps) {
+  const { activeSection, tocItems, scrollToSection } =
     useReadingProgress(contentRef);
 
   return (
     <TableOfContents
       items={tocItems}
       activeSection={activeSection}
-      readingProgress={readingProgress}
       onItemClick={scrollToSection}
     />
   );
 }
 
 const MemoizedBlogArticle = memo(BlogArticleContent);
-const MemoizedReadingProgressTOC = memo(ReadingProgressTOC);
+const MemoizedArticleTOC = memo(ArticleTOC);
 
 export const MemoizedBlogArticleWithTOC = memo(BlogArticleWithTOC);

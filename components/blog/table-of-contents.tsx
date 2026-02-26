@@ -10,14 +10,12 @@ import { type TOCItem } from "@/hooks/use-reading-progress";
 export interface TableOfContentsProps {
   items: TOCItem[];
   activeSection: string;
-  readingProgress: number;
   onItemClick: (id: string) => void;
 }
 
 export function TableOfContents({
   items,
   activeSection,
-  readingProgress,
   onItemClick,
 }: TableOfContentsProps) {
   const baseId = useId();
@@ -116,14 +114,6 @@ export function TableOfContents({
                     <X className="size-4" />
                   </Button>
                 </div>
-
-                <div className="bg-muted mb-4 h-px w-full rounded-full">
-                  <div
-                    className="bg-primary h-px rounded-full"
-                    style={{ width: `${readingProgress}%` }}
-                  />
-                </div>
-
                 <nav className="space-y-1" aria-labelledby={mobileTitleId}>
                   {items.map((item) => (
                     <button
@@ -166,14 +156,6 @@ export function TableOfContents({
               In this article
             </h3>
           </div>
-
-          <div className="bg-muted mb-2 h-px w-full rounded-full">
-            <div
-              className="bg-primary h-px rounded-full"
-              style={{ width: `${readingProgress}%` }}
-            />
-          </div>
-
           <nav className="space-y-0.5 text-xs" aria-labelledby={desktopTitleId}>
             {items.map((item) => (
               <button

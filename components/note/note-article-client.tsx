@@ -31,8 +31,10 @@ export function NoteArticleClient({
     tab: string;
   } | null>(null);
 
-  const { readingProgress, activeSection, tocItems, scrollToSection } =
-    useNoteReadingProgress(contentRef, activeTab);
+  const { activeSection, tocItems, scrollToSection } = useNoteReadingProgress(
+    contentRef,
+    activeTab
+  );
 
   const handleTabChange = useCallback((tabKey: string, sectionKey?: string) => {
     if (sectionKey) {
@@ -108,7 +110,6 @@ export function NoteArticleClient({
         <TableOfContents
           items={tocItems}
           activeSection={activeSection}
-          readingProgress={readingProgress}
           onItemClick={scrollToSection}
         />
       </div>
