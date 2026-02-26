@@ -159,7 +159,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       }
 
       urls.push({
-        url: `${baseUrl}/${locale}/note/${topic}/`,
+        url: `${baseUrl}/${locale}/note/${encodeURIComponent(topic)}/`,
         lastModified: new Date(), // Could be extracted from file stats if needed
         changeFrequency: "weekly",
         priority: 0.6,

@@ -16,6 +16,7 @@ export async function generateMetadata(
   const params = props.params;
   const { lang, topic } = await params;
   const note = await getNoteByTopic(lang, topic);
+  const encodedTopic = encodeURIComponent(topic);
 
   if (!note) {
     return {
@@ -27,13 +28,13 @@ export async function generateMetadata(
   // Generate hreflang alternates for all supported languages
   const alternateLanguages = supportedLangs.reduce(
     (acc, supportedLang) => {
-      acc[supportedLang] = `/${supportedLang}/note/${topic}`;
+      acc[supportedLang] = `/${supportedLang}/note/${encodedTopic}`;
       return acc;
     },
     {} as Record<string, string>
   );
 
-  const canonicalUrl = `/${lang}/note/${topic}`;
+  const canonicalUrl = `/${lang}/note/${encodedTopic}`;
 
   return {
     title: note.title,

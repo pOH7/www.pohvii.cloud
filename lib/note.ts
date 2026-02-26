@@ -63,12 +63,18 @@ export interface NoteMeta {
 }
 
 const contentDir = path.join(process.cwd(), "content", "note");
+const NOTE_TOPIC_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function getLangDir(lang: string) {
   return path.join(contentDir, lang);
 }
 
-function getTopicDir(lang: string, topic: string) {
+export function isSafeNoteTopicSlug(topic: string): boolean {
+  return NOTE_TOPIC_SLUG_PATTERN.test(topic);
+}
+
+function getTopicDir(lang: string, topic: string): string | null {
+  if (!isSafeNoteTopicSlug(topic)) return null;
   return path.join(getLangDir(lang), topic);
 }
 
@@ -82,7 +88,8 @@ export function getAllNoteTopics(lang: string): string[] {
   return fs
     .readdirSync(dir, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
+    .map((dirent) => dirent.name)
+    .filter(isSafeNoteTopicSlug);
 }
 
 /**
@@ -208,6 +215,7 @@ async function getSectionContent(
   sectionKey: SectionKey
 ): Promise<NoteSection | null> {
   const topicDir = getTopicDir(lang, topic);
+  if (!topicDir) return null;
   const sectionFile = path.join(topicDir, `${sectionKey}.mdx`);
   const sectionDir = path.join(topicDir, sectionKey);
 
@@ -312,6 +320,7 @@ export async function getNoteByTopic(
   topic: string
 ): Promise<NoteMeta | null> {
   const topicDir = getTopicDir(lang, topic);
+  if (!topicDir) return null;
   if (!fs.existsSync(topicDir)) return null;
 
   const sections: NoteSection[] = [];
@@ -393,6 +402,7 @@ export function getAllNotesMetadata(lang: string): Array<{
 
   for (const topic of topics) {
     const topicDir = getTopicDir(lang, topic);
+    if (!topicDir) continue;
     if (!fs.existsSync(topicDir)) continue;
 
     // Default title is capitalized topic name
