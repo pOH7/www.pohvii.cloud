@@ -10,7 +10,7 @@ import {
   isValidElement,
 } from "react";
 import type { NoteMeta } from "@/lib/note";
-import { NoteTableOfContents } from "./note-table-of-contents";
+import { TableOfContents } from "@/components/blog/table-of-contents";
 import { useNoteReadingProgress } from "@/hooks/use-note-reading-progress";
 import { Clock, BookOpen } from "lucide-react";
 
@@ -105,12 +105,11 @@ export function NoteArticleClient({
         </article>
 
         {/* Table of Contents - Sticky Sidebar */}
-        <NoteTableOfContents
+        <TableOfContents
           items={tocItems}
           activeSection={activeSection}
           readingProgress={readingProgress}
           onItemClick={scrollToSection}
-          activeTab={activeTab}
         />
       </div>
     </div>
