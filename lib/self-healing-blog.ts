@@ -58,6 +58,14 @@ function getLangDir(lang: string) {
   return path.join(contentDir, lang);
 }
 
+function normalizePostId(value: unknown): string {
+  if (typeof value === "string") return value.trim().toLowerCase();
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(Math.trunc(value));
+  }
+  return "";
+}
+
 export function getAllPostSlugs(lang: string): string[] {
   const dir = getLangDir(lang);
   if (!fs.existsSync(dir)) return [];
@@ -87,7 +95,7 @@ export async function getPostById(
     const { content, data } = matter(raw);
     const fm = data as Partial<BlogFrontmatter>;
 
-    if (fm.id === id) {
+    if (normalizePostId(fm.id) === id) {
       return await buildSelfHealingResult(lang, content, fm, "");
     }
   }
@@ -172,7 +180,7 @@ async function buildSelfHealingResult(
 
   const title = fm.title ?? fallbackSlug;
   const currentSlug = generateSlug(title);
-  const postId = fm.id ?? "";
+  const postId = normalizePostId(fm.id);
 
   const meta: BlogMeta = {
     slug: currentSlug,
@@ -300,10 +308,11 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
 
     const title = fm.title ?? slug;
     const currentSlug = generateSlug(title);
+    const postId = normalizePostId(fm.id);
 
     posts.push({
       post: {
-        slug: fm.id ? combineSlugId(currentSlug, fm.id) : currentSlug, // Use slug-id format if ID exists
+        slug: postId ? combineSlugId(currentSlug, postId) : currentSlug, // Use slug-id format if ID exists
         lang,
         title,
         description: fm.description ?? "",
@@ -314,7 +323,7 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
         image: fm.image ?? "",
         ...(fm.video && { video: fm.video }),
         readTime: readingTime(content).text,
-        id: fm.id ?? "",
+        id: postId,
       },
       originalDate: fm.date ?? new Date(),
     });
