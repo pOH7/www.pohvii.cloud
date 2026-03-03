@@ -7,13 +7,23 @@ import { ExcalidrawViewer } from "@/components/mdx/ExcalidrawViewer";
 // Optional: map/augment elements for MDX rendering
 export const mdxComponents = {
   // Example: style anchors/headings subtly
-  a: (props: React.ComponentProps<"a">) => (
-    <a
-      {...props}
-      aria-label={props["aria-label"] ?? "Link"}
-      className={`underline decoration-dotted hover:decoration-solid ${props.className ?? ""}`}
-    />
-  ),
+  a: (props: React.ComponentProps<"a">) => {
+    const href = typeof props.href === "string" ? props.href : "";
+    const isExternal = /^https?:\/\//.test(href);
+    const target = props.target ?? (isExternal ? "_blank" : undefined);
+    const rel =
+      target === "_blank" ? (props.rel ?? "noopener noreferrer") : props.rel;
+
+    return (
+      <a
+        {...props}
+        target={target}
+        rel={rel}
+        aria-label={props["aria-label"] ?? "Link"}
+        className={`underline decoration-dotted hover:decoration-solid ${props.className ?? ""}`}
+      />
+    );
+  },
   // Render fenced code blocks with a copy button
   pre: (props: React.ComponentProps<"pre"> & { children: React.ReactNode }) => (
     <CodeBlock {...props} />

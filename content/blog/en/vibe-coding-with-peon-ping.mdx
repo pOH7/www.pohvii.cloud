@@ -36,13 +36,22 @@ Install PeonPing with Homebrew:
 brew install PeonPing/tap/peon-ping
 ```
 
-Then install and use the Dota 2 Axe pack:
+Then install a pack you prefer (example below). You can browse packs at
+[openpeon.com](https://openpeon.com/):
 
 ```bash
 peon packs use --install dota2_axe
+peon status
 ```
 
 That is it for the basic setup.
+
+If you use Codex, add this to `~/.codex/config.toml`. Use an absolute path for
+the adapter script (`~` may not expand):
+
+```toml
+notify = ["bash", "/absolute/path/to/.claude/hooks/peon-ping/adapters/codex.sh"]
+```
 
 ## Why This Helps During Slow Cycles
 
