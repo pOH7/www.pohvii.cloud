@@ -10,7 +10,8 @@
     "lint:fix": "eslint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:e2e": "playwright test"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
