@@ -94,7 +94,9 @@
       "@excalidraw/excalidraw>nanoid": "3.3.8",
       "@excalidraw/mermaid-to-excalidraw>nanoid": "5.0.9",
       "@excalidraw/mermaid-to-excalidraw>mermaid": "10.9.4",
-      "mermaid@10.9.4>dompurify": "3.2.4"
+      "mermaid@10.9.4>dompurify": "3.2.4",
+      "@prisma/dev>hono": "4.12.3",
+      "lodash": "4.17.23"
     }
   },
   "packageManager": "pnpm@10.30.2"
