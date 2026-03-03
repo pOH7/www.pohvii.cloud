@@ -13,6 +13,9 @@ overrides:
 importers:
   .:
     dependencies:
+      "@chevrotain/regexp-to-ast":
+        specifier: 11.1.2
+        version: 11.1.2
       "@excalidraw/excalidraw":
         specifier: ^0.18.0
         version: 0.18.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
