@@ -1,0 +1,272 @@
+---
+title: "Kubernetes ConfigMap Refresh Under FluxCD: What Actually Updates"
+description: >-
+  A practical guide to how ConfigMap updates behave under FluxCD, including the
+  difference between mounted files and environment variables, why some changes
+  do not restart pods, and the rollout patterns that work best in GitOps.
+date: 2026-03-10T00:00:00.000Z
+author: Léon Zhang
+category: Infrastructure
+tags:
+  - Kubernetes
+  - FluxCD
+  - ConfigMap
+  - GitOps
+  - DevOps
+  - Nginx
+image: >-
+  https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=600&fit=crop
+id: bdbadd86
+---
+
+# Kubernetes ConfigMap Refresh Under FluxCD: What Actually Updates
+
+One of the easiest ways to get surprised in Kubernetes is to change a
+`ConfigMap`, watch FluxCD reconcile successfully, and then realize your
+application is still behaving exactly the same.
+
+The confusion is understandable. FluxCD did its job. The cluster accepted the
+new object. The GitOps pipeline is green. But whether the application sees the
+change depends on **how the pod consumes that ConfigMap**.
+
+Here is the practical version:
+
+| Consumption pattern                 | What changes in a running pod                     | Rollout needed |
+| ----------------------------------- | ------------------------------------------------- | -------------- |
+| Normal `ConfigMap` volume mount     | Mounted files usually refresh after a short delay | Usually no     |
+| `subPath` mount                     | The mounted file does not refresh                 | Yes            |
+| `env`, `envFrom`, `configMapKeyRef` | Environment variables stay the same               | Yes            |
+
+If you remember one rule, make it this one: **startup configuration should be
+treated as a rollout. Live refresh is only for applications that keep reading
+files from disk.**
+
+## What FluxCD Actually Does
+
+FluxCD reconciles Git state into the cluster. If you commit a new `ConfigMap`,
+Flux fetches the change and applies it. That part is straightforward.
+
+What Flux does **not** do by default is infer that a `Deployment` should be
+rolled because one of the objects it references changed. If the pod template in
+the `Deployment` is unchanged, Kubernetes has no reason to create a new
+ReplicaSet.
+
+So "Flux applied my change" and "my application is using the new config" are
+separate questions. The missing step is always the same: how does this workload
+consume the `ConfigMap`?
+
+## Concrete Example: Static File Served by Nginx
+
+Suppose you publish a text file for SEO verification or other static content.
+You store the file in a `ConfigMap` and mount it directly into an Nginx
+container:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seo-pages
+data:
+  silian.txt: |
+    https://example.com/a
+    https://example.com/b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seo-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seo-nginx
+  template:
+    metadata:
+      labels:
+        app: seo-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.29
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: html
+          configMap:
+            name: seo-pages
+```
+
+Now imagine you add a third URL to `silian.txt` and push the change.
+
+What happens?
+
+1. FluxCD applies the new `ConfigMap`.
+2. Kubernetes updates the mounted file in the running pod after a short delay.
+3. Nginx serves the updated `silian.txt` from disk.
+4. No rollout occurs, because the `Deployment` spec did not change.
+
+For this kind of workload, live refresh is often perfectly fine. The
+application is serving files from the mounted directory, so it can benefit from
+Kubernetes updating the projected file contents.
+
+## Counterexample: Environment Variables
+
+Now consider an API service that consumes settings through environment
+variables:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-settings
+data:
+  LOG_LEVEL: info
+  FEATURE_X_ENABLED: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/api:1.0.0
+          envFrom:
+            - configMapRef:
+                name: api-settings
+```
+
+If you change `FEATURE_X_ENABLED` to `"true"` and Flux reconciles, the running
+container will **not** get the new value. Those environment variables were
+materialized when the process started. Kubernetes does not hot-patch process
+environments in a running container.
+
+That means this pattern needs a pod restart, even though the `ConfigMap` object
+itself updated successfully.
+
+Any config that is read once at boot belongs in a rollout-based workflow.
+
+## The `subPath` Trap
+
+There is one more footgun worth calling out.
+
+If you mount a single file from a `ConfigMap` using `subPath`, Kubernetes does
+not update that file when the `ConfigMap` changes.
+
+For example:
+
+```yaml
+volumeMounts:
+  - name: config
+    mountPath: /etc/myapp/config.yaml
+    subPath: config.yaml
+volumes:
+  - name: config
+    configMap:
+      name: myapp-config
+```
+
+This looks tidy, but it gives up live refresh. If you need mounted-file updates
+without restarting pods, mount the `ConfigMap` as a normal volume instead of
+using `subPath`.
+
+## Choose the Pattern by Consumption Model
+
+Use a normal `ConfigMap` volume only when the application actually rereads files
+at runtime, a short propagation delay is acceptable, and you are not using
+`subPath`.
+
+Use a rollout-triggering pattern for everything else, especially:
+
+- `env`
+- `envFrom`
+- `valueFrom.configMapKeyRef`
+- Apps that parse config files once at startup and keep them in memory
+
+For GitOps, the cleanest version of that pattern is a **hash-based rollout**.
+
+## Preferred Pattern: Kustomize `configMapGenerator`
+
+If you are already using Kustomize with Flux, the strongest pattern is to let
+Kustomize generate `ConfigMap`s with a content hash in the name.
+
+Example:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+configMapGenerator:
+  - name: api-settings
+    literals:
+      - LOG_LEVEL=info
+      - FEATURE_X_ENABLED=false
+
+generatorOptions:
+  disableNameSuffixHash: false
+
+resources:
+  - deployment.yaml
+```
+
+And in the `Deployment`:
+
+```yaml
+envFrom:
+  - configMapRef:
+      name: api-settings
+```
+
+At build time, Kustomize generates a name like
+`api-settings-42cfbf598f` and rewrites the reference in the `Deployment`.
+
+When the config changes, the generated `ConfigMap` name changes, the pod
+template changes with it, and Kubernetes creates a new ReplicaSet. That is the
+most GitOps-aligned approach because the rollout is visible in declarative
+state.
+
+## Practical Fallback: Reloader Controllers
+
+If you already have many plain YAML manifests and do not want to refactor them
+into Kustomize generators yet, a reloader controller is a reasonable fallback.
+
+Tools like Stakater Reloader watch `ConfigMap` and `Secret` changes, then patch
+the workload template to trigger a rollout.
+
+A typical annotation looks like this:
+
+```yaml
+metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
+```
+
+This works well, especially for legacy manifests that consume configuration via
+environment variables. It is still a step down from hash-based rollouts in pure
+GitOps terms:
+
+- It adds another controller to operate.
+- The rollout is triggered indirectly.
+- The cause of the restart is less obvious from the manifest diff alone.
+
+It is pragmatic, not wrong. It is just not my first choice when I can express
+the rollout directly in declarative config.
+
+## Final Takeaway
+
+FluxCD tells you whether cluster state matches Git. It does **not** tell you
+whether a running process has reloaded new configuration. Mounted files can
+refresh, `subPath` breaks that refresh, and environment variables never
+hot-update. Once you make that distinction explicit, the operational rule is
+simple: runtime file config may live-refresh, but startup config should trigger
+a rollout.
+
+## References
+
+- [Kubernetes: Updating Configuration via a ConfigMap](https://kubernetes.io/docs/tutorials/configuration/updating-configuration-via-a-configmap/)
+- [Kubernetes: Configure a Pod to Use a ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
+- [Kubernetes: Kustomization and `configMapGenerator`](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/)
+- [FluxCD Kustomization Documentation](https://fluxcd.io/flux/components/kustomize/kustomizations/)
