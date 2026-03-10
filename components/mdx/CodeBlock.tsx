@@ -273,6 +273,7 @@ export default function CodeBlock(props: PreProps) {
 
       <pre
         ref={preRef}
+        data-lenis-prevent
         {...rest}
         className={`max-h-[60vh] overflow-auto p-4 ${className}`.trim()}
       >
