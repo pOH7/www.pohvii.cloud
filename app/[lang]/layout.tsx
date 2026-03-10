@@ -9,6 +9,7 @@ import { LenisProvider } from "@/components/lenis-provider";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import NextTopLoader from "nextjs-toploader";
 import { getDictionary } from "./dictionaries";
+import "lenis/dist/lenis.css";
 import "../globals.css";
 import Script from "next/script";
 
