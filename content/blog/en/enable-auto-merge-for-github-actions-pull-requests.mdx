@@ -1,0 +1,126 @@
+---
+title: "How to Enable Auto-Merge for GitHub Actions Pull Requests"
+description: >-
+  A concise setup guide for GitHub Actions workflows that open pull requests and
+  merge them automatically, including the repository settings and workflow
+  permissions that are easy to miss.
+date: 2026-03-11T00:00:00.000Z
+author: Léon Zhang
+category: Developer Experience
+tags:
+  - GitHub Actions
+  - Pull Requests
+  - Auto Merge
+  - Automation
+  - CI/CD
+  - GitHub
+image: >-
+  https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&h=600&fit=crop
+id: e38e563a
+---
+
+If your workflow creates a pull request but does not auto-merge, there are
+usually three things to configure:
+
+1. Enable auto-merge for the repository
+2. Allow GitHub Actions to create pull requests
+3. Give the workflow write permissions and explicitly merge the PR
+
+This is the minimal setup.
+
+## 1. Enable Auto-Merge in Repository Settings
+
+Open your repository on GitHub:
+
+- `Settings` -> `General` -> `Pull Requests`
+- Enable `Allow auto-merge`
+
+One important detail from GitHub Docs: the **Enable auto-merge** option only
+appears on pull requests that cannot be merged immediately, for example when
+branch protection requires reviews or status checks.
+
+## 2. Allow Actions to Create Pull Requests
+
+Open:
+
+- `Settings` -> `Actions` -> `General`
+
+Under `Workflow permissions`:
+
+- Set `Read and write permissions`
+- Enable `Allow GitHub Actions to create and approve pull requests`
+
+If you skip this, actions such as `peter-evans/create-pull-request` can push a
+branch but still fail to create the pull request.
+
+## 3. Give the Workflow the Required Permissions
+
+Set explicit permissions in the workflow:
+
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+```
+
+GitHub recommends limiting `GITHUB_TOKEN` to the minimum access the job needs.
+For PR creation and merging, `contents: write` and `pull-requests: write` are
+the useful baseline.
+
+## 4. Create the PR and Merge It
+
+Here is a minimal pattern:
+
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/example-update
+          delete-branch: true
+          title: "chore: automated update"
+          commit-message: "chore: automated update"
+
+      - name: Enable merge
+        if: steps.cpr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge --auto --merge --delete-branch "${{ steps.cpr.outputs.pull-request-url }}"
+```
+
+If your branch protection requires checks or approvals, `--auto` will leave the
+PR waiting until requirements pass. If the PR is already mergeable, GitHub CLI
+can merge it immediately.
+
+## Common Failure
+
+If the job fails with:
+
+```text
+GitHub Actions is not permitted to create or approve pull requests.
+```
+
+the usual fix is repository configuration, not workflow syntax:
+
+- `Settings` -> `Actions` -> `General`
+- set `Read and write permissions`
+- enable `Allow GitHub Actions to create and approve pull requests`
+
+## References
+
+- [Managing auto-merge for pull requests in your repository](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository)
+- [Automatically merging a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/automatically-merging-a-pull-request)
+- [Managing GitHub Actions settings for a repository](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository)
+- [Use `GITHUB_TOKEN` for authentication in workflows](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token)
+- [GitHub CLI: `gh pr merge`](https://cli.github.com/manual/gh_pr_merge)
+- [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request)
