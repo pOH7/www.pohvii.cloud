@@ -449,12 +449,16 @@
 }
 
 /* Custom code blocks with dedicated header use a different pre shell. */
-.blog-article-content [data-mdx-code-block] > pre,
-.prose [data-mdx-code-block] > pre {
+.blog-article-content [data-mdx-code-block] [data-mdx-code-scroll] > pre,
+.prose [data-mdx-code-block] [data-mdx-code-scroll] > pre {
   margin: 0;
   background-color: transparent;
   border: 0;
   border-radius: 0;
+  min-width: 100%;
+  max-width: none;
+  width: max-content;
+  overflow: visible;
   padding-block: 1rem;
   padding-inline: 0.75rem;
 }

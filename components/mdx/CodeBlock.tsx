@@ -205,41 +205,6 @@ export default function CodeBlock(props: PreProps) {
   }
 
   const preRef = React.useRef<HTMLPreElement>(null);
-  const [shouldPreventLenis, setShouldPreventLenis] = React.useState(false);
-
-  React.useLayoutEffect(() => {
-    const pre = preRef.current;
-    if (!pre) {
-      return;
-    }
-
-    const updateLenisPrevention = () => {
-      setShouldPreventLenis(
-        pre.scrollHeight > pre.clientHeight || pre.scrollWidth > pre.clientWidth
-      );
-    };
-
-    updateLenisPrevention();
-
-    if (typeof ResizeObserver === "undefined") {
-      return;
-    }
-
-    const observer = new ResizeObserver(() => {
-      updateLenisPrevention();
-    });
-
-    observer.observe(pre);
-
-    const code = pre.querySelector("code");
-    if (code instanceof HTMLElement) {
-      observer.observe(code);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [children]);
 
   const onCopy = React.useCallback(async (): Promise<boolean> => {
     const pre = preRef.current;
@@ -306,14 +271,11 @@ export default function CodeBlock(props: PreProps) {
         <CopyCodeButton onCopy={onCopy} />
       </div>
 
-      <pre
-        ref={preRef}
-        data-lenis-prevent={shouldPreventLenis ? "" : undefined}
-        {...rest}
-        className={`max-h-[60vh] overflow-auto p-4 ${className}`.trim()}
-      >
-        {children}
-      </pre>
+      <div data-mdx-code-scroll className="overflow-x-auto">
+        <pre ref={preRef} {...rest} className={`p-4 ${className}`.trim()}>
+          {children}
+        </pre>
+      </div>
     </div>
   );
 }
