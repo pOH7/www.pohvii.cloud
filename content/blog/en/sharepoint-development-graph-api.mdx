@@ -292,13 +292,13 @@ Store the image reference as a JSON string in the attachment field:
 
 ## Security Considerations
 
-### 1. Token Management
+### Token Management
 
 - **Never expose access tokens in client-side code**
 - **Implement token refresh logic** for long-running operations
 - **Use secure token storage** (Azure Key Vault, encrypted storage)
 
-### 2. Permission Auditing
+### Permission Auditing
 
 Regularly audit Sites.Selected permissions:
 
@@ -308,7 +308,7 @@ Host: graph.microsoft.com
 Authorization: {ACCESS_TOKEN}
 ```
 
-### 3. Input Validation
+### Input Validation
 
 Always validate and sanitize user input before creating list items:
 
@@ -324,7 +324,7 @@ function sanitizeInput(input) {
 
 ## Performance Optimization
 
-### 1. Use Select and Filter
+### Use Select and Filter
 
 Minimize data transfer by selecting only required fields:
 
@@ -332,7 +332,7 @@ Minimize data transfer by selecting only required fields:
 GET /v1.0/sites/{site-id}/lists/{list-id}/items?$select=id,fields/Title,fields/Status&$expand=fields
 ```
 
-### 2. Implement Pagination
+### Implement Pagination
 
 For large datasets, use pagination:
 
@@ -340,7 +340,7 @@ For large datasets, use pagination:
 GET /v1.0/sites/{site-id}/lists/{list-id}/items?$top=100&$skip=0
 ```
 
-### 3. Cache Site and List IDs
+### Cache Site and List IDs
 
 Cache frequently used IDs to reduce API calls:
 
@@ -373,7 +373,7 @@ class SharePointCache {
 
 ## Troubleshooting Common Issues
 
-### 1. Permission Denied Errors
+### Permission Denied Errors
 
 **Error**: "Access denied. You do not have permission to perform this action."
 
@@ -384,7 +384,7 @@ class SharePointCache {
 - Check token has not expired
 - Verify the application ID matches the granted permission
 
-### 2. Field Type Mismatch
+### Field Type Mismatch
 
 **Error**: "The request is malformed or incorrect."
 
@@ -394,7 +394,7 @@ class SharePointCache {
 - Ensure date fields use ISO 8601 format
 - Verify choice field values match allowed options
 
-### 3. Rate Limiting
+### Rate Limiting
 
 **Error**: "429 Too Many Requests"
 

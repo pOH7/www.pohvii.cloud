@@ -107,7 +107,7 @@ const nextConfig: NextConfig = {
 
 To get the best performance, I also implemented proper CORS handling and caching:
 
-#### 1. Enable CORS for Image Components
+#### Enable CORS for Image Components
 
 Make the browser send an actual CORS request by passing `crossOrigin="anonymous"` to your Image components:
 
@@ -122,7 +122,7 @@ export function OptimizedImage(props: ImageProps) {
 
 You can wrap Next's Image to do this globally.
 
-#### 2. Traefik Configuration
+#### Traefik Configuration
 
 Handle Imgproxy's CORS rules at the Traefik layer (see [Traefik Headers Middleware documentation](https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/headers/) for full configuration options):
 
@@ -153,7 +153,7 @@ IMGPROXY_TTL="31536000"  # 1 year cache
 
 This replaces the old `IMGPROXY_ALLOW_ORIGIN` environment variable on Imgproxy itself; Traefik now enforces an explicit allowlist so only our production domains (plus local development) can request optimized assets. With credentials enabled and the `Vary: Origin` header, browsers now send `Origin` + `If-None-Match`, and we still benefit from disk cache hits in practice.
 
-#### 3. Security Headers
+#### Security Headers
 
 I handle security headers at the Traefik level. Imgproxy responds with `Cross-Origin-Resource-Policy: same-site`, while the Next.js site sends `Cross-Origin-Embedder-Policy: require-corp`.
 

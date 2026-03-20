@@ -28,7 +28,7 @@ usually three things to configure:
 
 This is the minimal setup.
 
-## 1. Enable Auto-Merge in Repository Settings
+## Enable Auto-Merge in Repository Settings
 
 Open your repository on GitHub:
 
@@ -39,7 +39,7 @@ One important detail from GitHub Docs: the **Enable auto-merge** option only
 appears on pull requests that cannot be merged immediately, for example when
 branch protection requires reviews or status checks.
 
-## 2. Allow Actions to Create Pull Requests
+## Allow Actions to Create Pull Requests
 
 Open:
 
@@ -53,7 +53,7 @@ Under `Workflow permissions`:
 If you skip this, actions such as `peter-evans/create-pull-request` can push a
 branch but still fail to create the pull request.
 
-## 3. Give the Workflow the Required Permissions
+## Give the Workflow the Required Permissions
 
 Set explicit permissions in the workflow:
 
@@ -67,7 +67,7 @@ GitHub recommends limiting `GITHUB_TOKEN` to the minimum access the job needs.
 For PR creation and merging, `contents: write` and `pull-requests: write` are
 the useful baseline.
 
-## 4. Create the PR and Merge It
+## Create the PR and Merge It
 
 Here is a minimal pattern:
 
