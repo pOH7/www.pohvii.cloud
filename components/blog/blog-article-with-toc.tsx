@@ -26,7 +26,6 @@ export function BlogArticleWithTOC({
     if (commentsSection) {
       if (lenis) {
         lenis.scrollTo(commentsSection, {
-          offset: -96,
           duration: 1.2,
         });
         return;

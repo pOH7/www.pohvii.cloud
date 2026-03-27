@@ -9,9 +9,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
       options={{
         duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        anchors: {
-          offset: -96,
-        },
+        anchors: true,
         orientation: "vertical",
         gestureOrientation: "vertical",
         smoothWheel: true,

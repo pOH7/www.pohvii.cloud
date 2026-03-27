@@ -157,7 +157,6 @@ export function useReadingProgress(
       if (lenis) {
         // Use Lenis scrollTo with target element
         lenis.scrollTo(element, {
-          offset: -96, // Match the scroll-margin-top value
           duration: 1.2,
         });
       } else {

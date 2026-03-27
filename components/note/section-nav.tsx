@@ -54,7 +54,6 @@ export function SectionNav({ sections }: SectionNavProps) {
     if (element) {
       if (lenis) {
         lenis.scrollTo(element, {
-          offset: -96,
           duration: 1.2,
         });
         return;

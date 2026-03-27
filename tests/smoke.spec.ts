@@ -1,4 +1,20 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+const HEADER_OFFSET_MIN = 72;
+const HEADER_OFFSET_MAX = 120;
+
+async function expectTargetNearHeaderOffset(page: Page, id: string) {
+  await page.waitForTimeout(2_000);
+
+  const top = await page.evaluate((elementId) => {
+    return (
+      document.getElementById(elementId)?.getBoundingClientRect().top ?? -1
+    );
+  }, id);
+
+  expect(top).toBeGreaterThanOrEqual(HEADER_OFFSET_MIN);
+  expect(top).toBeLessThanOrEqual(HEADER_OFFSET_MAX);
+}
 
 test("English homepage renders expected content", async ({ page }) => {
   await page.goto("/en");
@@ -46,4 +62,34 @@ test("Root document does not rely on native smooth scrolling", async ({
       });
     })
     .toBe("auto");
+});
+
+test("Comments button lands the comments section below the sticky header", async ({
+  page,
+}) => {
+  await page.goto("/en/blog/testing-comment-system-795aade4");
+
+  await page.getByRole("button", { name: "Comments" }).click();
+
+  await expectTargetNearHeaderOffset(page, "comments");
+});
+
+test("TOC navigation lands headings below the sticky header", async ({
+  page,
+}) => {
+  await page.goto("/en/blog/testing-comment-system-795aade4");
+
+  await page.getByRole("button", { name: "Comments" }).click();
+  await expectTargetNearHeaderOffset(page, "comments");
+
+  const desktopTocItem = page.locator(
+    'aside [data-id="testing-our-comment-system"]'
+  );
+
+  await expect(desktopTocItem).toHaveCount(1);
+  await desktopTocItem.evaluate((button) => {
+    (button as HTMLButtonElement).click();
+  });
+
+  await expectTargetNearHeaderOffset(page, "testing-our-comment-system");
 });
