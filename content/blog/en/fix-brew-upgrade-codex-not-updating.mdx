@@ -1,0 +1,128 @@
+---
+title: >-
+  Fix `brew upgrade codex` When Homebrew Says the Latest Version Is Already
+  Installed
+description: >-
+  If Homebrew says Codex is already up to date even though the upstream cask is
+  newer, the usual cause is a stale Homebrew API cache or a lagging mirror.
+  Here is the exact fix and why it works.
+date: 2026-03-27T00:00:00.000Z
+author: Léon Zhang
+category: Infrastructure
+tags:
+  - Homebrew
+  - Codex
+  - macOS
+  - Package Management
+  - Caching
+  - CLI
+image: >-
+  https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=600&fit=crop
+id: 1a6031a8
+---
+
+You run:
+
+```bash
+brew upgrade codex
+```
+
+And Homebrew replies:
+
+```text
+Warning: Not upgrading codex, the latest version is already installed
+```
+
+But when you check the upstream cask file, `codex.rb` already shows a newer
+version:
+
+https://github.com/Homebrew/homebrew-cask/blob/main/Casks/c/codex.rb
+
+This usually means Homebrew is not comparing against the same metadata source
+you are looking at in the browser. The immediate fix is simple.
+
+## The Fix
+
+```bash
+rm -f ~/Library/Caches/Homebrew/api/cask.jws.json
+rm -f ~/Library/Caches/Homebrew/api/cask/codex.json
+HOMEBREW_API_DOMAIN=https://formulae.brew.sh/api brew upgrade --cask codex
+```
+
+If you want to verify first, run:
+
+```bash
+tmp=$(mktemp -d)
+HOMEBREW_CACHE="$tmp" HOMEBREW_API_DOMAIN=https://formulae.brew.sh/api brew info codex
+```
+
+That forces Homebrew to use a clean cache and the official API for this one
+command.
+
+## Why This Happens
+
+Homebrew casks are usually resolved from JSON API metadata, not directly from
+the GitHub cask file you happen to be reading.
+
+That creates two common failure modes:
+
+1. Your machine is configured to use a Homebrew mirror, and the mirror is
+   behind upstream.
+2. Homebrew has a stale local signed API bundle under
+   `~/Library/Caches/Homebrew/api/`, so even overriding `HOMEBREW_API_DOMAIN`
+   still reuses old metadata.
+
+In practice, that means all of these can disagree for a while:
+
+- The GitHub cask file
+- The official Homebrew API
+- Your configured mirror
+- Your local cached API bundle
+
+If the local cache still says `codex` is `0.116.0`, `brew upgrade codex` will
+keep saying nothing needs to be upgraded, even if upstream has already moved to
+`0.117.0`.
+
+## What Each Command Does
+
+```bash
+rm -f ~/Library/Caches/Homebrew/api/cask.jws.json
+```
+
+Removes the cached signed cask API bundle, which is the main source of stale
+metadata.
+
+```bash
+rm -f ~/Library/Caches/Homebrew/api/cask/codex.json
+```
+
+Removes the per-cask cached metadata for `codex`.
+
+```bash
+HOMEBREW_API_DOMAIN=https://formulae.brew.sh/api brew upgrade --cask codex
+```
+
+Temporarily switches Homebrew to the official API and upgrades `codex` without
+changing your shell config permanently.
+
+## If You Use a Mirror
+
+If this problem happens repeatedly, check whether your shell exports variables
+such as:
+
+- `HOMEBREW_API_DOMAIN`
+- `HOMEBREW_BOTTLE_DOMAIN`
+- `HOMEBREW_BREW_GIT_REMOTE`
+- `HOMEBREW_CORE_GIT_REMOTE`
+
+Using a mirror is fine, but mirrors can lag. If you need the newest cask
+version immediately, use the official API for that command or remove the mirror
+override from your shell configuration.
+
+## Practical Rule
+
+When `brew upgrade` says a cask is current but GitHub shows a newer version,
+check the metadata path before assuming the cask is wrong.
+
+Most of the time the issue is not the formula or cask itself. It is the cache
+layer in front of it.
