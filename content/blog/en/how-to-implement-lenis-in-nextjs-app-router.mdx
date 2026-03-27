@@ -1,0 +1,381 @@
+---
+title: "How to Implement Lenis in Next.js App Router"
+description: >-
+  A practical guide to setting up Lenis in a fresh Next.js App Router project
+  with TypeScript, including provider wiring, anchor links, sticky-header-safe
+  section navigation, and programmatic scrolling with lenis/react.
+date: 2026-03-27T00:00:00.000Z
+author: Léon Zhang
+category: Web Development
+tags:
+  - Next.js
+  - Lenis
+  - React
+  - TypeScript
+  - App Router
+  - Smooth Scrolling
+image: >-
+  https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&h=600&fit=crop
+id: 1750f15b
+---
+
+Lenis is one of the cleanest ways to add smooth scrolling to a modern React
+application without dragging in a huge animation stack. If you are using the
+Next.js App Router, the integration can be surprisingly small, but there are a
+few details that matter in production:
+
+- where the provider lives
+- how anchor links should behave
+- how to handle sticky headers
+- how to trigger smooth scrolling from buttons and other client components
+
+This guide starts from zero and ends with a working `lenis/react` setup in a
+TypeScript App Router project.
+
+## Versions Used in This Guide
+
+The examples in this post were written against:
+
+- `next@16.2.1`
+- `react@19.2.4`
+- `lenis@1.3.21`
+
+If you are reading this later, check the current Lenis API before copying the
+provider configuration verbatim. Recent Lenis releases added useful options
+such as `autoRaf` and `anchors`, and older tutorials may no longer match the
+current API.
+
+## Create the Project
+
+Start with a fresh Next.js application:
+
+```bash
+pnpm create next-app@latest lenis-next-app
+cd lenis-next-app
+```
+
+When `create-next-app` prompts you, choose:
+
+- `TypeScript`: Yes
+- `App Router`: Yes
+- `Tailwind CSS`: Yes
+
+The rest is up to your preference. Nothing in this guide depends on a `src/`
+layout or a specific import alias shape.
+
+## Install Lenis
+
+Install the package:
+
+```bash
+pnpm add lenis
+```
+
+That is enough. The React integration is exposed from the same package through
+the `lenis/react` entry.
+
+## Add a Lenis Provider
+
+Create `components/lenis-provider.tsx`:
+
+```tsx
+"use client";
+
+import { ReactLenis } from "lenis/react";
+
+export function LenisProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <ReactLenis
+      root
+      options={{
+        autoRaf: true,
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        anchors: true,
+      }}
+    >
+      {children}
+    </ReactLenis>
+  );
+}
+```
+
+The important parts:
+
+- `root` tells Lenis to manage the root page scroll instead of an inner wrapper.
+- `autoRaf: true` lets Lenis run its own animation loop.
+- `anchors: true` restores smooth anchor-link scrolling, which you usually want
+  in content-heavy pages.
+
+## Wire Lenis into the App Router Layout
+
+Import the recommended Lenis stylesheet and wrap the app in the provider at the
+layout level.
+
+Update `app/layout.tsx`:
+
+```tsx
+import "lenis/dist/lenis.css";
+import "./globals.css";
+import { LenisProvider } from "@/components/lenis-provider";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <LenisProvider>{children}</LenisProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+Putting the provider in the root layout is the practical App Router choice. It
+keeps scrolling behavior consistent across pages and avoids ad hoc setup inside
+individual routes.
+
+## Build a Page That Proves It Works
+
+Here is a simple homepage with a sticky header and anchor links:
+
+```tsx
+const sections = [
+  { id: "intro", title: "Intro" },
+  { id: "features", title: "Features" },
+  { id: "faq", title: "FAQ" },
+];
+
+export default function HomePage() {
+  return (
+    <div>
+      <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
+        <nav className="mx-auto flex max-w-4xl gap-4 px-6 py-4">
+          {sections.map((section) => (
+            <a key={section.id} href={`#${section.id}`}>
+              {section.title}
+            </a>
+          ))}
+        </nav>
+      </header>
+
+      <main className="mx-auto max-w-4xl space-y-24 px-6 py-12">
+        {sections.map((section) => (
+          <section key={section.id} id={section.id} className="scroll-mt-24">
+            <h2 className="mb-4 text-3xl font-semibold">{section.title}</h2>
+            <p>
+              Replace this with real content. The important part is the stable
+              section id and the scroll margin.
+            </p>
+          </section>
+        ))}
+      </main>
+    </div>
+  );
+}
+```
+
+At this point, clicking the header links should animate smoothly with Lenis.
+
+## Handle Sticky Headers the Safe Way
+
+The easiest mistake is to get smooth scrolling working and then realize the
+target heading disappears under the sticky header.
+
+Use CSS first:
+
+```tsx
+<section id="features" className="scroll-mt-24">
+  <h2>Features</h2>
+</section>
+```
+
+Or with plain CSS:
+
+```css
+section[id] {
+  scroll-margin-top: 6rem;
+}
+```
+
+This keeps anchor links and `scrollTo(element)` aligned around the same visual
+offset.
+
+In practice, `scroll-margin-top` is a better default than sprinkling custom
+offset numbers throughout your code.
+
+## Scroll Programmatically with `useLenis`
+
+Anchor links cover a lot of cases, but sometimes you want a button or custom UI
+control to drive scrolling.
+
+Create a client component:
+
+```tsx
+"use client";
+
+import { useLenis } from "lenis/react";
+
+export function BackToTopButton() {
+  const lenis = useLenis();
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        lenis?.scrollTo(0, { duration: 1.2 });
+      }}
+    >
+      Back to top
+    </button>
+  );
+}
+```
+
+You can also scroll to a specific element:
+
+```tsx
+"use client";
+
+import { useLenis } from "lenis/react";
+
+export function JumpToSectionButton() {
+  const lenis = useLenis();
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const target = document.getElementById("faq");
+        if (target) {
+          lenis?.scrollTo(target, { duration: 1.2 });
+        }
+      }}
+    >
+      Jump to FAQ
+    </button>
+  );
+}
+```
+
+The main rule is simple: `useLenis()` belongs in client components rendered
+under your `LenisProvider`.
+
+## Common Pitfalls
+
+### Do Not Keep Native Smooth Scrolling Enabled
+
+If you already have this in your CSS:
+
+```css
+html {
+  scroll-behavior: smooth;
+}
+```
+
+Remove it.
+
+Once Lenis is responsible for scrolling, native smooth scrolling becomes a
+competing system. Keep native scrolling as `auto` and let Lenis animate the
+transitions.
+
+### Do Not Double-Apply Header Offsets
+
+If you already use `scroll-margin-top` on your targets, do not blindly add a
+matching negative `offset` to every `scrollTo` call.
+
+This is where many integrations drift out of alignment. The target can end up
+landing too low because CSS and JavaScript are both trying to compensate for
+the same sticky header.
+
+The pragmatic rule:
+
+- Use `scroll-margin-top` for normal section targets.
+- Use a Lenis `offset` only when you need a runtime-specific adjustment.
+
+### Anchor Links Need to Be Enabled Explicitly
+
+If your `href="#section-id"` links stop working after adding Lenis, check your
+provider first:
+
+```tsx
+options={{
+  anchors: true,
+}}
+```
+
+That one option is easy to miss.
+
+### Nested Scroll Areas Need Special Handling
+
+If you have modals, drawers, or panels that should scroll independently, you
+may need to prevent Lenis from smoothing those containers.
+
+The simplest approach is usually an attribute:
+
+```html
+<div data-lenis-prevent>
+  <!-- nested scroll area -->
+</div>
+```
+
+That keeps your main page smooth while letting the inner container scroll
+natively.
+
+## Optional: Add a Small Playwright Check
+
+If scrolling behavior matters to the page, add one regression test. For
+example, this checks that a target lands below the sticky header instead of
+hiding under it:
+
+```ts
+import { expect, test } from "@playwright/test";
+
+test("FAQ anchor lands below the sticky header", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "FAQ" }).click();
+  await page.waitForTimeout(2000);
+
+  const top = await page.evaluate(() => {
+    return document.getElementById("faq")?.getBoundingClientRect().top ?? -1;
+  });
+
+  expect(top).toBeGreaterThanOrEqual(72);
+  expect(top).toBeLessThanOrEqual(120);
+});
+```
+
+That kind of test catches the exact class of bug that usually appears later,
+when someone changes header height or starts mixing CSS offsets with custom
+`scrollTo` options.
+
+## Final Setup Checklist
+
+If you want the short version, this is the setup that tends to hold up well:
+
+1. Create a normal Next.js App Router project with TypeScript.
+2. Install `lenis`.
+3. Import `lenis/dist/lenis.css`.
+4. Put a `ReactLenis` provider in `app/layout.tsx`.
+5. Enable `autoRaf` and `anchors`.
+6. Use `scroll-margin-top` for sticky-header-safe targets.
+7. Use `useLenis()` for buttons and other programmatic scroll triggers.
+8. Avoid native `scroll-behavior: smooth`.
+
+That gives you a clean App Router integration without resorting to global
+escape hatches or per-page scroll hacks.
+
+## References
+
+- Bridger Tower, "How to implement Lenis in Next.js":
+  https://bridger.to/lenis-nextjs
+- Lenis official docs:
+  https://lenis.darkroom.engineering
+- Lenis GitHub repository:
+  https://github.com/darkroomengineering/lenis
+- Next.js App Router docs:
+  https://nextjs.org/docs/app
