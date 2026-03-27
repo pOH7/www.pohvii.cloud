@@ -30,3 +30,20 @@ test("Blog page is reachable", async ({ page }) => {
     page.getByRole("heading", { name: "Blog", level: 1 }).first()
   ).toBeVisible();
 });
+
+test("Root document does not rely on native smooth scrolling", async ({
+  page,
+}) => {
+  await page.goto("/en");
+
+  const html = page.locator("html");
+
+  await expect(html).not.toHaveAttribute("data-scroll-behavior", "smooth");
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        return window.getComputedStyle(document.documentElement).scrollBehavior;
+      });
+    })
+    .toBe("auto");
+});

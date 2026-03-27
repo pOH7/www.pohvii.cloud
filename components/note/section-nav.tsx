@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLenis } from "lenis/react";
 import { cn } from "@/lib/utils";
 import type { SectionKey } from "@/lib/note";
 
@@ -13,6 +14,7 @@ interface SectionNavProps {
 
 export function SectionNav({ sections }: SectionNavProps) {
   const [activeSection, setActiveSection] = useState<string>("");
+  const lenis = useLenis();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,8 +52,16 @@ export function SectionNav({ sections }: SectionNavProps) {
   const scrollToSection = (sectionKey: string) => {
     const element = document.getElementById(sectionKey);
     if (element) {
+      if (lenis) {
+        lenis.scrollTo(element, {
+          offset: -96,
+          duration: 1.2,
+        });
+        return;
+      }
+
       const top = element.getBoundingClientRect().top + window.pageYOffset - 96;
-      window.scrollTo({ top, behavior: "smooth" });
+      window.scrollTo({ top });
     }
   };
 

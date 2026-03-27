@@ -47,7 +47,6 @@ export function TableOfContents({
       const delta = targetCenter - container.clientHeight / 2;
       container.scrollTo({
         top: container.scrollTop + delta,
-        behavior: "smooth",
       });
     };
 

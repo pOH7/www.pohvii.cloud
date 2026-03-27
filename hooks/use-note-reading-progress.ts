@@ -272,9 +272,8 @@ export function useNoteReadingProgress(
           duration: 1.2,
         });
       } else {
-        // Fallback to native scrollIntoView honoring CSS scroll-margin-top on headings
+        // Fallback to immediate native scrolling if Lenis is unavailable.
         element.scrollIntoView({
-          behavior: "smooth",
           block: "start",
           inline: "nearest",
         });

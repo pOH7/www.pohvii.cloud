@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useRef, type RefObject } from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import { ArrowLeft, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArticleHeader } from "./article-header";
@@ -40,13 +41,22 @@ export function BlogArticle({
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
 
   const scrollToComments = useCallback(() => {
     const commentsSection = document.getElementById("comments");
     if (commentsSection) {
-      commentsSection.scrollIntoView({ behavior: "smooth" });
+      if (lenis) {
+        lenis.scrollTo(commentsSection, {
+          offset: -96,
+          duration: 1.2,
+        });
+        return;
+      }
+
+      commentsSection.scrollIntoView({ block: "start", inline: "nearest" });
     }
-  }, []);
+  }, [lenis]);
 
   const copyMarkdown = useCallback(async (): Promise<boolean> => {
     const titleMarkdown = `# ${post.title}`.trim();
@@ -120,7 +130,7 @@ export function BlogArticle({
       <MemoizedArticleFooter category={post.category} lang={lang} />
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
-        <div id="comments">
+        <div id="comments" className="scroll-mt-24">
           <MemoizedGiscusComments term={post.id} />
         </div>
       </div>

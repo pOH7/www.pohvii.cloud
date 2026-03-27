@@ -33,7 +33,7 @@ export function BackToTop({ threshold = 300, className }: BackToTopProps) {
       return;
     }
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0 });
   };
 
   return (

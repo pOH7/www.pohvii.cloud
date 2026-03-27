@@ -2,6 +2,7 @@
 
 import { useRef, memo, type RefObject } from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import { ArrowLeft, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type BlogArticleProps } from "./blog-article";
@@ -18,11 +19,20 @@ export function BlogArticleWithTOC({
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
 
   const scrollToComments = () => {
     const commentsSection = document.getElementById("comments");
     if (commentsSection) {
-      commentsSection.scrollIntoView({ behavior: "smooth" });
+      if (lenis) {
+        lenis.scrollTo(commentsSection, {
+          offset: -96,
+          duration: 1.2,
+        });
+        return;
+      }
+
+      commentsSection.scrollIntoView({ block: "start", inline: "nearest" });
     }
   };
 
@@ -62,7 +72,7 @@ export function BlogArticleWithTOC({
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
-        <div id="comments">
+        <div id="comments" className="scroll-mt-24">
           <GiscusComments term={post.id} />
         </div>
       </div>
