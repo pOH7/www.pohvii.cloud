@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useLenis } from "lenis/react";
 
 export interface TOCItem {
   id: string;
@@ -11,6 +12,7 @@ export interface TOCItem {
 export function useReadingProgress(
   contentRef: React.RefObject<HTMLDivElement | null>
 ) {
+  const lenis = useLenis();
   const [activeSection, setActiveSection] = useState("");
   const [tocItems, setTocItems] = useState<TOCItem[]>([]);
   // When user clicks a ToC item and we perform a programmatic smooth scroll,
@@ -151,8 +153,6 @@ export function useReadingProgress(
       setActiveSection(id);
       lastClickedIdRef.current = id;
       clickLockUntilRef.current = Date.now() + 1200; // typical smooth-scroll duration
-
-      const lenis = window.lenis;
 
       if (lenis) {
         // Use Lenis scrollTo with target element

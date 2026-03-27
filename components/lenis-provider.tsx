@@ -1,27 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { ReactLenis, type LenisRef } from "lenis/react";
+import { ReactLenis } from "lenis/react";
 
 export function LenisProvider({ children }: { children: React.ReactNode }) {
-  const lenisRef = useRef<LenisRef>(null);
-
-  useEffect(() => {
-    // Expose lenis instance globally for other components to use
-    if (lenisRef.current?.lenis && typeof window !== "undefined") {
-      window.lenis = lenisRef.current.lenis;
-    }
-
-    return () => {
-      if (typeof window !== "undefined") {
-        delete window.lenis;
-      }
-    };
-  }, []);
-
   return (
     <ReactLenis
-      ref={lenisRef}
       root
       options={{
         duration: 1.2,

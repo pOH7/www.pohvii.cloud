@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useLenis } from "lenis/react";
 
 export interface NoteTOCItem {
   id: string;
@@ -15,6 +16,7 @@ export function useNoteReadingProgress(
   contentRef: React.RefObject<HTMLDivElement | null>,
   activeTab?: { section: string; tab: string } | null
 ) {
+  const lenis = useLenis();
   const [activeSection, setActiveSection] = useState("");
   const [tocItems, setTocItems] = useState<NoteTOCItem[]>([]);
   const activeSectionRef = useRef<string>("");
@@ -262,8 +264,6 @@ export function useNoteReadingProgress(
       updateActiveSection(id);
       lastClickedIdRef.current = id;
       clickLockUntilRef.current = Date.now() + 1200; // typical smooth-scroll duration
-
-      const lenis = window.lenis;
 
       if (lenis) {
         // Use Lenis scrollTo with target element

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useLenis } from "lenis/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +12,7 @@ interface BackToTopProps {
 
 export function BackToTop({ threshold = 300, className }: BackToTopProps) {
   const [isVisible, setIsVisible] = React.useState(false);
+  const lenis = useLenis();
 
   React.useEffect(() => {
     const updateVisibility = () => {
@@ -26,8 +28,6 @@ export function BackToTop({ threshold = 300, className }: BackToTopProps) {
   }, [threshold]);
 
   const scrollToTop = () => {
-    const lenis = window.lenis;
-
     if (lenis) {
       lenis.scrollTo(0);
       return;
