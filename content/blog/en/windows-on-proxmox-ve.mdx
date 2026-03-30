@@ -49,6 +49,16 @@ crystalfetch --windows-11
 wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
 ```
 
+### ISO Location on the Proxmox Host
+
+Store both the Windows ISO and the VirtIO ISO on the PVE host at:
+
+```bash
+/var/lib/vz/template/iso/
+```
+
+If you download them directly on the Proxmox host, placing them in this directory makes them available in the default `local` storage as ISO images in the web UI.
+
 ## Step 2: Create Virtual Machine
 
 ### VM Configuration
@@ -81,6 +91,19 @@ wget https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-vir
    - Browse to VirtIO drivers ISO
    - Navigate to appropriate folder (e.g., `amd64/w11` for Windows 11 x64)
    - Install storage drivers (VirtIO SCSI)
+
+### Setup Without a Microsoft Account
+
+If Windows 11 setup forces a Microsoft account sign-in during OOBE:
+
+1. Press `Shift + F10` to open Command Prompt
+2. Run:
+
+```bash
+start ms-cxh:localonly
+```
+
+3. Continue creating a local account instead of signing in with a Microsoft account
 
 ### Driver Installation Order
 
