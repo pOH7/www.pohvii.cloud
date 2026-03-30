@@ -47,6 +47,28 @@ test("Blog page is reachable", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("Blog cards show updated date when lastModified exists", async ({
+  page,
+}) => {
+  await page.goto("/en/tag/Proxmox");
+
+  const windowsPostCard = page.locator("article").filter({
+    has: page.getByRole("link", {
+      name: "Installing Windows on Proxmox VE (PVE)",
+    }),
+  });
+
+  await expect(windowsPostCard.getByText("Updated Mar 30, 2026")).toBeVisible();
+});
+
+test("Blog detail shows updated date when lastModified exists", async ({
+  page,
+}) => {
+  await page.goto("/en/blog/installing-windows-on-proxmox-ve-pve-9a943890");
+
+  await expect(page.getByText("Updated Mar 30, 2026")).toBeVisible();
+});
+
 test("Root document does not rely on native smooth scrolling", async ({
   page,
 }) => {

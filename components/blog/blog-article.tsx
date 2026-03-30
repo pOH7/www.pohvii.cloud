@@ -18,6 +18,7 @@ export interface BlogPost {
   image: string;
   video?: string;
   date: string;
+  lastModified?: string;
   readTime: string;
   author: string;
   category: string;
@@ -108,6 +109,7 @@ export function BlogArticle({
           image={post.image}
           {...(post.video && { video: post.video })}
           date={post.date}
+          {...(post.lastModified && { lastModified: post.lastModified })}
           readTime={post.readTime}
           author={post.author}
           category={post.category}

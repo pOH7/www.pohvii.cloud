@@ -21,6 +21,7 @@ export interface BlogFrontmatter {
   title: string;
   description: string;
   date: string;
+  lastModified?: string;
   author?: string;
   category?: string;
   tags?: string[];
@@ -188,6 +189,7 @@ async function buildSelfHealingResult(
     title,
     description: fm.description ?? "",
     date: formatDate(fm.date),
+    ...(fm.lastModified && { lastModified: formatDate(fm.lastModified) }),
     author: fm.author ?? "",
     category: fm.category ?? "",
     tags: fm.tags ?? [],
@@ -317,6 +319,7 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
         title,
         description: fm.description ?? "",
         date: formatDate(fm.date),
+        ...(fm.lastModified && { lastModified: formatDate(fm.lastModified) }),
         author: fm.author ?? "",
         category: fm.category ?? "",
         tags: fm.tags ?? [],

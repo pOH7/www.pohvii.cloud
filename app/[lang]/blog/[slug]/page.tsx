@@ -60,6 +60,7 @@ export async function generateMetadata(
       description: post.description,
       type: "article",
       publishedTime: post.date,
+      ...(post.lastModified && { modifiedTime: post.lastModified }),
       authors: [post.author || "Léon Zhang"],
       url: canonicalUrl, // Always use canonical URL
       images: [
@@ -115,6 +116,7 @@ export default async function BlogDetailPage(
       description: p.description,
       image: p.image,
       date: p.date,
+      ...(p.lastModified && { lastModified: p.lastModified }),
       readTime: p.readTime,
       author: p.author,
       category: p.category,
@@ -129,6 +131,7 @@ export default async function BlogDetailPage(
     image: mdx.meta.image,
     ...(mdx.meta.video && { video: mdx.meta.video }),
     date: mdx.meta.date,
+    ...(mdx.meta.lastModified && { lastModified: mdx.meta.lastModified }),
     readTime: mdx.meta.readTime,
     author: mdx.meta.author,
     category: mdx.meta.category,

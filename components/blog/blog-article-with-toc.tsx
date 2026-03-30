@@ -53,6 +53,7 @@ export function BlogArticleWithTOC({
           image={post.image}
           {...(post.video && { video: post.video })}
           date={post.date}
+          {...(post.lastModified && { lastModified: post.lastModified })}
           readTime={post.readTime}
           author={post.author}
           category={post.category}

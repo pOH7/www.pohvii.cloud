@@ -19,6 +19,7 @@ export interface ArticleHeaderProps {
   image: string;
   video?: string;
   date: string;
+  lastModified?: string;
   readTime: string;
   author: string;
   category: string;
@@ -34,6 +35,7 @@ export function ArticleHeader({
   image,
   video,
   date,
+  lastModified,
   readTime,
   author,
   category,
@@ -73,6 +75,12 @@ export function ArticleHeader({
             <Calendar className="size-3.5" />
             {date}
           </span>
+          {lastModified && (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="size-3.5" />
+              {`Updated ${lastModified}`}
+            </span>
+          )}
           <span className="inline-flex items-center gap-1.5">
             <Clock className="size-3.5" />
             {readTime}

@@ -10,6 +10,7 @@ interface BlogCardProps {
   description: string;
   image: string;
   date: string;
+  lastModified?: string;
   readTime?: string;
   tags: string[];
   lang: string;
@@ -23,6 +24,7 @@ export function BlogCard({
   description,
   image,
   date,
+  lastModified,
   readTime,
   tags,
   lang,
@@ -30,6 +32,7 @@ export function BlogCard({
   layout = "grid",
 }: BlogCardProps) {
   const isListLayout = layout === "list";
+  const displayDate = lastModified ? `Updated ${lastModified}` : date;
 
   return (
     <article
@@ -83,7 +86,7 @@ export function BlogCard({
         <div className="text-muted-foreground mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
           <span className="inline-flex items-center gap-1">
             <Calendar className="size-3.5" />
-            {date}
+            {displayDate}
           </span>
           {readTime && (
             <span className="inline-flex items-center gap-1">

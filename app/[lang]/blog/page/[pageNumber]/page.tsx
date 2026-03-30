@@ -74,6 +74,7 @@ export default async function BlogPaginationPage(
                 `https://placehold.co/400x300/ed254e/ffffff?text=${encodeURIComponent("📝")}`
               }
               date={post.date}
+              {...(post.lastModified && { lastModified: post.lastModified })}
               readTime={post.readTime}
               tags={post.tags.slice(0, 4)}
               lang={lang}
