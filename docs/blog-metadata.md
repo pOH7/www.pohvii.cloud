@@ -17,7 +17,7 @@ All blog posts in this project use MDX format with YAML frontmatter for metadata
 | `author`       | string      | `""` (empty) | The author's name                                   | `"Léon Zhang"`, `"pOH7"`                            |
 | `category`     | string      | `""` (empty) | Primary category for the post                       | `"Web Development"`, `"Spring"`, `"Infrastructure"` |
 | `tags`         | array       | `[]` (empty) | Array of relevant tags for categorization           | `["SEO", "HTML", "Web Development"]`                |
-| `image`        | string      | `""` (empty) | URL to the featured image                           | `"https://images.unsplash.com/..."`                 |
+| `image`        | string      | `""` (empty) | Optional local thumbnail or hero image path         | `"/images/blog/example-cover.png"`                  |
 | `video`        | string      | undefined    | Optional video URL                                  | `"https://youtube.com/..."`                         |
 | `id`           | string      | **REQUIRED** | 8-character unique identifier for self-healing URLs | `"8f4e9d12"`, `"fe8adea7"`                          |
 
@@ -68,7 +68,7 @@ While most fields have defaults, it's strongly recommended to provide them expli
 - **author**: Defaults to empty string
 - **category**: Defaults to empty string
 - **tags**: Defaults to empty array
-- **image**: Defaults to empty string
+- **image**: Defaults to empty string; only local paths starting with `/` are rendered
 - **video**: Only included if explicitly provided
 
 ## Post ID Requirements
@@ -170,8 +170,6 @@ tags:
   - macOS
   - Networking
   - Virtualization
-image: >-
-  https://images.unsplash.com/photo-1496096265110-f83ad7f96608?w=1200&h=600&fit=crop
 id: ef79b0dd
 ---
 ```
@@ -197,8 +195,7 @@ tags:
   - Zero Knowledge
   - OPAQUE
   - Privacy
-image: >-
-  https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=600&fit=crop
+id: fe8adea7
 ---
 ```
 
@@ -235,10 +232,10 @@ Common categories observed in the codebase:
 
 ## Image Guidelines
 
-- Use high-quality images with proper dimensions
-- Unsplash format: `https://images.unsplash.com/photo-[ID]?w=1200&h=600&fit=crop`
-- Standard dimensions: 1200x600 for optimal display
-- Always include images for better visual appeal and SEO
+- Images are optional
+- Only local paths such as `/images/blog/example-cover.png` are supported
+- Standard dimensions: 1200x600 work well when you do include a hero or thumbnail
+- Omit `image` entirely when the post does not need one
 
 ## Processing Pipeline
 

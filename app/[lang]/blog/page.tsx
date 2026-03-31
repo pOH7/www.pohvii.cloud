@@ -26,9 +26,7 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
     slug: p.slug, // Already in self-healing format (slug-id)
     title: p.title,
     description: p.description,
-    image:
-      p.image ||
-      `https://placehold.co/800x400/ed254e/ffffff?text=${encodeURIComponent(p.title)}`,
+    image: p.image,
     date: p.date,
     ...(p.lastModified && { lastModified: p.lastModified }),
     readTime: p.readTime,
@@ -92,10 +90,7 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
               slug={post.slug}
               title={post.title}
               description={post.description}
-              image={
-                post.image ||
-                `https://placehold.co/400x300/ed254e/ffffff?text=${encodeURIComponent("📝")}`
-              }
+              image={post.image}
               date={post.date}
               {...(post.lastModified && { lastModified: post.lastModified })}
               readTime={post.readTime}

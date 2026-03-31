@@ -85,10 +85,7 @@ export default async function TagPaginationPage(
               slug={post.slug}
               title={post.title}
               description={post.description}
-              image={
-                post.image ||
-                "https://placehold.co/400x300/ed254e/ffffff?text=%F0%9F%93%9D"
-              }
+              image={post.image}
               date={post.date}
               {...(post.lastModified && { lastModified: post.lastModified })}
               readTime={post.readTime}

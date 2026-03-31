@@ -44,6 +44,8 @@ export function ArticleHeader({
   onScrollToComments,
   onCopyMarkdown,
 }: ArticleHeaderProps) {
+  const hasMedia = Boolean(video || image);
+
   return (
     <>
       <header className="mb-6 border-b [border-bottom-style:dotted] pb-6">
@@ -107,35 +109,37 @@ export function ArticleHeader({
         </div>
       </header>
 
-      <div className="border-border group relative mb-8 aspect-video overflow-hidden rounded-md border">
-        {video ? (
-          <div className="relative size-full">
-            <video
-              src={video}
-              poster={image}
-              controls
-              muted
-              className="size-full object-cover"
-              preload="metadata"
-            >
-              <track kind="captions" />
-              Your browser does not support the video tag.
-            </video>
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/15 opacity-0 transition-opacity group-hover:opacity-100">
-              <Play className="size-14 text-white" />
+      {hasMedia && (
+        <div className="border-border group relative mb-8 aspect-video overflow-hidden rounded-md border">
+          {video ? (
+            <div className="relative size-full">
+              <video
+                src={video}
+                {...(image ? { poster: image } : {})}
+                controls
+                muted
+                className="size-full object-cover"
+                preload="metadata"
+              >
+                <track kind="captions" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/15 opacity-0 transition-opacity group-hover:opacity-100">
+                <Play className="size-14 text-white" />
+              </div>
             </div>
-          </div>
-        ) : (
-          <Image
-            src={image}
-            alt={title}
-            width={1200}
-            height={600}
-            className="size-full object-cover"
-            priority
-          />
-        )}
-      </div>
+          ) : image ? (
+            <Image
+              src={image}
+              alt={title}
+              width={1200}
+              height={600}
+              className="size-full object-cover"
+              priority
+            />
+          ) : null}
+        </div>
+      )}
 
       <div className="mb-8 border-t [border-top-style:dotted]" />
     </>

@@ -10,6 +10,7 @@ import type { Element, Text } from "hast";
 // Syntax highlighting
 
 import rehypePrettyCode from "rehype-pretty-code";
+import { normalizeBlogImage } from "./blog-image";
 import {
   parseSlugId,
   generateSlug,
@@ -193,7 +194,7 @@ async function buildSelfHealingResult(
     author: fm.author ?? "",
     category: fm.category ?? "",
     tags: fm.tags ?? [],
-    image: fm.image ?? "",
+    image: normalizeBlogImage(fm.image),
     ...(fm.video && { video: fm.video }),
     readTime: readingTime(content).text,
     id: postId,
@@ -323,7 +324,7 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
         author: fm.author ?? "",
         category: fm.category ?? "",
         tags: fm.tags ?? [],
-        image: fm.image ?? "",
+        image: normalizeBlogImage(fm.image),
         ...(fm.video && { video: fm.video }),
         readTime: readingTime(content).text,
         id: postId,

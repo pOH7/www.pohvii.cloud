@@ -33,29 +33,32 @@ export function BlogCard({
 }: BlogCardProps) {
   const isListLayout = layout === "list";
   const displayDate = lastModified ? `Updated ${lastModified}` : date;
+  const hasImage = Boolean(image);
 
   return (
     <article
       data-index={index}
-      className={`bg-card border-border rounded-md border ${
-        isListLayout ? "md:flex" : "flex h-full flex-col"
+      className={`bg-card border-border flex h-full flex-col rounded-md border ${
+        isListLayout && hasImage ? "md:flex-row" : ""
       }`}
     >
-      <div
-        className={`border-border overflow-hidden ${
-          isListLayout
-            ? "aspect-video border-b md:aspect-square md:w-60 md:border-r md:border-b-0"
-            : "aspect-video border-b"
-        }`}
-      >
-        <Image
-          src={image}
-          alt={title}
-          width={isListLayout ? 400 : 800}
-          height={isListLayout ? 400 : 400}
-          className="size-full object-cover"
-        />
-      </div>
+      {image ? (
+        <div
+          className={`border-border overflow-hidden ${
+            isListLayout
+              ? "aspect-video border-b md:aspect-square md:w-60 md:border-r md:border-b-0"
+              : "aspect-video border-b"
+          }`}
+        >
+          <Image
+            src={image}
+            alt={title}
+            width={isListLayout ? 400 : 800}
+            height={isListLayout ? 400 : 400}
+            className="size-full object-cover"
+          />
+        </div>
+      ) : null}
 
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div className="flex flex-wrap gap-2">

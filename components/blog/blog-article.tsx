@@ -136,7 +136,7 @@ export function BlogArticle({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-6xl px-4 pb-10 md:px-8">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-24 md:px-8">
         <MemoizedRelatedPosts posts={relatedPosts} lang={lang} maxPosts={2} />
       </div>
     </div>

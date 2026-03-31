@@ -47,15 +47,17 @@ export function RelatedPosts({
               key={post.slug}
               className="bg-card border-border rounded-md border"
             >
-              <div className="border-border aspect-video overflow-hidden border-b">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={400}
-                  height={200}
-                  className="size-full object-cover"
-                />
-              </div>
+              {post.image ? (
+                <div className="border-border aspect-video overflow-hidden border-b">
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    width={400}
+                    height={200}
+                    className="size-full object-cover"
+                  />
+                </div>
+              ) : null}
               <div className="space-y-3 p-4">
                 <div className="text-muted-foreground flex items-center gap-2 text-xs">
                   <Folder className="text-primary size-3.5" />

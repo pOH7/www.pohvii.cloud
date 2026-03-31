@@ -10,6 +10,7 @@ import type { Element, Text } from "hast";
 // Syntax highlighting
 
 import rehypePrettyCode from "rehype-pretty-code";
+import { normalizeBlogImage } from "./blog-image";
 
 export interface BlogFrontmatter {
   title: string;
@@ -87,7 +88,7 @@ export async function getPostBySlug(lang: string, slug: string) {
     author: fm.author ?? "",
     category: fm.category ?? "",
     tags: fm.tags ?? [],
-    image: fm.image ?? "",
+    image: normalizeBlogImage(fm.image),
     ...(fm.video && { video: fm.video }),
     readTime: readingTime(content).text,
   };
@@ -197,7 +198,7 @@ export function getAllPosts(lang: string): BlogMeta[] {
         author: fm.author ?? "",
         category: fm.category ?? "",
         tags: fm.tags ?? [],
-        image: fm.image ?? "",
+        image: normalizeBlogImage(fm.image),
         ...(fm.video && { video: fm.video }),
         readTime: readingTime(content).text,
       },
