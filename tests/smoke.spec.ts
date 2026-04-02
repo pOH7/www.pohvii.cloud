@@ -23,26 +23,40 @@ async function typeIntoBlogSearch(page: Page, value: string) {
   return search;
 }
 
-test("English homepage renders expected content", async ({ page }) => {
+test("English homepage renders the monograph introduction", async ({
+  page,
+}) => {
   await page.goto("/en");
 
   await expect(page).toHaveURL(/\/en\/?$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(
-    page.getByRole("heading", { name: "Welcome", level: 1 })
+    page.getByRole("heading", {
+      name: "I build systems that should stay understandable after the first launch.",
+      level: 1,
+    })
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "English" })).toBeVisible();
+  await expect(page.getByText("Clarity over theatre")).toBeVisible();
+  await expect(page.getByText("Writing as engineering")).toBeVisible();
+  await expect(page.getByRole("link", { name: "English" })).toHaveCount(0);
 });
 
-test("Chinese homepage renders expected content", async ({ page }) => {
+test("Chinese homepage renders the monograph introduction", async ({
+  page,
+}) => {
   await page.goto("/zh");
 
   await expect(page).toHaveURL(/\/zh\/?$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "zh");
   await expect(
-    page.getByRole("heading", { name: "欢迎", level: 1 })
+    page.getByRole("heading", {
+      name: "我更在意系统在第一次上线之后，是否仍然容易理解和修改。",
+      level: 1,
+    })
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "中文" })).toBeVisible();
+  await expect(page.getByText("清晰胜过表演")).toBeVisible();
+  await expect(page.getByText("写作也是工程的一部分")).toBeVisible();
+  await expect(page.getByRole("link", { name: "中文" })).toHaveCount(0);
 });
 
 test("Blog page is reachable", async ({ page }) => {
