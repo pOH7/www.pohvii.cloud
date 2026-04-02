@@ -72,38 +72,32 @@ test("Blog index metadata stays scoped to the blog and exposes discovery control
   );
 });
 
-test("Blog discovery keeps hot tags compact and links to the dedicated tag page", async ({
+test("Blog page no longer renders the duplicated hot tags section", async ({
   page,
 }) => {
   await page.goto("/en/blog");
 
-  const hotTags = page.getByRole("complementary", { name: "Hot tags" });
-  await expect(hotTags).toBeVisible();
-  await expect(hotTags.getByRole("button")).toHaveCount(5);
   await expect(
-    hotTags.getByRole("link", { name: "More tags" })
-  ).toHaveAttribute("href", "/en/tag/");
+    page.getByRole("complementary", { name: "Hot tags" })
+  ).toHaveCount(0);
 });
 
-test("Desktop hot tags rail sits outside the centered blog column", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1600, height: 1200 });
+test("Blog index paginates the unfiltered post list", async ({ page }) => {
   await page.goto("/en/blog");
 
-  const mainColumn = page.getByTestId("blog-discovery-main");
-  const hotTagsRail = page.getByTestId("blog-hot-tags-rail");
-
-  const [mainBox, railBox] = await Promise.all([
-    mainColumn.boundingBox(),
-    hotTagsRail.boundingBox(),
-  ]);
-
-  expect(mainBox).not.toBeNull();
-  expect(railBox).not.toBeNull();
-  expect(
-    (railBox?.x ?? 0) - ((mainBox?.x ?? 0) + (mainBox?.width ?? 0))
-  ).toBeGreaterThanOrEqual(24);
+  await expect(
+    page.getByRole("navigation", { name: "pagination" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Essential Algorithms and Data Structures: A Comprehensive Programming Guide",
+    })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("link", {
+      name: "Go to next page",
+    })
+  ).toHaveAttribute("href", "/en/blog/page/2");
 });
 
 test("Blog search narrows the visible article list", async ({ page }) => {
@@ -126,6 +120,9 @@ test("Blog search narrows the visible article list", async ({ page }) => {
     page.getByRole("link", {
       name: "Fix `brew upgrade codex` When Homebrew Says the Latest Version Is Already Installed",
     })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("navigation", { name: "pagination" })
   ).toHaveCount(0);
 });
 
@@ -185,18 +182,18 @@ test("Blog post suggestions navigate to the selected article", async ({
   ).toBeVisible();
 });
 
-test("Choosing a hot tag keeps the search input editable", async ({ page }) => {
+test("Choosing a tag suggestion keeps the search input editable", async ({
+  page,
+}) => {
   await page.goto("/en/blog");
 
-  await page
-    .getByRole("button", { name: /#Next\.js/i })
-    .first()
-    .click();
+  const search = await typeIntoBlogSearch(page, "#next");
+  const suggestions = page.getByRole("listbox", { name: "Search suggestions" });
+
+  await suggestions.getByRole("button", { name: "Next.js" }).click();
   await page.keyboard.type("x");
 
-  await expect(
-    page.getByRole("searchbox", { name: "Search articles" })
-  ).toHaveValue("#Next.jsx");
+  await expect(search).toHaveValue("#Next.jsx");
 });
 
 test("Blog search combines a tag token with trailing keywords", async ({

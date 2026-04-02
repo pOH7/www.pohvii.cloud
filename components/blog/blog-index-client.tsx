@@ -6,15 +6,24 @@ import { ArrowRight, Search, Rss } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BlogCard } from "@/components/blog/blog-card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import type { BlogDiscoveryPost, BlogDiscoveryTag } from "@/lib/blog-feed";
 
 interface BlogIndexClientProps {
   lang: string;
   posts: BlogDiscoveryPost[];
   tags: BlogDiscoveryTag[];
+  currentPage?: number;
 }
 
-const HOT_TAG_LIMIT = 5;
+export const BLOG_POSTS_PER_PAGE = 10;
 const TAG_SUGGESTION_LIMIT = 6;
 const POST_SUGGESTION_LIMIT = 3;
 
@@ -36,64 +45,12 @@ function dedupeTagTokens(tokens: string[]) {
   });
 }
 
-interface HotTagsRailProps {
-  lang: string;
-  hotTags: BlogDiscoveryTag[];
-  activeQuery: string;
-  applyTagQuery: (tagName: string) => void;
-  className?: string;
-  testId?: string;
-}
-
-function HotTagsRail({
+export function BlogIndexClient({
   lang,
-  hotTags,
-  activeQuery,
-  applyTagQuery,
-  className,
-  testId,
-}: HotTagsRailProps) {
-  return (
-    <aside
-      aria-label="Hot tags"
-      {...(testId ? { "data-testid": testId } : {})}
-      className={`bg-card border-border rounded-md border p-3 ${className ?? ""}`}
-    >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold">Hot tags</h2>
-        <Link
-          href={`/${lang}/tag/`}
-          className="text-primary text-sm font-medium no-underline"
-        >
-          More tags
-        </Link>
-      </div>
-
-      <div className="flex flex-wrap gap-2 lg:flex-col">
-        {hotTags.map((tag) => (
-          <button
-            key={tag.name}
-            type="button"
-            aria-pressed={activeQuery === `#${tag.name.toLowerCase()}`}
-            onClick={() => applyTagQuery(tag.name)}
-            className={`rounded-sm border px-3 py-2 text-left text-sm transition-colors ${
-              activeQuery === `#${tag.name.toLowerCase()}`
-                ? "bg-primary text-primary-foreground border-primary"
-                : "border-border hover:bg-accent"
-            }`}
-          >
-            <span className="block font-medium">#{tag.name}</span>
-            <span className="text-muted-foreground block text-xs">
-              {tag.count} articles
-            </span>
-          </button>
-        ))}
-      </div>
-    </aside>
-  );
-}
-
-export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
+  posts,
+  tags,
+  currentPage = 1,
+}: BlogIndexClientProps) {
   const [query, setQuery] = useState("");
   const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
 
@@ -111,7 +68,6 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
   const isTagMode = tagTerms.length > 0;
   const shouldSuggestTags =
     activeTagTerm.length > 0 || trimmedQuery === "#" || !isTagMode;
-  const hotTags = tags.slice(0, HOT_TAG_LIMIT);
 
   const tagSuggestions = shouldSuggestTags
     ? (activeTagTerm || trimmedQuery === "#"
@@ -164,6 +120,14 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
 
     return matchesTags && matchesText;
   });
+  const hasActiveFilters = trimmedQuery.length > 0;
+  const totalPages = Math.ceil(posts.length / BLOG_POSTS_PER_PAGE);
+  const pageStartIndex = (currentPage - 1) * BLOG_POSTS_PER_PAGE;
+  const visiblePosts = hasActiveFilters
+    ? filteredPosts
+    : posts.slice(pageStartIndex, pageStartIndex + BLOG_POSTS_PER_PAGE);
+  const visibleRangeStart = posts.length === 0 ? 0 : pageStartIndex + 1;
+  const visibleRangeEnd = pageStartIndex + visiblePosts.length;
 
   const updateQuery = (nextValue: string) => {
     setQuery(nextValue);
@@ -218,6 +182,15 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
     setQuery("");
     setIsSuggestionOpen(false);
   };
+  const paginationWindow = Array.from(
+    { length: Math.min(totalPages, 5) },
+    (_, index) => {
+      if (totalPages <= 5) return index + 1;
+      if (currentPage <= 3) return index + 1;
+      if (currentPage >= totalPages - 2) return totalPages - 4 + index;
+      return currentPage - 2 + index;
+    }
+  );
 
   return (
     <section className="relative px-4 py-12 md:px-8">
@@ -344,25 +317,18 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
 
             <div className="flex items-center justify-between gap-3 text-sm">
               <p className="text-muted-foreground">
-                {filteredPosts.length} article
-                {filteredPosts.length === 1 ? "" : "s"} shown
+                {hasActiveFilters
+                  ? `${filteredPosts.length} article${filteredPosts.length === 1 ? "" : "s"} shown`
+                  : `Showing ${visibleRangeStart}-${visibleRangeEnd} of ${posts.length} articles`}
               </p>
               <p className="text-muted-foreground text-xs">
                 {isTagMode ? "Tag search mode" : "Keyword search"}
               </p>
             </div>
           </div>
-
-          <HotTagsRail
-            lang={lang}
-            hotTags={hotTags}
-            activeQuery={normalizedQuery}
-            applyTagQuery={applyTagQuery}
-            className="mt-4 min-[1520px]:hidden"
-          />
         </div>
 
-        {filteredPosts.length === 0 ? (
+        {visiblePosts.length === 0 ? (
           <div className="border-border bg-card rounded-md border p-8 text-center">
             <p className="text-lg font-medium">
               No articles match your filters.
@@ -381,7 +347,7 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
           </div>
         ) : (
           <div className="space-y-6">
-            {filteredPosts.map((post, index) => (
+            {visiblePosts.map((post, index) => (
               <BlogCard
                 key={post.slug}
                 slug={post.slug}
@@ -399,16 +365,60 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
             ))}
           </div>
         )}
-      </div>
 
-      <HotTagsRail
-        lang={lang}
-        hotTags={hotTags}
-        activeQuery={normalizedQuery}
-        applyTagQuery={applyTagQuery}
-        testId="blog-hot-tags-rail"
-        className="absolute top-12 left-[calc(50%+32rem+2rem)] hidden w-56 min-[1520px]:block"
-      />
+        {!hasActiveFilters && totalPages > 1 ? (
+          <div className="mt-10 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={
+                      currentPage === 1
+                        ? "#"
+                        : currentPage === 2
+                          ? `/${lang}/blog`
+                          : `/${lang}/blog/page/${currentPage - 1}`
+                    }
+                    className={
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
+
+                {paginationWindow.map((pageNumber) => (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href={
+                        pageNumber === 1
+                          ? `/${lang}/blog`
+                          : `/${lang}/blog/page/${pageNumber}`
+                      }
+                      isActive={currentPage === pageNumber}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href={
+                      currentPage === totalPages
+                        ? "#"
+                        : `/${lang}/blog/page/${currentPage + 1}`
+                    }
+                    className={
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

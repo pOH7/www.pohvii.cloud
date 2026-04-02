@@ -13,7 +13,7 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
 
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <BlogIndexClient lang={lang} posts={posts} tags={tags} />
+      <BlogIndexClient lang={lang} posts={posts} tags={tags} currentPage={1} />
       <TagLinksFooter allTags={footerTags} lang={lang} />
     </div>
   );
