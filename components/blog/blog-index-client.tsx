@@ -18,6 +18,24 @@ const HOT_TAG_LIMIT = 5;
 const TAG_SUGGESTION_LIMIT = 6;
 const POST_SUGGESTION_LIMIT = 3;
 
+function matchesAllTerms(haystack: string, terms: string[]) {
+  return terms.every((term) => haystack.includes(term));
+}
+
+function dedupeTagTokens(tokens: string[]) {
+  const seenTags = new Set<string>();
+
+  return tokens.filter((token) => {
+    if (!token.startsWith("#")) return true;
+
+    const normalizedToken = token.toLowerCase();
+    if (seenTags.has(normalizedToken)) return false;
+
+    seenTags.add(normalizedToken);
+    return true;
+  });
+}
+
 interface HotTagsRailProps {
   lang: string;
   hotTags: BlogDiscoveryTag[];
@@ -81,30 +99,47 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
 
   const trimmedQuery = query.trim();
   const normalizedQuery = trimmedQuery.toLowerCase();
-  const isTagMode = normalizedQuery.startsWith("#");
-  const normalizedTagQuery = isTagMode ? normalizedQuery.slice(1).trim() : "";
-  const normalizedTextQuery = isTagMode ? "" : normalizedQuery;
+  const queryTokens = normalizedQuery.split(/\s+/).filter(Boolean);
+  const tagTerms = queryTokens
+    .filter((token) => token.startsWith("#"))
+    .map((token) => token.slice(1))
+    .filter(Boolean);
+  const textTerms = queryTokens.filter((token) => !token.startsWith("#"));
+  const lastToken = queryTokens.at(-1) ?? "";
+  const activeTagTerm = lastToken.startsWith("#") ? lastToken.slice(1) : "";
+  const activeTextTerm = lastToken.startsWith("#") ? "" : lastToken;
+  const isTagMode = tagTerms.length > 0;
+  const shouldSuggestTags =
+    activeTagTerm.length > 0 || trimmedQuery === "#" || !isTagMode;
   const hotTags = tags.slice(0, HOT_TAG_LIMIT);
 
-  const tagSuggestions = (
-    isTagMode
-      ? tags.filter((tag) => {
-          if (!normalizedTagQuery) return true;
-          return tag.name.toLowerCase().includes(normalizedTagQuery);
-        })
-      : tags.filter((tag) => {
-          if (!normalizedTextQuery) return false;
-          return tag.name.toLowerCase().includes(normalizedTextQuery);
-        })
-  ).slice(0, TAG_SUGGESTION_LIMIT);
+  const tagSuggestions = shouldSuggestTags
+    ? (activeTagTerm || trimmedQuery === "#"
+        ? tags.filter((tag) => {
+            if (!activeTagTerm) return true;
+            return tag.name.toLowerCase().includes(activeTagTerm);
+          })
+        : tags.filter((tag) => {
+            if (!activeTextTerm) return false;
+            return tag.name.toLowerCase().includes(activeTextTerm);
+          })
+      ).slice(0, TAG_SUGGESTION_LIMIT)
+    : [];
 
   const postSuggestions = posts
     .filter((post) => {
-      if (!normalizedTextQuery) return false;
-      return [post.title, post.description]
+      if (textTerms.length === 0) return false;
+
+      const postHaystack = [post.title, post.description, ...post.tags]
         .join(" ")
-        .toLowerCase()
-        .includes(normalizedTextQuery);
+        .toLowerCase();
+      const matchesTags =
+        tagTerms.length === 0 ||
+        tagTerms.every((term) =>
+          post.tags.some((tag) => tag.toLowerCase().includes(term))
+        );
+
+      return matchesTags && matchesAllTerms(postHaystack, textTerms);
     })
     .slice(0, POST_SUGGESTION_LIMIT);
 
@@ -114,19 +149,20 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
     (tagSuggestions.length > 0 || postSuggestions.length > 0);
 
   const filteredPosts = posts.filter((post) => {
-    if (isTagMode) {
-      if (!normalizedTagQuery) return true;
-      return post.tags.some((tag) =>
-        tag.toLowerCase().includes(normalizedTagQuery)
-      );
-    }
+    if (tagTerms.length === 0 && textTerms.length === 0) return true;
 
-    if (!normalizedTextQuery) return true;
-
-    return [post.title, post.description, ...post.tags]
+    const postHaystack = [post.title, post.description, ...post.tags]
       .join(" ")
-      .toLowerCase()
-      .includes(normalizedTextQuery);
+      .toLowerCase();
+    const matchesTags =
+      tagTerms.length === 0 ||
+      tagTerms.every((term) =>
+        post.tags.some((tag) => tag.toLowerCase().includes(term))
+      );
+    const matchesText =
+      textTerms.length === 0 || matchesAllTerms(postHaystack, textTerms);
+
+    return matchesTags && matchesText;
   });
 
   const updateQuery = (nextValue: string) => {
@@ -134,9 +170,48 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
     setIsSuggestionOpen(nextValue.trim().length > 0);
   };
 
+  const focusSearchInput = (nextValue: string) => {
+    const moveCaretToEnd = () => {
+      const input = document.getElementById("blog-index-search");
+      if (!(input instanceof HTMLInputElement)) return;
+
+      input.focus();
+      input.setSelectionRange(nextValue.length, nextValue.length);
+    };
+
+    moveCaretToEnd();
+    window.requestAnimationFrame(moveCaretToEnd);
+  };
+
+  const buildQueryWithTag = (tagName: string) => {
+    const nextTagToken = `#${tagName}`;
+    const queryTokens = query.split(/\s+/).filter(Boolean);
+
+    if (queryTokens.length === 0) return nextTagToken;
+
+    const hasTrailingWhitespace = /\s$/.test(query);
+
+    if (hasTrailingWhitespace) {
+      return dedupeTagTokens([...queryTokens, nextTagToken]).join(" ");
+    }
+
+    const nextTokens = [...queryTokens];
+    const lastIndex = nextTokens.length - 1;
+
+    if (nextTokens[lastIndex]?.startsWith("#")) {
+      nextTokens[lastIndex] = nextTagToken;
+    } else {
+      nextTokens.push(nextTagToken);
+    }
+
+    return dedupeTagTokens(nextTokens).join(" ");
+  };
+
   const applyTagQuery = (tagName: string) => {
-    setQuery(`#${tagName}`);
+    const nextValue = buildQueryWithTag(tagName);
+    setQuery(nextValue);
     setIsSuggestionOpen(false);
+    focusSearchInput(nextValue);
   };
 
   const resetFilters = () => {
@@ -245,7 +320,7 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
                     </div>
                   ) : null}
 
-                  {!isTagMode && postSuggestions.length > 0 ? (
+                  {postSuggestions.length > 0 ? (
                     <div>
                       <p className="text-muted-foreground px-2 pb-1 text-[11px] font-semibold tracking-[0.18em] uppercase">
                         Posts
@@ -255,7 +330,6 @@ export function BlogIndexClient({ lang, posts, tags }: BlogIndexClientProps) {
                           <Link
                             key={post.slug}
                             href={`/${lang}/blog/${post.slug}`}
-                            onMouseDown={() => setIsSuggestionOpen(false)}
                             className="hover:bg-accent block rounded-sm p-2 text-sm"
                           >
                             {post.title}

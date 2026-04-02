@@ -16,6 +16,13 @@ async function expectTargetNearHeaderOffset(page: Page, id: string) {
   expect(top).toBeLessThanOrEqual(HEADER_OFFSET_MAX);
 }
 
+async function typeIntoBlogSearch(page: Page, value: string) {
+  const search = page.getByRole("searchbox", { name: "Search articles" });
+  await search.click();
+  await search.pressSequentially(value);
+  return search;
+}
+
 test("English homepage renders expected content", async ({ page }) => {
   await page.goto("/en");
 
@@ -102,7 +109,7 @@ test("Desktop hot tags rail sits outside the centered blog column", async ({
 test("Blog search narrows the visible article list", async ({ page }) => {
   await page.goto("/en/blog");
 
-  await page.getByRole("searchbox", { name: "Search articles" }).fill("Lenis");
+  await typeIntoBlogSearch(page, "Lenis");
 
   const lenisArticle = page.locator("article").filter({
     has: page.getByRole("link", {
@@ -127,8 +134,7 @@ test("Hash-prefixed blog search shows tag suggestions and filters by the chosen 
 }) => {
   await page.goto("/en/blog");
 
-  const search = page.getByRole("searchbox", { name: "Search articles" });
-  await search.fill("#rea");
+  const search = await typeIntoBlogSearch(page, "#rea");
 
   const suggestions = page.getByRole("listbox", { name: "Search suggestions" });
   await expect(
@@ -148,6 +154,97 @@ test("Hash-prefixed blog search shows tag suggestions and filters by the chosen 
       name: "Fix `brew upgrade codex` When Homebrew Says the Latest Version Is Already Installed",
     })
   ).toHaveCount(0);
+});
+
+test("Blog post suggestions navigate to the selected article", async ({
+  page,
+}) => {
+  await page.goto("/en/blog");
+
+  await typeIntoBlogSearch(page, "Lenis");
+
+  const suggestions = page.getByRole("listbox", { name: "Search suggestions" });
+  await expect(
+    suggestions.getByRole("link", {
+      name: "How to Implement Lenis in Next.js App Router",
+    })
+  ).toBeVisible();
+
+  await suggestions
+    .getByRole("link", { name: "How to Implement Lenis in Next.js App Router" })
+    .click();
+
+  await expect(page).toHaveURL(
+    /\/en\/blog\/how-to-implement-lenis-in-nextjs-app-router-1750f15b\/?$/
+  );
+  await expect(
+    page.getByRole("heading", {
+      name: "How to Implement Lenis in Next.js App Router",
+      level: 1,
+    })
+  ).toBeVisible();
+});
+
+test("Choosing a hot tag keeps the search input editable", async ({ page }) => {
+  await page.goto("/en/blog");
+
+  await page
+    .getByRole("button", { name: /#Next\.js/i })
+    .first()
+    .click();
+  await page.keyboard.type("x");
+
+  await expect(
+    page.getByRole("searchbox", { name: "Search articles" })
+  ).toHaveValue("#Next.jsx");
+});
+
+test("Blog search combines a tag token with trailing keywords", async ({
+  page,
+}) => {
+  await page.goto("/en/blog");
+
+  await typeIntoBlogSearch(page, "#macOS VPN");
+
+  const suggestions = page.getByRole("listbox", { name: "Search suggestions" });
+  await expect(
+    suggestions.getByRole("link", {
+      name: "Routing Home LAN Traffic Through WireGuard VPN",
+    })
+  ).toBeVisible();
+  await expect(
+    page
+      .locator("article")
+      .filter({
+        has: page.getByRole("link", {
+          name: "Routing Home LAN Traffic Through WireGuard VPN",
+        }),
+      })
+      .getByRole("link", {
+        name: "Routing Home LAN Traffic Through WireGuard VPN",
+      })
+  ).toBeVisible();
+  await expect(suggestions.getByRole("button", { name: "VPN" })).toHaveCount(0);
+  await expect(
+    page.getByRole("link", {
+      name: "How to Clear All Blocked Contacts in iOS: The macOS Mail App Solution",
+    })
+  ).toHaveCount(0);
+});
+
+test("Selecting a tag suggestion preserves earlier tags", async ({ page }) => {
+  await page.goto("/en/blog");
+
+  const search = await typeIntoBlogSearch(page, "#macOS #v");
+  const suggestions = page.getByRole("listbox", { name: "Search suggestions" });
+
+  await expect(
+    suggestions.getByRole("button", { name: "Virtualization" })
+  ).toBeVisible();
+
+  await suggestions.getByRole("button", { name: "Virtualization" }).click();
+
+  await expect(search).toHaveValue("#macOS #Virtualization");
 });
 
 test("Tag index metadata stays scoped to the tag hub", async ({ page }) => {
