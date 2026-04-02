@@ -14,6 +14,8 @@ import { AnimatedSectionHeader } from "@/components/blog/animated-section-header
 import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
+import type { Metadata } from "next";
+import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 const POSTS_PER_PAGE = 10;
 
@@ -144,13 +146,23 @@ export default async function TagPage(
 
 export async function generateMetadata(
   props: PageProps<"/[lang]/tag/[tagName]">
-) {
-  const { tagName } = await props.params;
+): Promise<Metadata> {
+  const { lang, tagName } = await props.params;
   const decodedTagName = decodeURIComponent(tagName);
-  return {
+  const encodedTagName = encodeURIComponent(decodedTagName);
+  const description = `Discover all articles about ${decodedTagName}. Learn about web development, programming, and more.`;
+
+  return buildListingMetadata({
     title: `${decodedTagName} Articles`,
-    description: `Discover all articles about ${decodedTagName}. Learn about web development, programming, and more.`,
-  };
+    description,
+    canonicalPath: `/${lang}/tag/${encodedTagName}/`,
+    alternates: buildLanguageAlternates(
+      supportedLangs,
+      (supportedLang) => `/${supportedLang}/tag/${encodedTagName}/`
+    ),
+    image: "/og-blog.svg",
+    twitterImage: "/twitter-blog.svg",
+  });
 }
 
 export function generateStaticParams() {

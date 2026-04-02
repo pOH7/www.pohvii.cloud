@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArticleHeader } from "./article-header";
 import { TableOfContents } from "./table-of-contents";
 import { GiscusComments } from "./giscus-comments";
+import { KeepReading } from "./keep-reading";
 import { RelatedPosts } from "./related-posts";
 import { useReadingProgress } from "@/hooks/use-reading-progress";
 
@@ -30,6 +31,10 @@ export interface BlogArticleProps {
   post: BlogPost;
   markdownSource: string;
   relatedPosts?: BlogPost[];
+  adjacentPosts?: {
+    previous?: BlogPost;
+    next?: BlogPost;
+  };
   lang?: string;
   children?: React.ReactNode;
 }
@@ -38,25 +43,43 @@ export function BlogArticle({
   post,
   markdownSource,
   relatedPosts = [],
+  adjacentPosts,
   lang = "en",
   children,
 }: BlogArticleProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const lenis = useLenis();
 
+  const getScrollOffset = useCallback((element: HTMLElement) => {
+    const computed = window.getComputedStyle(element);
+    const parsed = parseFloat(
+      (computed.scrollMarginTop as unknown as string) || "0"
+    );
+
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 96;
+  }, []);
+
   const scrollToComments = useCallback(() => {
     const commentsSection = document.getElementById("comments");
     if (commentsSection) {
+      const headerOffset = getScrollOffset(commentsSection);
+      const targetTop = Math.max(
+        0,
+        window.scrollY +
+          commentsSection.getBoundingClientRect().top -
+          headerOffset
+      );
+
       if (lenis) {
-        lenis.scrollTo(commentsSection, {
+        lenis.scrollTo(targetTop, {
           duration: 1.2,
         });
         return;
       }
 
-      commentsSection.scrollIntoView({ block: "start", inline: "nearest" });
+      window.scrollTo({ top: targetTop });
     }
-  }, [lenis]);
+  }, [getScrollOffset, lenis]);
 
   const copyMarkdown = useCallback(async (): Promise<boolean> => {
     const titleMarkdown = `# ${post.title}`.trim();
@@ -129,6 +152,16 @@ export function BlogArticle({
       </div>
 
       <MemoizedArticleFooter category={post.category} lang={lang} />
+
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
+        <MemoizedKeepReading
+          {...(adjacentPosts?.previous
+            ? { previous: adjacentPosts.previous }
+            : {})}
+          {...(adjacentPosts?.next ? { next: adjacentPosts.next } : {})}
+          lang={lang}
+        />
+      </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <div id="comments" className="scroll-mt-24">
@@ -209,5 +242,6 @@ const MemoizedBlogArticleContent = memo(BlogArticleContent);
 const MemoizedArticleTOC = memo(ArticleTOC);
 const MemoizedArticleHeader = memo(ArticleHeader);
 const MemoizedArticleFooter = memo(ArticleFooter);
+const MemoizedKeepReading = memo(KeepReading);
 const MemoizedGiscusComments = memo(GiscusComments);
 const MemoizedRelatedPosts = memo(RelatedPosts);

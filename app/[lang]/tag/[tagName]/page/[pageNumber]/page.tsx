@@ -14,6 +14,8 @@ import { AnimatedSectionHeader } from "@/components/blog/animated-section-header
 import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
+import type { Metadata } from "next";
+import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 const POSTS_PER_PAGE = 10;
 
@@ -175,14 +177,25 @@ export default async function TagPaginationPage(
 
 export async function generateMetadata(
   props: PageProps<"/[lang]/tag/[tagName]/page/[pageNumber]">
-) {
-  const { tagName, pageNumber: pageNumberStr } = await props.params;
+): Promise<Metadata> {
+  const { lang, tagName, pageNumber: pageNumberStr } = await props.params;
   const decodedTagName = decodeURIComponent(tagName);
+  const encodedTagName = encodeURIComponent(decodedTagName);
   const pageNumber = parseInt(pageNumberStr, 10);
-  return {
+  const description = `Discover articles about ${decodedTagName} - Page ${pageNumber}. Learn about web development, programming, and more.`;
+
+  return buildListingMetadata({
     title: `${decodedTagName} Articles - Page ${pageNumber}`,
-    description: `Discover articles about ${decodedTagName} - Page ${pageNumber}. Learn about web development, programming, and more.`,
-  };
+    description,
+    canonicalPath: `/${lang}/tag/${encodedTagName}/page/${pageNumber}/`,
+    alternates: buildLanguageAlternates(
+      supportedLangs,
+      (supportedLang) =>
+        `/${supportedLang}/tag/${encodedTagName}/page/${pageNumber}/`
+    ),
+    image: "/og-blog.svg",
+    twitterImage: "/twitter-blog.svg",
+  });
 }
 
 export function generateStaticParams() {

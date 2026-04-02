@@ -55,18 +55,10 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL("https://www.pohvii.cloud"),
-  alternates: {
-    canonical: "/",
-    languages: {
-      "en-US": "/en",
-      "zh-CN": "/zh",
-    },
-  },
   openGraph: {
     title: "Léon Zhang - Software Engineer & Tech Writer",
     description:
       "Software Engineer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.",
-    url: "https://www.pohvii.cloud",
     siteName: "Léon Zhang",
     images: [
       {

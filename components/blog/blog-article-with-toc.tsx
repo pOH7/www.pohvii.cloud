@@ -24,14 +24,26 @@ export function BlogArticleWithTOC({
   const scrollToComments = () => {
     const commentsSection = document.getElementById("comments");
     if (commentsSection) {
+      const computed = window.getComputedStyle(commentsSection);
+      const parsed = parseFloat(
+        (computed.scrollMarginTop as unknown as string) || "0"
+      );
+      const headerOffset = Number.isFinite(parsed) && parsed >= 0 ? parsed : 96;
+      const targetTop = Math.max(
+        0,
+        window.scrollY +
+          commentsSection.getBoundingClientRect().top -
+          headerOffset
+      );
+
       if (lenis) {
-        lenis.scrollTo(commentsSection, {
+        lenis.scrollTo(targetTop, {
           duration: 1.2,
         });
         return;
       }
 
-      commentsSection.scrollIntoView({ block: "start", inline: "nearest" });
+      window.scrollTo({ top: targetTop });
     }
   };
 

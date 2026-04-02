@@ -26,6 +26,15 @@ export function useNoteReadingProgress(
   const clickLockUntilRef = useRef<number>(0);
   const lastClickedIdRef = useRef<string>("");
 
+  const getScrollOffset = (element: HTMLElement) => {
+    const computed = window.getComputedStyle(element);
+    const parsed = parseFloat(
+      (computed.scrollMarginTop as unknown as string) || "0"
+    );
+
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 96;
+  };
+
   const updateActiveSection = useCallback((nextSection: string) => {
     if (nextSection === activeSectionRef.current) return;
     activeSectionRef.current = nextSection;
@@ -260,21 +269,24 @@ export function useNoteReadingProgress(
   const performScroll = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
+      const headerOffset = getScrollOffset(element);
+      const targetTop = Math.max(
+        0,
+        window.scrollY + element.getBoundingClientRect().top - headerOffset
+      );
+
       // Lock active state on click so the next section isn't highlighted
       updateActiveSection(id);
       lastClickedIdRef.current = id;
       clickLockUntilRef.current = Date.now() + 1200; // typical smooth-scroll duration
 
       if (lenis) {
-        // Use Lenis scrollTo with target element
-        lenis.scrollTo(element, {
+        lenis.scrollTo(targetTop, {
           duration: 1.2,
         });
       } else {
-        // Fallback to immediate native scrolling if Lenis is unavailable.
-        element.scrollIntoView({
-          block: "start",
-          inline: "nearest",
+        window.scrollTo({
+          top: targetTop,
         });
       }
 

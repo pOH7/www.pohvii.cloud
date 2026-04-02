@@ -1,6 +1,8 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getDictionary } from "./dictionaries";
 import { supportedLangs } from "@/lib/i18n";
+import { buildLanguageAlternates } from "@/lib/seo";
 
 export default async function HomePage(props: PageProps<"/[lang]">) {
   const { lang } = await props.params;
@@ -39,6 +41,47 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
       </div>
     </div>
   );
+}
+
+export async function generateMetadata(
+  props: PageProps<"/[lang]">
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  const title = lang === "zh" ? "首页" : "Home";
+  const description =
+    "Software Engineer specializing in modern web technologies. Sharing insights on Java, Spring Boot, Node.js, React, and software engineering best practices.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/`,
+      languages: buildLanguageAlternates(
+        supportedLangs,
+        (supportedLang) => `/${supportedLang}/`
+      ),
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `https://www.pohvii.cloud/${lang}/`,
+      images: [
+        {
+          url: "/og-image.svg",
+          width: 1200,
+          height: 630,
+          alt: "Léon Zhang - Software Engineer",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/twitter-image.svg"],
+    },
+  };
 }
 
 export function generateStaticParams() {

@@ -1,12 +1,18 @@
 import { betterAuth } from "better-auth";
 
+const authBaseURL =
+  process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+
 /**
  * Better-Auth configuration with GitHub OAuth provider
  * Uses JWT-based sessions (no database required)
  */
 export const auth = betterAuth({
-  // Base URL for the auth API
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  ...(authBaseURL ? { baseURL: authBaseURL } : {}),
+  basePath: "/api/auth",
+  advanced: {
+    skipTrailingSlashes: true,
+  },
 
   // Secret key for signing JWTs (must be at least 32 characters)
   secret:

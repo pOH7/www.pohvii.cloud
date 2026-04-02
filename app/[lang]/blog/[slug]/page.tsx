@@ -5,6 +5,7 @@ import {
   getPostBySlugId,
   generateSelfHealingStaticParams,
   getAllPostsWithIds,
+  getAdjacentPosts,
 } from "@/lib/self-healing-blog";
 import { parseSlugId, generateSlug } from "@/lib/post-id";
 import { supportedLangs } from "@/lib/i18n";
@@ -16,6 +17,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
 import type { Element, Text } from "hast";
 import type { Metadata } from "next";
+import { buildBlogPostingJsonLd } from "@/lib/seo";
 // Syntax highlighting
 import rehypePrettyCode from "rehype-pretty-code";
 
@@ -107,8 +109,9 @@ export default async function BlogDetailPage(
   const mdx = selfHealingResult;
 
   const all = getAllPostsWithIds(lang);
+  const adjacentPosts = getAdjacentPosts(all, mdx.meta.slug, mdx.meta.id);
   const relatedPosts: BlogPost[] = all
-    .filter((p) => p.slug !== mdx.meta.slug)
+    .filter((p) => p.id !== mdx.meta.id && p.slug !== mdx.meta.slug)
     .slice(0, 2)
     .map((p) => ({
       slug: p.slug,
@@ -139,90 +142,103 @@ export default async function BlogDetailPage(
     id: mdx.meta.id,
   };
 
+  const jsonLd = buildBlogPostingJsonLd({
+    post,
+    lang,
+    canonicalUrl: selfHealingResult.canonicalUrl,
+  });
+
   return (
-    <BlogArticle
-      post={post}
-      relatedPosts={relatedPosts}
-      lang={lang}
-      markdownSource={mdx.rawContent}
-    >
-      <MDXRemote
-        source={mdx.rawContent}
-        components={mdxComponents}
-        options={{
-          mdxOptions: {
-            remarkPlugins: [remarkGfm],
-            rehypePlugins: [
-              // Ensure slug IDs are based on the original text (without numbers)
-              rehypeSlug,
-              // Then prefix visible headings with hierarchical numbers
-              rehypeNumberedHeadings,
-              // Syntax highlighting via Shiki
-              [
-                rehypePrettyCode,
-                {
-                  keepBackground: false,
-                  theme: {
-                    light: "github-light-default",
-                    dark: "github-dark-default",
-                  },
-                  onVisitLine(node: Element) {
-                    // Prevent lines from collapsing so copy/select keeps structure
-                    if (node.children.length === 0) {
-                      const space: Text = { type: "text", value: " " };
-                      node.children = [space];
-                    }
-                    // Diff-style detection: + added, - removed, ~ changed
-                    const first = node.children[0];
-                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                    if (first && "type" in first && first.type === "text") {
-                      const v = first.value;
-                      const mark = v.trimStart().charAt(0);
-                      const leading = v.match(/^\s*/)?.[0] || "";
-                      if (
-                        mark === "+" ||
-                        mark === "-" ||
-                        mark === "~" ||
-                        mark === "!"
-                      ) {
-                        const map: Record<string, string> = {
-                          "+": "add",
-                          "-": "remove",
-                          "~": "change",
-                          "!": "change",
-                        };
-                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                        if (!node.properties) node.properties = {};
-                        (node.properties as Record<string, unknown>)[
-                          "data-diff"
-                        ] = map[mark];
-                        // remove the marker and following optional space
-                        first.value =
-                          leading + v.trimStart().slice(1).replace(/^\s/, "");
-                      }
-                    }
-                  },
-                },
-              ],
-              [
-                rehypeAutolinkHeadings,
-                {
-                  behavior: "prepend",
-                  properties: {
-                    className: ["heading-anchor"],
-                    ariaLabel: "Link to this section",
-                  },
-                  content: {
-                    type: "text",
-                    value: "",
-                  },
-                },
-              ],
-            ],
-          },
-        }}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-    </BlogArticle>
+      <BlogArticle
+        post={post}
+        relatedPosts={relatedPosts}
+        adjacentPosts={adjacentPosts}
+        lang={lang}
+        markdownSource={mdx.rawContent}
+      >
+        <MDXRemote
+          source={mdx.rawContent}
+          components={mdxComponents}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+              rehypePlugins: [
+                // Ensure slug IDs are based on the original text (without numbers)
+                rehypeSlug,
+                // Then prefix visible headings with hierarchical numbers
+                rehypeNumberedHeadings,
+                // Syntax highlighting via Shiki
+                [
+                  rehypePrettyCode,
+                  {
+                    keepBackground: false,
+                    theme: {
+                      light: "github-light-default",
+                      dark: "github-dark-default",
+                    },
+                    onVisitLine(node: Element) {
+                      // Prevent lines from collapsing so copy/select keeps structure
+                      if (node.children.length === 0) {
+                        const space: Text = { type: "text", value: " " };
+                        node.children = [space];
+                      }
+                      // Diff-style detection: + added, - removed, ~ changed
+                      const first = node.children[0];
+                      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                      if (first && "type" in first && first.type === "text") {
+                        const v = first.value;
+                        const mark = v.trimStart().charAt(0);
+                        const leading = v.match(/^\s*/)?.[0] || "";
+                        if (
+                          mark === "+" ||
+                          mark === "-" ||
+                          mark === "~" ||
+                          mark === "!"
+                        ) {
+                          const map: Record<string, string> = {
+                            "+": "add",
+                            "-": "remove",
+                            "~": "change",
+                            "!": "change",
+                          };
+                          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                          if (!node.properties) node.properties = {};
+                          (node.properties as Record<string, unknown>)[
+                            "data-diff"
+                          ] = map[mark];
+                          // remove the marker and following optional space
+                          first.value =
+                            leading + v.trimStart().slice(1).replace(/^\s/, "");
+                        }
+                      }
+                    },
+                  },
+                ],
+                [
+                  rehypeAutolinkHeadings,
+                  {
+                    behavior: "prepend",
+                    properties: {
+                      className: ["heading-anchor"],
+                      ariaLabel: "Link to this section",
+                    },
+                    content: {
+                      type: "text",
+                      value: "",
+                    },
+                  },
+                ],
+              ],
+            },
+          }}
+        />
+      </BlogArticle>
+    </>
   );
 }
 

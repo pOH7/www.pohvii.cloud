@@ -12,6 +12,8 @@ import { supportedLangs } from "@/lib/i18n";
 import { TagLinksFooter } from "@/components/footer";
 import { BlogCard } from "@/components/blog/blog-card";
 import { AnimatedSectionHeader } from "@/components/blog/animated-section-header";
+import type { Metadata } from "next";
+import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 const POSTS_PER_PAGE = 10;
 
@@ -158,13 +160,20 @@ export default async function BlogPaginationPage(
 
 export async function generateMetadata(
   props: PageProps<"/[lang]/blog/page/[pageNumber]">
-) {
-  const { pageNumber } = await props.params;
+): Promise<Metadata> {
+  const { lang, pageNumber } = await props.params;
   const page = parseInt(pageNumber, 10);
-  return {
+  return buildListingMetadata({
     title: `Blog - Page ${page}`,
     description: `Browse blog articles - Page ${page}. Discover articles about web development, React, TypeScript, and more.`,
-  };
+    canonicalPath: `/${lang}/blog/page/${page}/`,
+    alternates: buildLanguageAlternates(
+      supportedLangs,
+      (supportedLang) => `/${supportedLang}/blog/page/${page}/`
+    ),
+    image: "/og-blog.svg",
+    twitterImage: "/twitter-blog.svg",
+  });
 }
 
 export function generateStaticParams() {

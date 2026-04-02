@@ -47,6 +47,118 @@ test("Blog page is reachable", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("Blog index metadata stays scoped to the blog and exposes discovery controls", async ({
+  page,
+}) => {
+  await page.goto("/en/blog");
+
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://www.pohvii.cloud/en/blog/"
+  );
+  await expect(
+    page.getByRole("searchbox", { name: "Search articles" })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "RSS Feed" })).toHaveAttribute(
+    "href",
+    "/rss.xml"
+  );
+});
+
+test("Blog discovery keeps hot tags compact and links to the dedicated tag page", async ({
+  page,
+}) => {
+  await page.goto("/en/blog");
+
+  const hotTags = page.getByRole("complementary", { name: "Hot tags" });
+  await expect(hotTags).toBeVisible();
+  await expect(hotTags.getByRole("button")).toHaveCount(5);
+  await expect(
+    hotTags.getByRole("link", { name: "More tags" })
+  ).toHaveAttribute("href", "/en/tag/");
+});
+
+test("Desktop hot tags rail sits outside the centered blog column", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1600, height: 1200 });
+  await page.goto("/en/blog");
+
+  const mainColumn = page.getByTestId("blog-discovery-main");
+  const hotTagsRail = page.getByTestId("blog-hot-tags-rail");
+
+  const [mainBox, railBox] = await Promise.all([
+    mainColumn.boundingBox(),
+    hotTagsRail.boundingBox(),
+  ]);
+
+  expect(mainBox).not.toBeNull();
+  expect(railBox).not.toBeNull();
+  expect(
+    (railBox?.x ?? 0) - ((mainBox?.x ?? 0) + (mainBox?.width ?? 0))
+  ).toBeGreaterThanOrEqual(24);
+});
+
+test("Blog search narrows the visible article list", async ({ page }) => {
+  await page.goto("/en/blog");
+
+  await page.getByRole("searchbox", { name: "Search articles" }).fill("Lenis");
+
+  const lenisArticle = page.locator("article").filter({
+    has: page.getByRole("link", {
+      name: "How to Implement Lenis in Next.js App Router",
+    }),
+  });
+
+  await expect(
+    lenisArticle.getByRole("link", {
+      name: "How to Implement Lenis in Next.js App Router",
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Fix `brew upgrade codex` When Homebrew Says the Latest Version Is Already Installed",
+    })
+  ).toHaveCount(0);
+});
+
+test("Hash-prefixed blog search shows tag suggestions and filters by the chosen tag", async ({
+  page,
+}) => {
+  await page.goto("/en/blog");
+
+  const search = page.getByRole("searchbox", { name: "Search articles" });
+  await search.fill("#rea");
+
+  const suggestions = page.getByRole("listbox", { name: "Search suggestions" });
+  await expect(
+    suggestions.getByRole("button", { name: "React" })
+  ).toBeVisible();
+
+  await suggestions.getByRole("button", { name: "React" }).click();
+
+  await expect(search).toHaveValue("#React");
+  await expect(
+    page.getByRole("link", {
+      name: "How to Implement Lenis in Next.js App Router",
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", {
+      name: "Fix `brew upgrade codex` When Homebrew Says the Latest Version Is Already Installed",
+    })
+  ).toHaveCount(0);
+});
+
+test("Tag index metadata stays scoped to the tag hub", async ({ page }) => {
+  await page.goto("/en/tag");
+
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://www.pohvii.cloud/en/tag/"
+  );
+});
+
 test("Blog cards show updated date when lastModified exists", async ({
   page,
 }) => {
@@ -67,6 +179,50 @@ test("Blog detail shows updated date when lastModified exists", async ({
   await page.goto("/en/blog/installing-windows-on-proxmox-ve-pve-9a943890");
 
   await expect(page.getByText("Updated Mar 30, 2026")).toBeVisible();
+});
+
+test("About and Contact pages render instead of 404s", async ({ page }) => {
+  await page.goto("/en/about");
+  await expect(
+    page.getByRole("heading", { name: "About", level: 1 })
+  ).toBeVisible();
+
+  await page.goto("/en/contact");
+  await expect(
+    page.getByRole("heading", { name: "Contact", level: 1 })
+  ).toBeVisible();
+});
+
+test("Contact page uses the updated email and public profile links", async ({
+  page,
+}) => {
+  await page.goto("/en/contact");
+
+  const channels = page.locator("article").filter({
+    has: page.getByRole("heading", { name: "Where to find me" }),
+  });
+
+  await expect(channels.getByRole("link", { name: /^Email/ })).toHaveAttribute(
+    "href",
+    "mailto:pOHVII@gmail.com"
+  );
+  await expect(channels.getByRole("link", { name: /^GitHub/ })).toHaveAttribute(
+    "href",
+    "https://github.com/pOH7"
+  );
+  await expect(channels.getByRole("link", { name: /^X/ })).toHaveAttribute(
+    "href",
+    "https://x.com/pOHVII"
+  );
+  await expect(
+    channels.getByRole("link", { name: /^LinkedIn/ })
+  ).toHaveAttribute("href", "https://www.linkedin.com/in/léon-zhang/");
+});
+
+test("Auth session endpoint no longer returns 404", async ({ request }) => {
+  const response = await request.get("/api/auth/get-session/");
+
+  expect(response.status()).not.toBe(404);
 });
 
 test("Root document does not rely on native smooth scrolling", async ({
@@ -114,4 +270,28 @@ test("TOC navigation lands headings below the sticky header", async ({
   });
 
   await expectTargetNearHeaderOffset(page, "testing-our-comment-system");
+});
+
+test("Article pages provide adjacent reading navigation without self-linking", async ({
+  page,
+}) => {
+  await page.goto("/en/blog/testing-comment-system-795aade4");
+
+  await expect(
+    page.getByRole("heading", { name: "Keep Reading", level: 2 })
+  ).toBeVisible();
+
+  const adjacentLinks = page.locator('a[href*="/en/blog/"]').filter({
+    hasText: /Previous|Next/,
+  });
+  await expect(adjacentLinks).toHaveCount(2);
+
+  const hrefs = await adjacentLinks.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href"))
+  );
+
+  expect(hrefs.every((href) => href !== null)).toBe(true);
+  expect(
+    hrefs.every((href) => !href?.includes("testing-comment-system-795aade4"))
+  ).toBe(true);
 });

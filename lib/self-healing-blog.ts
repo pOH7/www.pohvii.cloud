@@ -343,6 +343,48 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
     .map(({ post }) => post);
 }
 
+export interface AdjacentPosts {
+  previous?: BlogMeta;
+  next?: BlogMeta;
+}
+
+export function getAdjacentPosts(
+  posts: BlogMeta[],
+  currentSlug: string,
+  currentId?: string
+): AdjacentPosts {
+  const currentIndex = posts.findIndex((post) => {
+    if (post.slug === currentSlug) {
+      return true;
+    }
+
+    if (!currentId) {
+      return false;
+    }
+
+    return (
+      post.id === currentId ||
+      post.slug === combineSlugId(currentSlug, currentId)
+    );
+  });
+
+  if (currentIndex === -1) {
+    return {};
+  }
+
+  const adjacentPosts: AdjacentPosts = {};
+
+  if (currentIndex > 0) {
+    adjacentPosts.previous = posts[currentIndex - 1];
+  }
+
+  if (currentIndex < posts.length - 1) {
+    adjacentPosts.next = posts[currentIndex + 1];
+  }
+
+  return adjacentPosts;
+}
+
 /**
  * Get featured posts with self-healing URL format
  */

@@ -1,6 +1,8 @@
 import Tag from "@/components/blog/tag";
 import { getAllTags } from "@/lib/blog";
 import { supportedLangs } from "@/lib/i18n";
+import type { Metadata } from "next";
+import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
   const { lang } = await props.params;
@@ -46,18 +48,24 @@ export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
   );
 }
 
-export function generateMetadata() {
-  return {
+export async function generateMetadata(
+  props: PageProps<"/[lang]/tag">
+): Promise<Metadata> {
+  const { lang } = await props.params;
+  const description =
+    "Browse all topics and categories. Discover articles organized by tags and explore content that interests you.";
+
+  return buildListingMetadata({
     title: "All Tags",
-    description:
-      "Browse all topics and categories. Discover articles organized by tags and explore content that interests you.",
-    openGraph: {
-      title: "All Tags",
-      description:
-        "Browse all topics and categories. Discover articles organized by tags and explore content that interests you.",
-      type: "website",
-    },
-  };
+    description,
+    canonicalPath: `/${lang}/tag/`,
+    alternates: buildLanguageAlternates(
+      supportedLangs,
+      (supportedLang) => `/${supportedLang}/tag/`
+    ),
+    image: "/og-blog.svg",
+    twitterImage: "/twitter-blog.svg",
+  });
 }
 
 export function generateStaticParams() {
