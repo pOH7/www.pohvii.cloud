@@ -1,0 +1,155 @@
+---
+title: "Do Not Run a Database in a Container Unless You Pin It"
+description: >-
+  Running MySQL or PostgreSQL in Docker is fine. The real risk is blindly
+  updating mutable image tags instead of pinning versions, testing upgrades,
+  and planning rollback.
+date: 2026-04-02
+author: Léon Zhang
+category: Infrastructure
+tags:
+  - Docker
+  - MySQL
+  - PostgreSQL
+  - Databases
+  - Containers
+  - DevOps
+id: e2f09335
+---
+
+# Do Not Run a Database in a Container Unless You Pin It
+
+The slogan "do not run databases in containers" is trying to protect people
+from a real failure mode, but it points at the wrong problem.
+
+Running MySQL or PostgreSQL in Docker is usually fine. The dangerous move is
+treating a database image tag as if it guarantees the same internals forever.
+It does not.
+
+A better rule is this:
+
+> Containers are fine for databases. Unpinned container updates are not.
+
+If you remember only one thing from this post, make it that.
+
+## Tags Are Mutable, Not Contracts
+
+Docker's own image best-practices documentation is clear on this point: image
+tags are mutable, publishers can move a tag to a newer image, and digest
+pinning is the way to guarantee you keep running the exact same artifact.
+
+That matters more for databases than for stateless services.
+
+If `mysql:8.4` or `postgres:16` changes underneath you, the risk is not only
+"some bugfixes arrived." The image may also pick up different packaging, a
+different libc baseline, different filesystem layout, different init behavior,
+or a different base distribution than the one you tested before.
+
+For a stateless app, that can be annoying. For a database, it can turn into a
+late-night outage.
+
+## The MySQL Example Is Real
+
+This is not just a theoretical supply-chain lecture.
+
+As of April 2026, the official MySQL image on Docker Hub shows Oracle Linux 9
+based tags as the default for `latest`, `9`, `8.4`, `8`, and `lts`. It also
+publishes separate Debian-based tags for MySQL `8.0`.
+
+The official page documents that configuration paths differ by base image:
+
+- Oracle-based images use `/etc/my.cnf`
+- Debian-based MySQL 8 images use `/etc/mysql/my.cnf`
+
+The same "MySQL container" can ship with materially different OS and packaging
+assumptions depending on which tag you pull.
+
+In [`docker-library/mysql` #1055](https://github.com/docker-library/mysql/issues/1055),
+opened May 2024, a user reported that the `8.4.0` image failed on older CPUs
+with:
+
+```text
+Fatal glibc error: CPU does not support x86-64-v2
+```
+
+The breakage likely started after a base-image move to Oracle Linux 9. Root
+cause aside, the takeaway is clear: an image update within the same MySQL
+family was enough to break runtime compatibility for real users.
+
+## What Actually Goes Wrong in Practice
+
+Blind database image updates can surprise you in several ways:
+
+- The CPU or libc baseline changes
+- Config file paths or include directories change
+- Entrypoint behavior changes
+- Package layout changes
+- Volume expectations change
+- Startup defaults change
+- Rollback becomes messy after partial upgrades
+
+PostgreSQL has the same general risk shape. The official Postgres image
+publishes multiple variants, including Debian-based and Alpine-based images,
+and its current documentation also calls out an important `PGDATA` and `VOLUME`
+change for PostgreSQL 18 and later. Again, the point is not "Postgres in
+Docker is unsafe." The point is that image upgrades are infrastructure changes,
+not harmless patch bumps.
+
+## The Rule I Actually Recommend
+
+If you run a database in Docker, operate it like this:
+
+| Pattern             | Example                              | Risk            |
+| ------------------- | ------------------------------------ | --------------- |
+| Bad                 | `image: mysql:latest`                | High            |
+| Better              | `image: mysql:8.4.8`                 | Lower           |
+| Best for production | `image: mysql:8.4.8@sha256:<digest>` | Lowest surprise |
+
+In a Compose file, the progression looks like this:
+
+```yaml
+services:
+  db:
+    # Bad — mutable tag, anything can change
+    image: mysql:latest
+
+    # Better — pinned patch version
+    image: mysql:8.4.8
+
+    # Best — digest-pinned, immutable
+    image: mysql:8.4.8@sha256:<digest>
+```
+
+Digest pinning is more tedious, but that extra friction is often exactly what
+production needs. It forces upgrades to be deliberate and reviewable.
+
+## Safe Upgrade Checklist
+
+When you upgrade a containerized database image, do it like a real
+infrastructure change:
+
+1. Pin a specific version instead of `latest`
+2. Prefer a digest pin in production
+3. Read the image notes and database release notes before upgrading
+4. Test the new image in staging with a copy of production-like data
+5. Take and verify backups before the pull
+6. Have a rollback plan before the deployment starts
+7. Upgrade image variants and major versions intentionally, never by accident
+
+## Dev, Prod, and the Easy Answer
+
+My practical recommendation is simple:
+
+- In development, a Docker database is great
+- In production, Docker is fine only if you pin tightly and treat upgrades with discipline
+- If you want the easiest production path, use a managed database
+
+The container is not the danger. Surprise upgrades, changed internals, and
+weak rollback planning are.
+
+## References
+
+- [Docker Docs: Build best practices — mutable tags and digest pinning](https://docs.docker.com/build/building/best-practices/)
+- [MySQL official image on Docker Hub](https://hub.docker.com/_/mysql/)
+- [`docker-library/mysql` #1055: CPU does not support x86-64-v2](https://github.com/docker-library/mysql/issues/1055)
+- [Postgres official image on Docker Hub](https://hub.docker.com/_/postgres/)
