@@ -23,6 +23,16 @@ async function typeIntoBlogSearch(page: Page, value: string) {
   return search;
 }
 
+function getSitemapUrlEntry(xml: string, loc: string): string {
+  const entries = xml.match(/<url>[\s\S]*?<\/url>/g) ?? [];
+  const entry = entries.find((candidate) =>
+    candidate.includes(`<loc>${loc}</loc>`)
+  );
+
+  expect(entry, `Expected sitemap entry for ${loc}`).toBeTruthy();
+  return entry ?? "";
+}
+
 test("English homepage renders the monograph introduction", async ({
   page,
 }) => {
@@ -287,6 +297,33 @@ test("Blog detail shows updated date when lastModified exists", async ({
   await page.goto("/en/blog/installing-windows-on-proxmox-ve-pve-9a943890");
 
   await expect(page.getByText("Updated Mar 30, 2026")).toBeVisible();
+});
+
+test("Sitemap omits synthetic lastModified values for static indexes and keeps content-backed blog dates", async ({
+  request,
+}) => {
+  const response = await request.get("/sitemap.xml");
+  expect(response.ok()).toBe(true);
+
+  const xml = await response.text();
+  const englishHome = getSitemapUrlEntry(xml, "https://www.pohvii.cloud/en/");
+  const englishBlogIndex = getSitemapUrlEntry(
+    xml,
+    "https://www.pohvii.cloud/en/blog/"
+  );
+  const englishNoteIndex = getSitemapUrlEntry(
+    xml,
+    "https://www.pohvii.cloud/en/note/"
+  );
+  const windowsPost = getSitemapUrlEntry(
+    xml,
+    "https://www.pohvii.cloud/en/blog/installing-windows-on-proxmox-ve-pve-9a943890/"
+  );
+
+  expect(englishHome).not.toContain("<lastmod>");
+  expect(englishBlogIndex).not.toContain("<lastmod>");
+  expect(englishNoteIndex).not.toContain("<lastmod>");
+  expect(windowsPost).toContain("<lastmod>2026-03-30");
 });
 
 test("About and Contact pages render instead of 404s", async ({ page }) => {

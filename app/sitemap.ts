@@ -14,19 +14,33 @@ interface NoteFrontmatter {
   order?: number;
   icon?: string;
   protected?: boolean;
+  date?: string;
+  lastModified?: string;
 }
 
 const locales = ["en", "zh"];
 const baseUrl = "https://www.pohvii.cloud";
 
-// Manual lastModified dates for static pages
-const staticPageDates = {
-  homepage: new Date("2025-09-05"), // Update when homepage content changes
-  blogIndex: new Date("2025-09-05"), // Update when blog index layout changes
-  noteIndex: new Date("2025-10-13"), // Update when note index layout changes
-};
+function toValidDate(value: unknown): Date | undefined {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value;
+  }
 
-function getBlogPostDate(locale: string, slug: string): Date {
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return undefined;
+}
+
+function getFrontmatterDate(data: Record<string, unknown>): Date | undefined {
+  return toValidDate(data.lastModified) ?? toValidDate(data.date);
+}
+
+function getBlogPostDate(locale: string, slug: string): Date | undefined {
   try {
     const filePath = path.join(
       process.cwd(),
@@ -37,19 +51,10 @@ function getBlogPostDate(locale: string, slug: string): Date {
     );
     const raw = fs.readFileSync(filePath, "utf8");
     const { data } = matter(raw);
-
-    // Use lastModified if available, fall back to date, then current date
-    if (data.lastModified && typeof data.lastModified === "string") {
-      return new Date(data.lastModified);
-    }
-    if (data.date && typeof data.date === "string") {
-      return new Date(data.date);
-    }
+    return getFrontmatterDate(data);
   } catch {
-    // Fall back to current date if frontmatter parsing fails
+    return undefined;
   }
-
-  return new Date();
 }
 
 function isNoteProtected(locale: string, topic: string): boolean {
@@ -76,24 +81,44 @@ function isNoteProtected(locale: string, topic: string): boolean {
   return false;
 }
 
+function getNoteDate(locale: string, topic: string): Date | undefined {
+  try {
+    const overviewFile = path.join(
+      process.cwd(),
+      "content",
+      "note",
+      locale,
+      topic,
+      "overview.mdx"
+    );
+
+    if (!fs.existsSync(overviewFile)) {
+      return undefined;
+    }
+
+    const raw = fs.readFileSync(overviewFile, "utf8");
+    const { data } = matter(raw);
+    return getFrontmatterDate(data);
+  } catch {
+    return undefined;
+  }
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const urls: MetadataRoute.Sitemap = [];
 
-  // Add homepage for each locale (use manual date)
+  // Static indexes omit lastModified unless they have a trustworthy source.
   for (const locale of locales) {
     urls.push({
       url: `${baseUrl}/${locale}/`,
-      lastModified: staticPageDates.homepage,
       changeFrequency: "weekly",
       priority: 1,
     });
   }
 
-  // Add blog index pages (use manual date)
   for (const locale of locales) {
     urls.push({
       url: `${baseUrl}/${locale}/blog/`,
-      lastModified: staticPageDates.blogIndex,
       changeFrequency: "daily",
       priority: 0.8,
     });
@@ -123,7 +148,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
       const lastModified = originalSlug
         ? getBlogPostDate(locale, originalSlug)
-        : new Date();
+        : undefined;
 
       // Use canonical URL format: /locale/blog/slug-id
       const canonicalSlug = post.id
@@ -132,18 +157,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
       urls.push({
         url: `${baseUrl}/${locale}/blog/${canonicalSlug}/`,
-        lastModified,
+        ...(lastModified && { lastModified }),
         changeFrequency: "monthly",
         priority: 0.6,
       });
     }
   }
 
-  // Add note index pages
   for (const locale of locales) {
     urls.push({
       url: `${baseUrl}/${locale}/note/`,
-      lastModified: staticPageDates.noteIndex,
       changeFrequency: "weekly",
       priority: 0.7,
     });
@@ -158,9 +181,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
         continue;
       }
 
+      const lastModified = getNoteDate(locale, topic);
+
       urls.push({
         url: `${baseUrl}/${locale}/note/${encodeURIComponent(topic)}/`,
-        lastModified: new Date(), // Could be extracted from file stats if needed
+        ...(lastModified && { lastModified }),
         changeFrequency: "weekly",
         priority: 0.6,
       });
