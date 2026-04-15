@@ -6,7 +6,6 @@
   "Navigation": {
     "home": "Home",
     "blog": "Blog",
-    "notes": "Notes",
     "about": "About",
     "contact": "Contact"
   },
@@ -23,37 +22,10 @@
     "message": "The page you're looking for could not be found.",
     "cta": "Go back home"
   },
-  "Note": {
-    "sections": {
-      "overview": "Overview",
-      "install": "Installation",
-      "quickstart": "Quick Start",
-      "config": "Configuration",
-      "usage": "Usage",
-      "examples": "Examples",
-      "troubleshooting": "Troubleshooting"
-    },
-    "platforms": {
-      "windows": "Windows",
-      "linux": "Linux",
-      "macos": "macOS",
-      "docker": "Docker",
-      "helm": "Helm",
-      "kubectl": "kubectl"
-    },
-    "allSections": "All Sections",
-    "tableOfContents": "Table of Contents",
-    "readTime": "Read time",
-    "allNotes": "All Notes",
-    "sectionCount": "sections"
-  },
   "Auth": {
     "login": "Login",
     "logout": "Logout",
     "user": "User",
-    "signInWithGitHub": "Sign in with GitHub",
-    "protectedNote": "Protected Note",
-    "loginRequired": "This note requires authentication to view. Please sign in to continue.",
-    "protectedNoteInfo": "Authentication is required to access certain notes with sensitive or exclusive content."
+    "signInWithGitHub": "Sign in with GitHub"
   }
 }

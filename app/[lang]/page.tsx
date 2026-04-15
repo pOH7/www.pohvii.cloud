@@ -13,7 +13,7 @@ const homeContent = {
       "I am a software engineer who prefers readable structures, durable decisions, and documentation that ages well. This site is where I keep those ideas close to the work instead of treating them as an afterthought.",
     sideNoteLabel: "Orientation",
     sideNote:
-      "No launch story and no conversion funnel. Just the working assumptions behind the software and the notes that survive implementation details.",
+      "No launch story and no conversion funnel. Just the working assumptions behind the software and the writing that survives implementation details.",
     principlesLabel: "Working philosophy",
     principles: [
       {
@@ -35,7 +35,7 @@ const homeContent = {
     siteNoteLabel: "About this site",
     siteNoteTitle: "This is a quiet record of how I work.",
     siteNote:
-      "Most of what lives here starts as practical engineering: architecture decisions, implementation notes, and lessons that were expensive enough to be worth writing down. The goal is not to look busy. It is to leave the work clearer than I found it.",
+      "Most of what lives here starts as practical engineering: architecture decisions, implementation details, and lessons that were expensive enough to be worth writing down. The goal is not to look busy. It is to leave the work clearer than I found it.",
     metadataTitle: "Léon Zhang",
     metadataDescription:
       "Personal site of Léon Zhang, a software engineer writing about clear systems, durable decisions, and documentation as part of engineering.",
@@ -48,7 +48,7 @@ const homeContent = {
       "我是软件工程师，偏爱清晰的结构、经得住变化的决策，以及不会很快过时的文档。这个站点用来记录这些判断，让它们始终贴着实际工作，而不是事后补充。",
     sideNoteLabel: "说明",
     sideNote:
-      "这里没有包装过的个人叙事，也没有转化导向的页面结构。只有我在做软件时反复验证的一些前提，以及值得留下来的笔记。",
+      "这里没有包装过的个人叙事，也没有转化导向的页面结构。只有我在做软件时反复验证的一些前提，以及那些在实现细节变化之后仍然值得保留的文字。",
     principlesLabel: "工作方式",
     principles: [
       {

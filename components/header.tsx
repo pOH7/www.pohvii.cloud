@@ -23,7 +23,6 @@ import { ThemeToggle } from "./theme-toggle";
 const getNavigationItems = (lang: string) => [
   { key: "home" as const, href: `/${lang}/` },
   { key: "blog" as const, href: `/${lang}/blog/` },
-  { key: "notes" as const, href: `/${lang}/note/` },
   { key: "about" as const, href: `/${lang}/about/` },
   { key: "contact" as const, href: `/${lang}/contact/` },
 ];
