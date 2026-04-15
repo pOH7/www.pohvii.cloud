@@ -420,7 +420,7 @@ test("TOC navigation lands headings below the sticky header", async ({
 test("Article pages provide adjacent reading navigation without self-linking", async ({
   page,
 }) => {
-  await page.goto("/en/blog/testing-comment-system-795aade4");
+  await page.goto("/en/blog/tech-blog-writing-guide-0c74e0ba");
 
   await expect(
     page.getByRole("heading", { name: "Keep Reading", level: 2 })
@@ -437,6 +437,6 @@ test("Article pages provide adjacent reading navigation without self-linking", a
 
   expect(hrefs.every((href) => href !== null)).toBe(true);
   expect(
-    hrefs.every((href) => !href?.includes("testing-comment-system-795aade4"))
+    hrefs.every((href) => !href?.includes("tech-blog-writing-guide-0c74e0ba"))
   ).toBe(true);
 });

@@ -265,7 +265,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
         centerOnInit={false}
         centerZoomedOut={false}
         doubleClick={{ disabled: true }}
-        wheel={{ smoothStep: 0.01 }}
+        wheel={{ step: 0.01 }}
         panning={{
           velocityDisabled: true,
           disabled: false,

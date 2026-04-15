@@ -652,7 +652,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         className="flex-1 touch-none overflow-hidden bg-muted"
       >
         <TransformWrapper
-          alignmentAnimation={{
+          autoAlignment={{
             sizeX: 0,
             sizeY: 0,
             velocityAlignmentTime: 0,
