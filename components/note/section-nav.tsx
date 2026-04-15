@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLenis } from "lenis/react";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+
 import type { SectionKey } from "@/lib/note";
+import { cn } from "@/lib/utils";
 
 interface SectionNavProps {
   sections: Array<{
@@ -66,8 +67,8 @@ export function SectionNav({ sections }: SectionNavProps) {
 
   return (
     <nav className="sticky top-24 hidden h-fit lg:block">
-      <div className="border-border border-l-2 pl-4">
-        <h3 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
+      <div className="border-l-2 border-border pl-4">
+        <h3 className="mb-3 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
           Sections
         </h3>
         <ul className="space-y-2">
@@ -76,9 +77,9 @@ export function SectionNav({ sections }: SectionNavProps) {
               <button
                 onClick={() => scrollToSection(section.sectionKey)}
                 className={cn(
-                  "hover:text-foreground w-full text-left text-sm transition-colors",
+                  "w-full text-left text-sm transition-colors hover:text-foreground",
                   activeSection === section.sectionKey
-                    ? "text-foreground font-medium"
+                    ? "font-medium text-foreground"
                     : "text-muted-foreground"
                 )}
               >

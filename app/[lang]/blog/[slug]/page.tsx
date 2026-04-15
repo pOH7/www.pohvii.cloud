@@ -1,5 +1,18 @@
+import type { Element, Text } from "hast";
+import type { Metadata } from "next";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound, redirect } from "next/navigation";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+// Syntax highlighting
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
+
 import { BlogArticle, type BlogPost } from "@/components/blog";
+import { mdxComponents } from "@/components/mdx-components";
+import { supportedLangs } from "@/lib/i18n";
+import { parseSlugId, generateSlug } from "@/lib/post-id";
+import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
 // Remove unused import - we'll use getAllPostsWithIds for related posts
 import {
   getPostBySlugId,
@@ -7,19 +20,7 @@ import {
   getAllPostsWithIds,
   getAdjacentPosts,
 } from "@/lib/self-healing-blog";
-import { parseSlugId, generateSlug } from "@/lib/post-id";
-import { supportedLangs } from "@/lib/i18n";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { mdxComponents } from "@/components/mdx-components";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
-import type { Element, Text } from "hast";
-import type { Metadata } from "next";
 import { buildBlogPostingJsonLd } from "@/lib/seo";
-// Syntax highlighting
-import rehypePrettyCode from "rehype-pretty-code";
 
 export async function generateMetadata(
   props: PageProps<"/[lang]/blog/[slug]">
@@ -189,7 +190,7 @@ export default async function BlogDetailPage(
                       }
                       // Diff-style detection: + added, - removed, ~ changed
                       const first = node.children[0];
-                      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                      // oxlint-disable-next-line typescript/no-unnecessary-condition
                       if (first && "type" in first && first.type === "text") {
                         const v = first.value;
                         const mark = v.trimStart().charAt(0);
@@ -206,7 +207,7 @@ export default async function BlogDetailPage(
                             "~": "change",
                             "!": "change",
                           };
-                          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                          // oxlint-disable-next-line typescript/no-unnecessary-condition
                           if (!node.properties) node.properties = {};
                           (node.properties as Record<string, unknown>)[
                             "data-diff"

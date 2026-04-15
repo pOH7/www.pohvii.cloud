@@ -1,14 +1,15 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { getAllPostsWithIds } from "@/lib/self-healing-blog";
-import { supportedLangs } from "@/lib/i18n";
-import { TagLinksFooter } from "@/components/footer";
+
 import {
   BlogIndexClient,
   BLOG_POSTS_PER_PAGE,
 } from "@/components/blog/blog-index-client";
-import type { Metadata } from "next";
-import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
+import { TagLinksFooter } from "@/components/footer";
 import { getBlogDiscoveryPosts, getBlogDiscoveryTags } from "@/lib/blog-feed";
+import { supportedLangs } from "@/lib/i18n";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
+import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 export default async function BlogPaginationPage(
   props: PageProps<"/[lang]/blog/page/[pageNumber]">
@@ -38,7 +39,7 @@ export default async function BlogPaginationPage(
   const footerTags = tags.map((tag) => tag.name).slice(0, 10);
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="min-h-screen bg-background text-foreground">
       <BlogIndexClient
         lang={lang}
         posts={posts}

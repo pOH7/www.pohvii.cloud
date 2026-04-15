@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
 import dynamic from "next/dynamic";
+import React from "react";
 
 const PDFViewerLoading = () => {
   return (
     <div className="flex h-full items-center justify-center">
       <div className="text-center">
-        <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
+        <div className="mx-auto mb-4 size-8 animate-spin rounded-full border-b-2 border-primary" />
         <p className="text-muted-foreground">Loading viewer…</p>
       </div>
     </div>

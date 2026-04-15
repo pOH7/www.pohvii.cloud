@@ -1,4 +1,11 @@
+import { Tag } from "lucide-react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+import { AnimatedSectionHeader } from "@/components/blog/animated-section-header";
+import { BlogCard } from "@/components/blog/blog-card";
+import { TagLinksFooter } from "@/components/footer";
+import { Badge } from "@/components/ui/badge";
 import {
   Pagination,
   PaginationContent,
@@ -7,14 +14,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Badge } from "@/components/ui/badge";
-import { Tag } from "lucide-react";
-import { BlogCard } from "@/components/blog/blog-card";
-import { AnimatedSectionHeader } from "@/components/blog/animated-section-header";
-import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { supportedLangs } from "@/lib/i18n";
-import { TagLinksFooter } from "@/components/footer";
-import type { Metadata } from "next";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 const POSTS_PER_PAGE = 10;
@@ -61,12 +62,12 @@ export default async function TagPaginationPage(
     .slice(0, 10);
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header Section */}
       <section className="mx-auto w-full max-w-7xl px-4 py-12 md:px-8">
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2">
-            <Tag className="text-primary size-6" />
+            <Tag className="size-6 text-primary" />
             <Badge variant="secondary" className="px-3 py-1 text-lg">
               {decodedTagName}
             </Badge>

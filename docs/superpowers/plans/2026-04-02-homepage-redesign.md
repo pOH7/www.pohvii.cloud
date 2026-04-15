@@ -147,7 +147,7 @@ If the route file becomes difficult to scan, tighten variable names or extract t
 
 - [ ] **Step 1: Run focused linting**
 
-Run: `pnpm exec eslint 'app/[lang]/page.tsx' tests/smoke.spec.ts`
+Run: `pnpm exec oxlint 'app/[lang]/page.tsx' tests/smoke.spec.ts`
 Expected: 0 errors
 
 - [ ] **Step 2: Run a production build**

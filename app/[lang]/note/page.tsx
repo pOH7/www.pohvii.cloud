@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { getAllNotesMetadata } from "@/lib/note";
-import { supportedLangs } from "@/lib/i18n";
-import type { Metadata } from "next";
 import { BookOpen, FileText } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+
 import {
   Card,
   CardHeader,
@@ -10,6 +9,8 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { supportedLangs } from "@/lib/i18n";
+import { getAllNotesMetadata } from "@/lib/note";
 
 export async function generateMetadata(
   props: PageProps<"/[lang]/note">
@@ -58,10 +59,10 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
       {/* Header */}
       <header className="mb-12">
         <div className="mb-4 flex items-center gap-3">
-          <BookOpen className="text-primary size-10" />
+          <BookOpen className="size-10 text-primary" />
           <h1 className="text-4xl font-bold">{title}</h1>
         </div>
-        <p className="text-muted-foreground max-w-2xl text-lg">
+        <p className="max-w-2xl text-lg text-muted-foreground">
           {lang === "zh"
             ? "浏览完整的技术笔记和参考文档集合。"
             : "Browse the complete collection of technical notes and reference documentation."}
@@ -71,8 +72,8 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
       {/* Notes Grid */}
       {notes.length === 0 ? (
         <div className="py-16 text-center">
-          <FileText className="text-muted-foreground mx-auto mb-4 size-16" />
-          <p className="text-muted-foreground text-lg">{noNotesMessage}</p>
+          <FileText className="mx-auto mb-4 size-16 text-muted-foreground" />
+          <p className="text-lg text-muted-foreground">{noNotesMessage}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -82,9 +83,9 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
               href={`/${lang}/note/${encodeURIComponent(note.topic)}`}
               className="group"
             >
-              <Card className="hover:border-primary/50 h-full transition-all hover:shadow-lg">
+              <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg">
                 <CardHeader>
-                  <CardTitle className="group-hover:text-primary transition-colors">
+                  <CardTitle className="transition-colors group-hover:text-primary">
                     {note.title}
                   </CardTitle>
                   <CardDescription className="line-clamp-2">
@@ -92,7 +93,7 @@ export default async function NoteIndexPage(props: PageProps<"/[lang]/note">) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <FileText className="size-4" />
                     <span>
                       {note.sectionCount} {sectionsText}

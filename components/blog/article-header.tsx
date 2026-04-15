@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import {
   Calendar,
   Clock,
@@ -10,7 +8,11 @@ import {
   Folder,
   Play,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
+
 import { MemoizedCopyMarkdownButton } from "./copy-markdown-button";
 
 export interface ArticleHeaderProps {
@@ -49,8 +51,8 @@ export function ArticleHeader({
   return (
     <>
       <header className="mb-6 border-b [border-bottom-style:dotted] pb-6">
-        <div className="text-muted-foreground mb-4 flex items-center gap-2 text-xs">
-          <Folder className="text-primary size-3.5" />
+        <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
+          <Folder className="size-3.5 text-primary" />
           <span>{category}</span>
         </div>
 
@@ -59,7 +61,7 @@ export function ArticleHeader({
             <Link
               key={tag}
               href={`/${lang}/tag/${encodeURIComponent(tag)}`}
-              className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 text-xs no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="border-b-2 border-b-primary text-xs no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               #{tag}
             </Link>
@@ -68,11 +70,11 @@ export function ArticleHeader({
 
         <h1 className="mb-4 text-3xl/tight font-bold md:text-4xl">{title}</h1>
 
-        <p className="text-muted-foreground mb-5 text-base/relaxed md:text-lg">
+        <p className="mb-5 text-base/relaxed text-muted-foreground md:text-lg">
           {description}
         </p>
 
-        <div className="text-muted-foreground mb-5 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs md:text-sm">
+        <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-muted-foreground md:text-sm">
           <span className="inline-flex items-center gap-1.5">
             <Calendar className="size-3.5" />
             {date}
@@ -110,7 +112,7 @@ export function ArticleHeader({
       </header>
 
       {hasMedia && (
-        <div className="border-border group relative mb-8 aspect-video overflow-hidden rounded-md border">
+        <div className="group relative mb-8 aspect-video overflow-hidden rounded-md border border-border">
           {video ? (
             <div className="relative size-full">
               <video

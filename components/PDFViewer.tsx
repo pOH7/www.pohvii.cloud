@@ -1,21 +1,7 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
+/* oxlint-disable nextjs/no-img-element */
 
-import type { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
-
-import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
-
-import React, {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useEffectEvent,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import {
   ChevronLeft,
   ChevronRight,
@@ -26,10 +12,22 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import type * as PDFJSType from "pdfjs-dist";
+import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
+import React, {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type { ReactZoomPanPinchContentRef } from "react-zoom-pan-pinch";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Button } from "@/components/ui/button";
 import { acquireScrollLock } from "@/lib/scroll-lock";
-import type * as PDFJSType from "pdfjs-dist";
 
 type PDFModule = typeof PDFJSType;
 
@@ -479,7 +477,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
+          <div className="mx-auto mb-4 size-8 animate-spin rounded-full border-b-2 border-primary" />
           <p className="text-muted-foreground">{messages.initializing}</p>
         </div>
       </div>
@@ -490,7 +488,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
+          <div className="mx-auto mb-4 size-8 animate-spin rounded-full border-b-2 border-primary" />
           <p className="text-muted-foreground">{messages.loading}</p>
         </div>
       </div>
@@ -501,8 +499,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <p className="text-destructive mb-2">{messages.errors.title}</p>
-          <p className="text-muted-foreground text-sm">
+          <p className="mb-2 text-destructive">{messages.errors.title}</p>
+          <p className="text-sm text-muted-foreground">
             {error === "init"
               ? messages.errors.initialize
               : messages.errors.load}
@@ -516,7 +514,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     return (
       <div className={`flex items-center justify-center ${className}`}>
         <div className="text-center">
-          <div className="border-primary mx-auto mb-4 size-8 animate-spin rounded-full border-b-2" />
+          <div className="mx-auto mb-4 size-8 animate-spin rounded-full border-b-2 border-primary" />
           <p className="text-muted-foreground">{messages.rendering}</p>
         </div>
       </div>
@@ -545,11 +543,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
     <div
       ref={containerRef}
       className={`flex flex-col ${className} ${
-        isAnyFullscreen ? "bg-background fixed inset-0 z-50" : ""
+        isAnyFullscreen ? "fixed inset-0 z-50 bg-background" : ""
       }`}
       style={containerStyles}
     >
-      <div className="border-border bg-card flex items-center justify-between border-b p-3">
+      <div className="flex items-center justify-between border-b border-border bg-card p-3">
         <div className="flex items-center gap-2">
           <Button
             aria-label={messages.controls.previousPage}
@@ -651,7 +649,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
 
       <div
         ref={viewerAreaRef}
-        className="bg-muted flex-1 touch-none overflow-hidden"
+        className="flex-1 touch-none overflow-hidden bg-muted"
       >
         <TransformWrapper
           alignmentAnimation={{
@@ -722,8 +720,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         </TransformWrapper>
       </div>
 
-      <div className="border-border bg-card border-t px-3 py-2">
-        <p className="text-muted-foreground text-center text-xs">
+      <div className="border-t border-border bg-card px-3 py-2">
+        <p className="text-center text-xs text-muted-foreground">
           <Move className="mr-1 inline size-3" />
           {messages.controls.helpText}
         </p>

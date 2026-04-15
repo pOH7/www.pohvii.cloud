@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useTheme } from "next-themes";
 import { MessageCircle } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useRef } from "react";
 
 type GiscusMapping =
   | "pathname"
@@ -164,14 +164,14 @@ export function GiscusComments({
   return (
     <section className="mt-16 border-t [border-top-style:dotted] pt-8">
       <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold">
-        <MessageCircle className="text-primary size-5" />
+        <MessageCircle className="size-5 text-primary" />
         Comments
       </h2>
 
       {hasRequiredConfig ? (
         <div ref={containerRef} className="giscus-container" />
       ) : (
-        <p className="text-muted-foreground rounded-md border border-dashed p-4 text-sm">
+        <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
           {SHOW_SETUP_HINT
             ? "Configure NEXT_PUBLIC_GISCUS_CATEGORY and NEXT_PUBLIC_GISCUS_CATEGORY_ID to enable comments."
             : "Comments are temporarily unavailable."}

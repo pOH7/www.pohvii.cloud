@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { supportedLangs } from "@/lib/i18n";
 import { buildLanguageAlternates } from "@/lib/seo";
 
@@ -85,7 +86,7 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
   const page = getHomePageContent(lang);
 
   return (
-    <section className="bg-background text-foreground relative min-h-[calc(100vh-7rem)] overflow-hidden">
+    <section className="relative min-h-[calc(100vh-7rem)] overflow-hidden bg-background text-foreground">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-80 opacity-80"
@@ -106,22 +107,22 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
       <div className="relative mx-auto w-full max-w-5xl px-4 py-14 md:px-8 md:py-20">
         <div className="grid gap-10 border-b [border-bottom-style:dotted] pb-10 lg:grid-cols-[minmax(0,2.2fr)_minmax(16rem,0.8fr)] lg:items-end">
           <div className="max-w-3xl">
-            <p className="text-primary text-xs font-semibold tracking-[0.28em] uppercase">
+            <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
               {page.eyebrow}
             </p>
-            <p className="text-muted-foreground mt-6 text-sm font-medium tracking-[0.22em] uppercase">
+            <p className="mt-6 text-sm font-medium tracking-[0.22em] text-muted-foreground uppercase">
               {page.name}
             </p>
             <h1 className="mt-5 max-w-3xl text-4xl/tight font-semibold tracking-tight md:text-6xl/[1.05]">
               {page.title}
             </h1>
-            <p className="text-muted-foreground mt-6 max-w-2xl text-base/7 md:text-lg/8">
+            <p className="mt-6 max-w-2xl text-base/7 text-muted-foreground md:text-lg/8">
               {page.intro}
             </p>
           </div>
 
-          <aside className="bg-card/55 border-border/70 max-w-sm border p-5">
-            <p className="text-muted-foreground text-[0.7rem] font-semibold tracking-[0.24em] uppercase">
+          <aside className="max-w-sm border border-border/70 bg-card/55 p-5">
+            <p className="text-[0.7rem] font-semibold tracking-[0.24em] text-muted-foreground uppercase">
               {page.sideNoteLabel}
             </p>
             <p className="mt-4 text-sm/6">{page.sideNote}</p>
@@ -129,7 +130,7 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
         </div>
 
         <div className="mt-10">
-          <p className="text-primary text-xs font-semibold tracking-[0.28em] uppercase">
+          <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
             {page.principlesLabel}
           </p>
 
@@ -139,14 +140,14 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
                 key={principle.title}
                 className="grid gap-3 border-b [border-bottom-style:dotted] pb-7 md:grid-cols-[4rem_minmax(0,1fr)] md:gap-6"
               >
-                <p className="text-muted-foreground text-xs font-semibold tracking-[0.24em] uppercase">
+                <p className="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase">
                   {principle.label}
                 </p>
                 <div className="max-w-3xl">
                   <h2 className="text-2xl/tight font-semibold tracking-tight md:text-3xl/tight">
                     {principle.title}
                   </h2>
-                  <p className="text-muted-foreground mt-3 text-base/7 md:text-lg/8">
+                  <p className="mt-3 text-base/7 text-muted-foreground md:text-lg/8">
                     {principle.body}
                   </p>
                 </div>
@@ -156,13 +157,13 @@ export default async function HomePage(props: PageProps<"/[lang]">) {
         </div>
 
         <div className="mt-10 max-w-2xl">
-          <p className="text-primary text-xs font-semibold tracking-[0.28em] uppercase">
+          <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
             {page.siteNoteLabel}
           </p>
           <h2 className="mt-4 text-2xl/tight font-semibold tracking-tight md:text-3xl/tight">
             {page.siteNoteTitle}
           </h2>
-          <p className="text-muted-foreground mt-4 text-base/7 md:text-lg/8">
+          <p className="mt-4 text-base/7 text-muted-foreground md:text-lg/8">
             {page.siteNote}
           </p>
         </div>

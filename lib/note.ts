@@ -1,16 +1,16 @@
 import fs from "fs";
 import path from "path";
+
 import matter from "gray-matter";
-import readingTime from "reading-time";
-import { serialize } from "next-mdx-remote/serialize";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { Element, Text } from "hast";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
-// Syntax highlighting
-
+import { serialize } from "next-mdx-remote/serialize";
+import readingTime from "reading-time";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+// Syntax highlighting
+import remarkGfm from "remark-gfm";
 
 // Standard section order
 export const STANDARD_SECTIONS = [
@@ -116,7 +116,7 @@ async function serializeMDX(
                 node.children = [space];
               }
               const first = node.children[0];
-              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              // oxlint-disable-next-line typescript/no-unnecessary-condition
               if (first && "type" in first && first.type === "text") {
                 const v = first.value;
                 const mark = v.trimStart().charAt(0);
@@ -133,7 +133,7 @@ async function serializeMDX(
                     "~": "change",
                     "!": "change",
                   };
-                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                  // oxlint-disable-next-line typescript/no-unnecessary-condition
                   if (!node.properties) node.properties = {};
                   (node.properties as Record<string, unknown>)["data-diff"] =
                     map[mark];
@@ -355,7 +355,7 @@ export async function getNoteByTopic(
 
   // Try to extract title from first H1 in overview or first section
   const contentToCheck =
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    // oxlint-disable-next-line typescript/no-unnecessary-condition
     overviewSection?.content ?? firstSection?.content ?? "";
   const h1Match = contentToCheck.match(/^#\s+(.+)$/m);
   if (h1Match) {

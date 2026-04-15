@@ -1,17 +1,19 @@
-import type { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Header } from "@/components/header";
-import { TopBar } from "@/components/top-bar";
-import { BackToTop } from "@/components/back-to-top";
-import { LenisProvider } from "@/components/lenis-provider";
-import { WebVitals } from "@/components/analytics/web-vitals";
+import Script from "next/script";
 import NextTopLoader from "nextjs-toploader";
-import { getDictionary } from "./dictionaries";
+
+import { WebVitals } from "@/components/analytics/web-vitals";
+import { BackToTop } from "@/components/back-to-top";
+import { Header } from "@/components/header";
+import { LenisProvider } from "@/components/lenis-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { TopBar } from "@/components/top-bar";
+
 import "lenis/dist/lenis.css";
 import "../globals.css";
-import Script from "next/script";
+import { getDictionary } from "./dictionaries";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -170,7 +172,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
       <body className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
         <a
           href="#main-content"
-          className="focus:bg-background focus:text-foreground focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-1100 focus:rounded-sm focus:px-3 focus:py-2 focus:ring-2 focus:outline-none"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-1100 focus:rounded-sm focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
         >
           {skipToContentLabel}
         </a>

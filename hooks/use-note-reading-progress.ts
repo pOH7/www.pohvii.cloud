@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
 import { useLenis } from "lenis/react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface NoteTOCItem {
   id: string;
@@ -169,7 +169,6 @@ export function useNoteReadingProgress(
       }
     });
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTocItems(items);
   }, [contentRef, activeTab]); // Re-extract when tab changes
 

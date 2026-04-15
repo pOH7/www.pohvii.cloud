@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType, SVGProps } from "react";
+
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/social-icons";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,7 @@ const socialLinks: SocialLink[] = [
 
 export function TopBar() {
   return (
-    <div className="bg-background/95 border-border fixed inset-x-0 top-0 z-1040 h-7 border-b [border-bottom-style:dotted] backdrop-blur-sm">
+    <div className="fixed inset-x-0 top-0 z-1040 h-7 border-b [border-bottom-style:dotted] border-border bg-background/95 backdrop-blur-sm">
       <div className="mx-auto size-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-full items-center justify-end">
           <div className="flex items-center gap-3">
@@ -47,7 +48,7 @@ export function TopBar() {
                 title={`Follow on ${social.name}`}
                 aria-label={`Follow on ${social.name} (opens in a new tab)`}
                 className={cn(
-                  "text-muted-foreground hover:text-primary inline-flex size-4 items-center justify-center border-b-2 border-transparent transition-colors",
+                  "inline-flex size-4 items-center justify-center border-b-2 border-transparent text-muted-foreground transition-colors hover:text-primary",
                   "focus-visible:border-primary focus-visible:text-primary focus-visible:outline-none",
                   social.hiddenOn,
                   index === 1 && "hover:text-[#0077b5]"

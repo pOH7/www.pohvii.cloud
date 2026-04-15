@@ -1,8 +1,8 @@
 "use client";
 
+import { Calendar, Clock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, ArrowRight } from "lucide-react";
 
 interface BlogCardProps {
   slug: string;
@@ -38,13 +38,13 @@ export function BlogCard({
   return (
     <article
       data-index={index}
-      className={`bg-card border-border flex h-full flex-col rounded-md border ${
+      className={`flex h-full flex-col rounded-md border border-border bg-card ${
         isListLayout && hasImage ? "md:flex-row" : ""
       }`}
     >
       {image ? (
         <div
-          className={`border-border overflow-hidden ${
+          className={`overflow-hidden border-border ${
             isListLayout
               ? "aspect-video border-b md:aspect-square md:w-60 md:border-r md:border-b-0"
               : "aspect-video border-b"
@@ -66,7 +66,7 @@ export function BlogCard({
             <Link
               key={tag}
               href={`/${lang}/tag/${encodeURIComponent(tag)}`}
-              className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 text-xs no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="border-b-2 border-b-primary text-xs no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               #{tag}
             </Link>
@@ -76,17 +76,17 @@ export function BlogCard({
         <h2 className="text-xl/tight font-semibold">
           <Link
             href={`/${lang}/blog/${slug}`}
-            className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="border-b-2 border-b-primary no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             {title}
           </Link>
         </h2>
 
-        <p className="text-muted-foreground line-clamp-3 text-sm">
+        <p className="line-clamp-3 text-sm text-muted-foreground">
           {description}
         </p>
 
-        <div className="text-muted-foreground mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Calendar className="size-3.5" />
             {displayDate}
@@ -102,7 +102,7 @@ export function BlogCard({
         <div>
           <Link
             href={`/${lang}/blog/${slug}`}
-            className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex items-center gap-1 border-b-2 text-sm font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="inline-flex items-center gap-1 border-b-2 border-b-primary text-sm font-medium no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             Read article
             <ArrowRight className="size-3.5" />

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
 import { MDXRemote } from "next-mdx-remote";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
+import { useState, useEffect, useCallback, useRef } from "react";
+
 import { mdxComponents } from "@/components/mdx-components";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +46,6 @@ export function SectionTabs({
 
   // Mount and expose method to parent
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
 
     if (typeof window !== "undefined") {
@@ -74,7 +74,7 @@ export function SectionTabs({
 
       {/* Tabs Navigation */}
       <div
-        className="border-border mb-6 flex flex-wrap gap-2 border-b pb-2"
+        className="mb-6 flex flex-wrap gap-2 border-b border-border pb-2"
         role="tablist"
         aria-label={`${sectionTitle} tabs`}
       >
@@ -87,7 +87,7 @@ export function SectionTabs({
             aria-controls={`panel-${subsection.key}`}
             className={cn(
               "rounded-md px-4 py-2 font-medium transition-colors",
-              "focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none",
+              "focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none",
               activeTab === subsection.key
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"

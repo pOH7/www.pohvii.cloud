@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 
 interface CopyMarkdownButtonProps {

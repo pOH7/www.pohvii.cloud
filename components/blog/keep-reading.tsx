@@ -1,8 +1,8 @@
 "use client";
 
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export interface KeepReadingPost {
   slug: string;
@@ -30,16 +30,16 @@ function KeepReadingCard({
   return (
     <Link
       href={`/${lang}/blog/${post.slug}`}
-      className="bg-card border-border group hover:bg-accent flex h-full flex-col rounded-md border p-5 transition-colors"
+      className="group flex h-full flex-col rounded-md border border-border bg-card p-5 transition-colors hover:bg-accent"
     >
-      <div className="text-muted-foreground flex items-center gap-2 text-xs tracking-[0.24em] uppercase">
+      <div className="flex items-center gap-2 text-xs tracking-[0.24em] text-muted-foreground uppercase">
         {icon}
         <span>{label}</span>
       </div>
-      <h3 className="group-hover:text-primary mt-3 line-clamp-2 text-lg font-semibold">
+      <h3 className="mt-3 line-clamp-2 text-lg font-semibold group-hover:text-primary">
         {post.title}
       </h3>
-      <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
+      <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
         {post.description}
       </p>
       <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium">

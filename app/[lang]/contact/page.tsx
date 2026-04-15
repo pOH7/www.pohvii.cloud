@@ -1,6 +1,7 @@
-import Link from "next/link";
-import type { Metadata } from "next";
 import { ArrowRight, Globe, Mail } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+
 import { GitHubIcon, LinkedInIcon, XIcon } from "@/components/social-icons";
 import { Button } from "@/components/ui/button";
 import { supportedLangs, type SupportedLang } from "@/lib/i18n";
@@ -86,34 +87,34 @@ export default async function ContactPage(props: PageProps<"/[lang]/contact">) {
   const page = copy[lang as SupportedLang];
 
   function renderChannelIcon(icon: ContactChannel["icon"]) {
-    if (icon === "mail") return <Mail className="text-primary size-4" />;
+    if (icon === "mail") return <Mail className="size-4 text-primary" />;
     if (icon === "github")
-      return <GitHubIcon className="text-primary size-4" />;
-    if (icon === "x") return <XIcon className="text-primary size-4" />;
-    return <LinkedInIcon className="text-primary size-4" />;
+      return <GitHubIcon className="size-4 text-primary" />;
+    if (icon === "x") return <XIcon className="size-4 text-primary" />;
+    return <LinkedInIcon className="size-4 text-primary" />;
   }
 
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-12 md:px-8">
       <div className="mb-10 space-y-4 border-b [border-bottom-style:dotted] pb-6">
-        <p className="text-primary text-xs font-semibold tracking-[0.24em] uppercase">
+        <p className="text-xs font-semibold tracking-[0.24em] text-primary uppercase">
           {page.eyebrow}
         </p>
         <h1 className="max-w-3xl text-4xl font-bold tracking-tight md:text-5xl">
           {page.title}
         </h1>
-        <p className="text-muted-foreground max-w-3xl text-base md:text-lg">
+        <p className="max-w-3xl text-base text-muted-foreground md:text-lg">
           {page.heading}
         </p>
-        <p className="text-muted-foreground max-w-3xl text-base md:text-lg">
+        <p className="max-w-3xl text-base text-muted-foreground md:text-lg">
           {page.intro}
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <article className="bg-card border-border rounded-md border p-6">
+        <article className="rounded-md border border-border bg-card p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Mail className="text-primary size-5" />
+            <Mail className="size-5 text-primary" />
             <h2 className="text-xl font-semibold">{page.responseTitle}</h2>
           </div>
           <ul className="space-y-3 text-sm/6">
@@ -132,9 +133,9 @@ export default async function ContactPage(props: PageProps<"/[lang]/contact">) {
           </Button>
         </article>
 
-        <article className="bg-card border-border rounded-md border p-6">
+        <article className="rounded-md border border-border bg-card p-6">
           <div className="mb-4 flex items-center gap-2">
-            <Globe className="text-primary size-5" />
+            <Globe className="size-5 text-primary" />
             <h2 className="text-xl font-semibold">{page.channelsTitle}</h2>
           </div>
 
@@ -144,13 +145,13 @@ export default async function ContactPage(props: PageProps<"/[lang]/contact">) {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="border-border hover:border-primary hover:bg-accent focus-visible:outline-primary rounded-md border p-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="rounded-md border border-border p-4 transition-colors hover:border-primary hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   <div className="mb-2 flex items-center gap-2">
                     {renderChannelIcon(item.icon)}
                     <span className="font-medium">{item.label}</span>
                   </div>
-                  <p className="text-muted-foreground text-sm break-all">
+                  <p className="text-sm break-all text-muted-foreground">
                     {item.href.replace("mailto:", "")}
                   </p>
                 </Link>

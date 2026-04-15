@@ -1,15 +1,16 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
-import readingTime from "reading-time";
-import { serialize } from "next-mdx-remote/serialize";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import type { Element, Text } from "hast";
-// Syntax highlighting
 
+import matter from "gray-matter";
+import type { Element, Text } from "hast";
+import { serialize } from "next-mdx-remote/serialize";
+import readingTime from "reading-time";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+// Syntax highlighting
+import remarkGfm from "remark-gfm";
+
 import { normalizeBlogImage } from "./blog-image";
 
 export interface BlogFrontmatter {
@@ -111,7 +112,7 @@ export async function getPostBySlug(lang: string, slug: string) {
                 node.children = [space];
               }
               const first = node.children[0];
-              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              // oxlint-disable-next-line typescript/no-unnecessary-condition
               if (first && "type" in first && first.type === "text") {
                 const v = first.value;
                 const mark = v.trimStart().charAt(0);
@@ -128,7 +129,7 @@ export async function getPostBySlug(lang: string, slug: string) {
                     "~": "change",
                     "!": "change",
                   };
-                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                  // oxlint-disable-next-line typescript/no-unnecessary-condition
                   if (!node.properties) node.properties = {};
                   (node.properties as Record<string, unknown>)["data-diff"] =
                     map[mark];

@@ -13,7 +13,7 @@ const Tag: React.FC<TagProps> = ({ children, href, count, className = "" }) => {
       <span className="text-muted-foreground">#</span>
       <span className="text-foreground">{children}</span>
       {count && (
-        <span className="text-muted-foreground bg-muted rounded-sm px-1.5 py-0.5 text-xs">
+        <span className="rounded-sm bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
           {count}
         </span>
       )}
@@ -24,7 +24,7 @@ const Tag: React.FC<TagProps> = ({ children, href, count, className = "" }) => {
     return (
       <Link
         href={href}
-        className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary mr-3 mb-2 inline-block cursor-pointer border-b-2 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="mr-3 mb-2 inline-block cursor-pointer border-b-2 border-b-primary no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         {tagContent}
       </Link>

@@ -1,9 +1,10 @@
-import { TagLinksFooter } from "@/components/footer";
-import { BlogIndexClient } from "@/components/blog/blog-index-client";
-import { supportedLangs } from "@/lib/i18n";
 import type { Metadata } from "next";
-import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
+
+import { BlogIndexClient } from "@/components/blog/blog-index-client";
+import { TagLinksFooter } from "@/components/footer";
 import { getBlogDiscoveryPosts, getBlogDiscoveryTags } from "@/lib/blog-feed";
+import { supportedLangs } from "@/lib/i18n";
+import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
   const { lang } = await props.params;
@@ -12,7 +13,7 @@ export default async function BlogPage(props: PageProps<"/[lang]/blog">) {
   const footerTags = tags.map((tag) => tag.name).slice(0, 10);
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="min-h-screen bg-background text-foreground">
       <BlogIndexClient lang={lang} posts={posts} tags={tags} currentPage={1} />
       <TagLinksFooter allTags={footerTags} lang={lang} />
     </div>

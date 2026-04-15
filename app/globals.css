@@ -636,7 +636,7 @@ html.dark .blog-article-content code[data-theme*="github-dark"] span {
 
 .giscus-container:not(:has(.giscus-frame))::before {
   content: "Loading comments…";
-  @apply text-muted-foreground block py-10 text-center text-base;
+  @apply block py-10 text-center text-base text-muted-foreground;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--muted);

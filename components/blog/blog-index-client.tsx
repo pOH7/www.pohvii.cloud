@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { ArrowRight, Search, Rss } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useState } from "react";
+
 import { BlogCard } from "@/components/blog/blog-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -201,11 +202,11 @@ export function BlogIndexClient({
         <div className="mb-8 border-b [border-bottom-style:dotted] pb-6">
           <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div className="space-y-2">
-              <p className="text-primary text-xs font-semibold tracking-[0.24em] uppercase">
+              <p className="text-xs font-semibold tracking-[0.24em] text-primary uppercase">
                 Discover
               </p>
               <h1 className="text-3xl font-bold md:text-4xl">Blog</h1>
-              <p className="text-muted-foreground max-w-2xl text-sm md:text-base">
+              <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
                 Search by title or type a tag with{" "}
                 <span className="font-medium">#</span>.
               </p>
@@ -224,7 +225,7 @@ export function BlogIndexClient({
             <div className="relative">
               <label htmlFor="blog-index-search" className="relative block">
                 <span className="sr-only">Search posts</span>
-                <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="blog-index-search"
                   type="search"
@@ -251,7 +252,7 @@ export function BlogIndexClient({
                     event.preventDefault();
                     resetFilters();
                   }}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 text-xs font-medium"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-xs font-medium text-muted-foreground hover:text-foreground"
                 >
                   Clear
                 </button>
@@ -261,11 +262,11 @@ export function BlogIndexClient({
                 <div
                   role="listbox"
                   aria-label="Search suggestions"
-                  className="bg-background border-border absolute z-20 mt-2 w-full rounded-md border p-2 shadow-sm"
+                  className="absolute z-20 mt-2 w-full rounded-md border border-border bg-background p-2 shadow-sm"
                 >
                   {tagSuggestions.length > 0 ? (
                     <div className={postSuggestions.length > 0 ? "mb-2" : ""}>
-                      <p className="text-muted-foreground px-2 pb-1 text-[11px] font-semibold tracking-[0.18em] uppercase">
+                      <p className="px-2 pb-1 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
                         Tags
                       </p>
                       <div className="space-y-1">
@@ -278,12 +279,12 @@ export function BlogIndexClient({
                               event.preventDefault();
                               applyTagQuery(tag.name);
                             }}
-                            className="hover:bg-accent flex w-full items-center justify-between rounded-sm p-2 text-left text-sm"
+                            className="flex w-full items-center justify-between rounded-sm p-2 text-left text-sm hover:bg-accent"
                           >
                             <span>{tag.name}</span>
                             <span
                               aria-hidden="true"
-                              className="text-muted-foreground text-xs"
+                              className="text-xs text-muted-foreground"
                             >
                               #{tag.count}
                             </span>
@@ -295,7 +296,7 @@ export function BlogIndexClient({
 
                   {postSuggestions.length > 0 ? (
                     <div>
-                      <p className="text-muted-foreground px-2 pb-1 text-[11px] font-semibold tracking-[0.18em] uppercase">
+                      <p className="px-2 pb-1 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
                         Posts
                       </p>
                       <div className="space-y-1">
@@ -303,7 +304,7 @@ export function BlogIndexClient({
                           <Link
                             key={post.slug}
                             href={`/${lang}/blog/${post.slug}`}
-                            className="hover:bg-accent block rounded-sm p-2 text-sm"
+                            className="block rounded-sm p-2 text-sm hover:bg-accent"
                           >
                             {post.title}
                           </Link>
@@ -321,7 +322,7 @@ export function BlogIndexClient({
                   ? `${filteredPosts.length} article${filteredPosts.length === 1 ? "" : "s"} shown`
                   : `Showing ${visibleRangeStart}-${visibleRangeEnd} of ${posts.length} articles`}
               </p>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-xs text-muted-foreground">
                 {isTagMode ? "Tag search mode" : "Keyword search"}
               </p>
             </div>
@@ -329,11 +330,11 @@ export function BlogIndexClient({
         </div>
 
         {visiblePosts.length === 0 ? (
-          <div className="border-border bg-card rounded-md border p-8 text-center">
+          <div className="rounded-md border border-border bg-card p-8 text-center">
             <p className="text-lg font-medium">
               No articles match your filters.
             </p>
-            <p className="text-muted-foreground mt-2 text-sm">
+            <p className="mt-2 text-sm text-muted-foreground">
               Try a different keyword or reset the tag filter.
             </p>
             <Button

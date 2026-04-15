@@ -1,16 +1,18 @@
 "use client";
 
-import { useRef, memo, type RefObject } from "react";
-import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { ArrowLeft, Folder } from "lucide-react";
+import Link from "next/link";
+import { useRef, memo, type RefObject } from "react";
+
 import { Button } from "@/components/ui/button";
-import { type BlogArticleProps } from "./blog-article";
-import { TableOfContents } from "./table-of-contents";
+import { useReadingProgress } from "@/hooks/use-reading-progress";
+
 import { ArticleHeader } from "./article-header";
+import { type BlogArticleProps } from "./blog-article";
 import { GiscusComments } from "./giscus-comments";
 import { RelatedPosts } from "./related-posts";
-import { useReadingProgress } from "@/hooks/use-reading-progress";
+import { TableOfContents } from "./table-of-contents";
 
 export function BlogArticleWithTOC({
   post,
@@ -48,7 +50,7 @@ export function BlogArticleWithTOC({
   };
 
   return (
-    <div className="bg-background text-foreground min-h-screen overflow-x-clip">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-4 md:px-8">
         <Link href={`/${lang}/blog`}>
           <Button variant="outline" className="inline-flex items-center gap-2">
@@ -96,7 +98,7 @@ export function BlogArticleWithTOC({
       <div className="mx-auto w-full max-w-6xl px-4 md:px-8">
         <footer className="mb-12 border-t [border-top-style:dotted] pt-8">
           <div className="mb-6 flex items-center gap-2 text-xs">
-            <Folder className="text-primary size-4" />
+            <Folder className="size-4 text-primary" />
             <span className="text-primary">{post.category}</span>
           </div>
 

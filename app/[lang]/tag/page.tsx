@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
+
 import Tag from "@/components/blog/tag";
 import { getAllTags } from "@/lib/blog";
 import { supportedLangs } from "@/lib/i18n";
-import type { Metadata } from "next";
 import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
 
 export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
@@ -27,7 +28,7 @@ export default async function TagsPage(props: PageProps<"/[lang]/tag">) {
 
       {tags.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-muted-foreground text-xl">
+          <p className="text-xl text-muted-foreground">
             No tags found. Check back later!
           </p>
         </div>

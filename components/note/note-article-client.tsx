@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock, BookOpen } from "lucide-react";
 import {
   memo,
   useRef,
@@ -10,10 +11,10 @@ import {
   cloneElement,
   isValidElement,
 } from "react";
-import type { NoteMeta } from "@/lib/note";
+
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { useNoteReadingProgress } from "@/hooks/use-note-reading-progress";
-import { Clock, BookOpen } from "lucide-react";
+import type { NoteMeta } from "@/lib/note";
 
 interface NoteArticleClientProps {
   note: NoteMeta;
@@ -82,8 +83,8 @@ export function NoteArticleClient({
         {/* Main Content */}
         <article className="max-w-4xl min-w-0 flex-1" ref={contentRef}>
           {/* Header */}
-          <header className="border-border mb-8 border-b pb-6">
-            <div className="text-muted-foreground mb-3 flex items-center gap-2 text-sm">
+          <header className="mb-8 border-b border-border pb-6">
+            <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
               <BookOpen className="size-4" />
               <span className="capitalize">{lang}</span>
               <span className="text-muted-foreground/60">•</span>
@@ -92,7 +93,7 @@ export function NoteArticleClient({
             </div>
             <h1 className="mb-3 text-4xl font-bold">{note.title}</h1>
             {note.description && (
-              <p className="text-muted-foreground text-lg">
+              <p className="text-lg text-muted-foreground">
                 {note.description}
               </p>
             )}

@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { Check, Code2, Copy } from "lucide-react";
+import React from "react";
 import type { SimpleIcon } from "simple-icons";
 import {
   siC,
@@ -34,6 +34,7 @@ import {
   siYaml,
   siZsh,
 } from "simple-icons";
+
 import MermaidDiagram from "./MermaidDiagram";
 
 type DataProps = {
@@ -153,7 +154,7 @@ function CopyCodeButton({ onCopy }: CopyCodeButtonProps) {
       type="button"
       onClick={() => void handleCopy()}
       aria-label="Copy code"
-      className="border-border bg-background text-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors"
+      className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-xs text-foreground transition-colors hover:bg-muted"
     >
       {copied ? (
         <Check className="size-3.5" aria-hidden="true" />
@@ -225,7 +226,7 @@ export default function CodeBlock(props: PreProps) {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      // oxlint-disable-next-line typescript/no-unnecessary-condition
       if ("clipboard" in navigator && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
       } else {
@@ -261,10 +262,10 @@ export default function CodeBlock(props: PreProps) {
   return (
     <div
       data-mdx-code-block
-      className="group border-border bg-muted overflow-hidden rounded-lg border"
+      className="group overflow-hidden rounded-lg border border-border bg-muted"
     >
-      <div className="border-border bg-background/80 flex items-center justify-between border-b px-3 py-2">
-        <span className="text-muted-foreground inline-flex items-center gap-1.5 text-[11px] tracking-wider uppercase">
+      <div className="flex items-center justify-between border-b border-border bg-background/80 px-3 py-2">
+        <span className="inline-flex items-center gap-1.5 text-[11px] tracking-wider text-muted-foreground uppercase">
           <LanguageIcon language={languageLabel} />
           {languageLabel}
         </span>

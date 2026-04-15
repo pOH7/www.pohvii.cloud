@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import type { BlogPost } from "@/components/blog";
 
 export const SITE_URL = "https://www.pohvii.cloud";

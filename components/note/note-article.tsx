@@ -1,15 +1,16 @@
+import type { Element, Text } from "hast";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
+
 import { mdxComponents } from "@/components/mdx-components";
 import type { NoteMeta } from "@/lib/note";
-import { SectionTabs } from "./section-tabs";
-import { NoteArticleClient } from "./note-article-client";
-import remarkGfm from "remark-gfm";
-import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
-import type { Element, Text } from "hast";
 
-import rehypePrettyCode from "rehype-pretty-code";
+import { NoteArticleClient } from "./note-article-client";
+import { SectionTabs } from "./section-tabs";
 
 interface NoteArticleProps {
   note: NoteMeta;
@@ -78,7 +79,7 @@ export function NoteArticle({ note, lang }: NoteArticleProps) {
                                     "~": "change",
                                     "!": "change",
                                   };
-                                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                                  // oxlint-disable-next-line typescript/no-unnecessary-condition
                                   if (!node.properties) node.properties = {};
                                   (node.properties as Record<string, unknown>)[
                                     "data-diff"

@@ -1,7 +1,11 @@
 "use client";
 
+import { LogOut, User } from "lucide-react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { signIn, signOut, useSession } from "@/lib/auth-client";
+
+import type { Dictionary } from "@/app/[lang]/dictionaries";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,10 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import type { Dictionary } from "@/app/[lang]/dictionaries";
+import { signIn, signOut, useSession } from "@/lib/auth-client";
 
 interface AuthButtonProps {
   dictionary: Dictionary;
@@ -27,7 +28,6 @@ export function AuthButton({ dictionary }: AuthButtonProps) {
 
   // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Required for SSR hydration safety
     setMounted(true);
   }, []);
 
@@ -119,7 +119,7 @@ export function AuthButton({ dictionary }: AuthButtonProps) {
             <p className="text-sm leading-none font-medium">
               {session.user.name || dictionary.Auth.user}
             </p>
-            <p className="text-muted-foreground text-xs leading-none">
+            <p className="text-xs leading-none text-muted-foreground">
               {session.user.email}
             </p>
           </div>

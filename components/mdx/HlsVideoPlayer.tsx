@@ -1,19 +1,25 @@
 "use client";
 
-import { useEffect, useRef, type VideoHTMLAttributes } from "react";
-import type Plyr from "plyr";
 import type Hls from "hls.js";
 import type {
   LoaderContext,
   LoaderConfiguration,
   LoaderCallbacks,
 } from "hls.js";
+import { useEffect, useRef, type VideoHTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
-type PlyrInstance = Plyr;
-
 type HlsInstance = Hls | null;
+
+type PlyrInstance = {
+  destroy(): void;
+  play(): Promise<unknown> | void;
+  on(event: string, listener: () => void): void;
+  fullscreen: {
+    toggle(): void;
+  };
+};
 
 export interface HlsVideoPlayerProps extends VideoHTMLAttributes<HTMLVideoElement> {
   src: string;

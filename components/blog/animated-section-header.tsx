@@ -19,7 +19,7 @@ export function AnimatedSectionHeader({
     <div className="mb-8 border-b [border-bottom-style:dotted] pb-4">
       <h1 className="mb-2 text-3xl font-bold md:text-4xl">{title}</h1>
       {subtitle && (
-        <p className="text-muted-foreground text-sm md:text-base">{subtitle}</p>
+        <p className="text-sm text-muted-foreground md:text-base">{subtitle}</p>
       )}
     </div>
   );

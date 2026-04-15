@@ -1,6 +1,7 @@
 import "server-only";
-import { auth } from "./auth";
 import { headers } from "next/headers";
+
+import { auth } from "./auth";
 
 /**
  * Get the current user session from server components

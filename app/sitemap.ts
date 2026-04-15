@@ -1,11 +1,13 @@
-import type { MetadataRoute } from "next";
-import { getAllPostSlugs } from "@/lib/blog";
-import { getAllPostsWithIds } from "@/lib/self-healing-blog";
-import { generateSlug, combineSlugId } from "@/lib/post-id";
-import { getAllNoteTopics } from "@/lib/note";
 import fs from "fs";
 import path from "path";
+
 import matter from "gray-matter";
+import type { MetadataRoute } from "next";
+
+import { getAllPostSlugs } from "@/lib/blog";
+import { getAllNoteTopics } from "@/lib/note";
+import { generateSlug, combineSlugId } from "@/lib/post-id";
+import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 
 interface NoteFrontmatter {
   title?: string;

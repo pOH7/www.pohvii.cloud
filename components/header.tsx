@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Globe, Menu, X } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ThemeToggle } from "./theme-toggle";
-import { AuthButton } from "./auth/auth-button";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,7 +15,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import type { Dictionary } from "../app/[lang]/dictionaries";
+import { AuthButton } from "./auth/auth-button";
+import { ThemeToggle } from "./theme-toggle";
 
 const getNavigationItems = (lang: string) => [
   { key: "home" as const, href: `/${lang}/` },
@@ -63,14 +65,14 @@ function MobileNavigationMenu({
       </Button>
 
       {isSheetOpen && (
-        <div className="bg-background border-border absolute inset-x-0 top-full z-50 border-b p-4 lg:hidden">
+        <div className="absolute inset-x-0 top-full z-50 border-b border-border bg-background p-4 lg:hidden">
           <nav className="space-y-1">
             {navigationItems.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
                 onClick={() => setIsSheetOpen(false)}
-                className="hover:text-primary data-[active=true]:text-primary data-[active=true]:border-b-primary block border-b-2 border-b-transparent py-2 text-base no-underline transition-colors"
+                className="block border-b-2 border-b-transparent py-2 text-base no-underline transition-colors hover:text-primary data-[active=true]:border-b-primary data-[active=true]:text-primary"
                 data-active={isActiveNav(item.href)}
               >
                 {dictionary.Navigation[item.key]}
@@ -118,7 +120,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
   };
 
   return (
-    <header className="bg-background/95 border-border sticky top-7 z-50 w-full border-b [border-bottom-style:dotted] backdrop-blur-sm">
+    <header className="sticky top-7 z-50 w-full border-b [border-bottom-style:dotted] border-border bg-background/95 backdrop-blur-sm">
       <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
           <Link href={`/${currentLang}`} className="flex items-center gap-3">
@@ -137,7 +139,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
               <h1 className="truncate text-base/tight font-semibold tracking-tight">
                 {dictionary.Header.name}
               </h1>
-              <p className="text-muted-foreground truncate text-xs/tight">
+              <p className="truncate text-xs/tight text-muted-foreground">
                 {dictionary.Header.tagline}
               </p>
             </div>
@@ -148,7 +150,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
               <Link
                 key={item.key}
                 href={item.href}
-                className="hover:text-primary data-[active=true]:text-primary data-[active=true]:border-b-primary border-b-2 border-b-transparent text-sm font-medium no-underline transition-colors"
+                className="border-b-2 border-b-transparent text-sm font-medium no-underline transition-colors hover:text-primary data-[active=true]:border-b-primary data-[active=true]:text-primary"
                 data-active={isActiveNav(item.href)}
               >
                 {dictionary.Navigation[item.key]}

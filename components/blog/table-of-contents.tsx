@@ -1,10 +1,11 @@
 "use client";
 
+import { List, X } from "lucide-react";
 import { useEffect, useRef, useState, useId } from "react";
 import { Activity } from "react";
-import { List, X } from "lucide-react";
-import { Card } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { type TOCItem } from "@/hooks/use-reading-progress";
 
 export interface TableOfContentsProps {
@@ -88,7 +89,7 @@ export function TableOfContents({
             />
 
             <div
-              className="bg-background border-border fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto overscroll-contain rounded-t-md border-t lg:hidden [&_button]:cursor-pointer"
+              className="fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto overscroll-contain rounded-t-md border-t border-border bg-background lg:hidden [&_button]:cursor-pointer"
               id={mobilePanelId}
               role="dialog"
               aria-modal="true"
@@ -98,7 +99,7 @@ export function TableOfContents({
               <div className="p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <List className="text-primary size-4" />
+                    <List className="size-4 text-primary" />
                     <h3 id={mobileTitleId} className="text-sm font-semibold">
                       In this article
                     </h3>
@@ -150,7 +151,7 @@ export function TableOfContents({
       >
         <Card className="gap-0 rounded-md p-3">
           <div className="mb-2 flex items-center gap-2">
-            <List className="text-primary size-3.5" />
+            <List className="size-3.5 text-primary" />
             <h3 id={desktopTitleId} className="text-xs font-semibold">
               In this article
             </h3>

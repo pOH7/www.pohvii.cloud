@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import type {
   ExcalidrawInitialDataState,
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { cn } from "@/lib/utils";
+
 import "@excalidraw/excalidraw/index.css";
 
 const Excalidraw = dynamic(
@@ -15,7 +17,7 @@ const Excalidraw = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Loading Excalidraw…
       </div>
     ),
@@ -181,7 +183,7 @@ export function ExcalidrawViewer({
     return (
       <div
         className={cn(
-          "border-destructive/50 bg-destructive/10 text-destructive rounded-md border p-4 text-sm",
+          "rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive",
           className
         )}
       >
@@ -194,7 +196,7 @@ export function ExcalidrawViewer({
     return (
       <div
         className={cn(
-          "border-border bg-muted/30 text-muted-foreground flex w-full items-center justify-center rounded-lg border text-sm",
+          "flex w-full items-center justify-center rounded-lg border border-border bg-muted/30 text-sm text-muted-foreground",
           className
         )}
         style={{ height: resolvedHeight }}
@@ -207,7 +209,7 @@ export function ExcalidrawViewer({
   return (
     <div
       className={cn(
-        "border-border overflow-hidden rounded-lg border shadow-sm",
+        "overflow-hidden rounded-lg border border-border shadow-sm",
         className
       )}
       style={{ height: resolvedHeight }}

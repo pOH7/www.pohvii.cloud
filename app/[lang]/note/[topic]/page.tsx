@@ -1,11 +1,12 @@
-import { notFound } from "next/navigation";
-import { getNoteByTopic, getAllNoteTopics } from "@/lib/note";
-import { supportedLangs } from "@/lib/i18n";
-import { getSession } from "@/lib/auth-server";
-import { getDictionary } from "@/app/[lang]/dictionaries";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { getDictionary } from "@/app/[lang]/dictionaries";
 import { NoteArticle } from "@/components/note/note-article";
 import { ProtectedNoteGuard } from "@/components/note/protected-note-guard";
+import { getSession } from "@/lib/auth-server";
+import { supportedLangs } from "@/lib/i18n";
+import { getNoteByTopic, getAllNoteTopics } from "@/lib/note";
 
 // Force dynamic rendering for protected notes
 export const dynamic = "force-dynamic";

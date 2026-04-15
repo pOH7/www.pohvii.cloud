@@ -1,8 +1,8 @@
 "use client";
 
+import { Calendar, Folder, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Folder, ArrowRight } from "lucide-react";
 
 export interface BlogPost {
   slug: string;
@@ -45,10 +45,10 @@ export function RelatedPosts({
           return (
             <article
               key={post.slug}
-              className="bg-card border-border rounded-md border"
+              className="rounded-md border border-border bg-card"
             >
               {post.image ? (
-                <div className="border-border aspect-video overflow-hidden border-b">
+                <div className="aspect-video overflow-hidden border-b border-border">
                   <Image
                     src={post.image}
                     alt={post.title}
@@ -59,25 +59,25 @@ export function RelatedPosts({
                 </div>
               ) : null}
               <div className="space-y-3 p-4">
-                <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                  <Folder className="text-primary size-3.5" />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Folder className="size-3.5 text-primary" />
                   <span>{post.category}</span>
                 </div>
 
                 <h3 className="text-lg/tight font-semibold">
                   <Link
                     href={`/${lang}/blog/${post.slug}`}
-                    className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary border-b-2 no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="border-b-2 border-b-primary no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     {post.title}
                   </Link>
                 </h3>
 
-                <p className="text-muted-foreground line-clamp-2 text-sm">
+                <p className="line-clamp-2 text-sm text-muted-foreground">
                   {post.description}
                 </p>
 
-                <div className="text-muted-foreground flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     <Calendar className="size-3.5" />
                     {displayDate}
@@ -87,7 +87,7 @@ export function RelatedPosts({
 
                 <Link
                   href={`/${lang}/blog/${post.slug}`}
-                  className="border-b-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-primary inline-flex items-center gap-1 border-b-2 text-sm font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                  className="inline-flex items-center gap-1 border-b-2 border-b-primary text-sm font-medium no-underline transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   Read more
                   <ArrowRight className="size-3.5" />

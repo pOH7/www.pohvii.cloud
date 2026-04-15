@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { useLenis } from "lenis/react";
+import { useState, useEffect, useRef } from "react";
 
 export interface TOCItem {
   id: string;
@@ -80,7 +80,6 @@ export function useReadingProgress(
       });
     });
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTocItems(items);
   }, [contentRef]);
 

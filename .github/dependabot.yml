@@ -23,7 +23,6 @@ updates:
           - "nextjs-toploader"
           - "server-only"
           - "@types/react*"
-          - "eslint-config-next"
       # Group UI/styling dependencies
       ui:
         patterns:
@@ -40,11 +39,11 @@ updates:
       # Group development tools
       dev-tools:
         patterns:
-          - "eslint*"
-          - "prettier"
+          - "oxlint"
+          - "oxlint-*"
+          - "oxfmt"
           - "@playwright/*"
           - "typescript"
-          - "@eslint/*"
       # Group MDX/content processing
       content:
         patterns:

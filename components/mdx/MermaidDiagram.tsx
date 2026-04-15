@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import mermaid from "mermaid";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ZoomIn, ZoomOut, Maximize2, Maximize, Minimize } from "lucide-react";
+import mermaid from "mermaid";
 import { useTheme } from "next-themes";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 type MermaidDiagramProps = {
   chart: string;
@@ -79,7 +79,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
 
   const onCopy = async () => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      // oxlint-disable-next-line typescript/no-unnecessary-condition
       if ("clipboard" in navigator && navigator.clipboard) {
         await navigator.clipboard.writeText(chart);
       } else {
@@ -232,18 +232,18 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   if (error) {
     return (
       <div className="group relative">
-        <div className="border-destructive bg-destructive/10 rounded-lg border p-4">
-          <p className="text-destructive mb-2 text-sm font-medium">
+        <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
+          <p className="mb-2 text-sm font-medium text-destructive">
             Mermaid Diagram Error
           </p>
-          <pre className="text-muted-foreground overflow-auto text-xs">
+          <pre className="overflow-auto text-xs text-muted-foreground">
             {error}
           </pre>
           <details className="mt-3">
-            <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-xs">
+            <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
               View source
             </summary>
-            <pre className="bg-muted mt-2 max-h-[200px] overflow-auto rounded-sm p-2 text-xs">
+            <pre className="mt-2 max-h-[200px] overflow-auto rounded-sm bg-muted p-2 text-xs">
               {chart}
             </pre>
           </details>
@@ -255,7 +255,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   return (
     <div
       ref={containerRef}
-      className={`group relative my-6 ${isFullscreen ? "bg-background fixed inset-0 z-50 m-0" : ""}`}
+      className={`group relative my-6 ${isFullscreen ? "fixed inset-0 z-50 m-0 bg-background" : ""}`}
     >
       <TransformWrapper
         initialScale={1}
@@ -280,12 +280,12 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
               {/* Control buttons */}
               <div className="absolute top-2 right-2 z-20 flex items-center gap-2">
                 {/* Zoom controls */}
-                <div className="border-border bg-background/80 flex items-center gap-1 rounded-md border shadow-sm backdrop-blur-sm">
+                <div className="flex items-center gap-1 rounded-md border border-border bg-background/80 shadow-sm backdrop-blur-sm">
                   <button
                     type="button"
                     onClick={() => zoomIn()}
                     aria-label="Zoom in"
-                    className="text-foreground hover:bg-muted rounded-l-md p-2 transition-colors"
+                    className="rounded-l-md p-2 text-foreground transition-colors hover:bg-muted"
                   >
                     <ZoomIn className="size-4" />
                   </button>
@@ -293,7 +293,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                     type="button"
                     onClick={() => zoomOut()}
                     aria-label="Zoom out"
-                    className="text-foreground hover:bg-muted p-2 transition-colors"
+                    className="p-2 text-foreground transition-colors hover:bg-muted"
                   >
                     <ZoomOut className="size-4" />
                   </button>
@@ -301,7 +301,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                     type="button"
                     onClick={fitToViewport}
                     aria-label="Fit to viewport"
-                    className="text-foreground hover:bg-muted p-2 transition-colors"
+                    className="p-2 text-foreground transition-colors hover:bg-muted"
                   >
                     <Maximize2 className="size-4" />
                   </button>
@@ -311,7 +311,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                     aria-label={
                       isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
                     }
-                    className="text-foreground hover:bg-muted rounded-r-md p-2 transition-colors"
+                    className="rounded-r-md p-2 text-foreground transition-colors hover:bg-muted"
                   >
                     {isFullscreen ? (
                       <Minimize className="size-4" />
@@ -326,20 +326,20 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
                   type="button"
                   onClick={() => void onCopy()}
                   aria-label="Copy diagram source"
-                  className="border-border bg-background/80 text-foreground hover:bg-muted flex h-9 items-center rounded-md border px-2 py-1 text-xs opacity-100 shadow-sm backdrop-blur-sm transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
+                  className="flex h-9 items-center rounded-md border border-border bg-background/80 px-2 py-1 text-xs text-foreground opacity-100 shadow-sm backdrop-blur-sm transition-opacity hover:bg-muted sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
                 >
                   {copied ? "Copied" : "Copy"}
                 </button>
               </div>
 
               {/* Mermaid badge */}
-              <span className="bg-background/80 text-muted-foreground border-border pointer-events-none absolute top-2 left-2 z-20 rounded-md border px-2 py-0.5 text-[10px] tracking-wider uppercase opacity-100 backdrop-blur-sm transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+              <span className="pointer-events-none absolute top-2 left-2 z-20 rounded-md border border-border bg-background/80 px-2 py-0.5 text-[10px] tracking-wider text-muted-foreground uppercase opacity-100 backdrop-blur-sm transition-opacity select-none sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
                 mermaid
               </span>
 
               {/* Diagram container with pan/zoom */}
               <div
-                className={`border-border bg-background w-full overflow-hidden rounded-lg border ${isFullscreen ? "h-screen w-screen" : "h-[500px]"}`}
+                className={`w-full overflow-hidden rounded-lg border border-border bg-background ${isFullscreen ? "h-screen w-screen" : "h-[500px]"}`}
               >
                 <TransformComponent
                   wrapperClass="w-full h-full"

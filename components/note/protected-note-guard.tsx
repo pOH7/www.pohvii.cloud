@@ -1,10 +1,11 @@
 "use client";
 
-import { signIn } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { usePathname } from "next/navigation";
+
 import type { Dictionary } from "@/app/[lang]/dictionaries";
+import { Button } from "@/components/ui/button";
+import { signIn } from "@/lib/auth-client";
 
 interface ProtectedNoteGuardProps {
   noteTitle: string;
@@ -32,8 +33,8 @@ export function ProtectedNoteGuard({
       <div className="mx-auto w-full max-w-md space-y-6 px-4 text-center">
         {/* Lock Icon */}
         <div className="flex justify-center">
-          <div className="bg-primary/10 rounded-full p-6">
-            <Lock className="text-primary size-12" />
+          <div className="rounded-full bg-primary/10 p-6">
+            <Lock className="size-12 text-primary" />
           </div>
         </div>
 
@@ -63,7 +64,7 @@ export function ProtectedNoteGuard({
         </div>
 
         {/* Info */}
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           {dictionary.Auth.protectedNoteInfo}
         </p>
       </div>
