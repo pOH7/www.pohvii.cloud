@@ -1,19 +1,29 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const HEADER_OFFSET_MIN = 72;
-const HEADER_OFFSET_MAX = 120;
+const HEADER_SCROLL_MARGIN_TOLERANCE_PX = 64;
 
 async function expectTargetNearHeaderOffset(page: Page, id: string) {
   await page.waitForTimeout(2_000);
 
-  const top = await page.evaluate((elementId) => {
-    return (
-      document.getElementById(elementId)?.getBoundingClientRect().top ?? -1
-    );
+  const { headerBottom, top } = await page.evaluate((elementId) => {
+    const header = document.querySelector("header");
+    const headerRect = header?.getBoundingClientRect();
+
+    return {
+      headerBottom: headerRect?.bottom ?? 0,
+      top:
+        document.getElementById(elementId)?.getBoundingClientRect().top ?? -1,
+    };
   }, id);
 
-  expect(top).toBeGreaterThanOrEqual(HEADER_OFFSET_MIN);
-  expect(top).toBeLessThanOrEqual(HEADER_OFFSET_MAX);
+  expect(
+    headerBottom,
+    "Expected a sticky header element to be present"
+  ).toBeGreaterThan(0);
+  expect(top).toBeGreaterThanOrEqual(headerBottom - 1);
+  expect(top).toBeLessThanOrEqual(
+    headerBottom + HEADER_SCROLL_MARGIN_TOLERANCE_PX
+  );
 }
 
 async function typeIntoBlogSearch(page: Page, value: string) {
@@ -329,7 +339,7 @@ test("Sitemap stays blog-only and keeps content-backed blog dates", async ({
   );
   const locs = Array.from(
     xml.matchAll(/<loc>(.*?)<\/loc>/g),
-    (match) => match[1] ?? ""
+    (match) => match[1]
   );
   const staticIndexes = new Set([
     "https://www.pohvii.cloud/en/",
