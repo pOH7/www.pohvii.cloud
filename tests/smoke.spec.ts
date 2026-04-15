@@ -48,6 +48,12 @@ test("English homepage renders the monograph introduction", async ({
   ).toBeVisible();
   await expect(page.getByText("Clarity over theatre")).toBeVisible();
   await expect(page.getByText("Writing as engineering")).toBeVisible();
+  await expect(
+    page.getByText(
+      "No launch story and no conversion funnel. Just the working assumptions behind the software and the writing that survives implementation details."
+    )
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Notes" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "English" })).toHaveCount(0);
 });
 
@@ -66,6 +72,12 @@ test("Chinese homepage renders the monograph introduction", async ({
   ).toBeVisible();
   await expect(page.getByText("清晰胜过表演")).toBeVisible();
   await expect(page.getByText("写作也是工程的一部分")).toBeVisible();
+  await expect(
+    page.getByText(
+      "这里没有包装过的个人叙事，也没有转化导向的页面结构。只有我在做软件时反复验证的一些前提，以及那些在实现细节变化之后仍然值得保留的文字。"
+    )
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "笔记" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "中文" })).toHaveCount(0);
 });
 
@@ -299,7 +311,7 @@ test("Blog detail shows updated date when lastModified exists", async ({
   await expect(page.getByText("Updated Mar 30, 2026")).toBeVisible();
 });
 
-test("Sitemap omits synthetic lastModified values for static indexes and keeps content-backed blog dates", async ({
+test("Sitemap stays blog-only and keeps content-backed blog dates", async ({
   request,
 }) => {
   const response = await request.get("/sitemap.xml");
@@ -311,19 +323,61 @@ test("Sitemap omits synthetic lastModified values for static indexes and keeps c
     xml,
     "https://www.pohvii.cloud/en/blog/"
   );
-  const englishNoteIndex = getSitemapUrlEntry(
-    xml,
-    "https://www.pohvii.cloud/en/note/"
-  );
   const windowsPost = getSitemapUrlEntry(
     xml,
     "https://www.pohvii.cloud/en/blog/installing-windows-on-proxmox-ve-pve-9a943890/"
   );
+  const locs = Array.from(
+    xml.matchAll(/<loc>(.*?)<\/loc>/g),
+    (match) => match[1] ?? ""
+  );
+  const staticIndexes = new Set([
+    "https://www.pohvii.cloud/en/",
+    "https://www.pohvii.cloud/zh/",
+    "https://www.pohvii.cloud/en/blog/",
+    "https://www.pohvii.cloud/zh/blog/",
+  ]);
+  const dynamicEntries = locs.filter((loc) => !staticIndexes.has(loc));
 
   expect(englishHome).not.toContain("<lastmod>");
   expect(englishBlogIndex).not.toContain("<lastmod>");
-  expect(englishNoteIndex).not.toContain("<lastmod>");
+  expect(dynamicEntries.length).toBeGreaterThan(0);
+  expect(dynamicEntries.every((loc) => loc.includes("/blog/"))).toBe(true);
   expect(windowsPost).toContain("<lastmod>2026-03-30");
+});
+
+test("RSS feed description stays blog-only", async ({ request }) => {
+  const response = await request.get("/rss.xml");
+  expect(response.ok()).toBe(true);
+
+  const xml = await response.text();
+  expect(xml).toContain(
+    "<description>Latest blog posts from Léon Zhang.</description>"
+  );
+  expect(xml).not.toContain("technical notes");
+});
+
+test("About, contact, and footer copy stay blog-only", async ({ page }) => {
+  await page.goto("/en/about");
+
+  await expect(
+    page.getByText(
+      "This site is a working record of ideas, experiments, and long-form technical writing."
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "If you have a question about an article or a specific implementation detail, reach out directly."
+    )
+  ).toBeVisible();
+
+  await page.goto("/en/contact");
+  await expect(page.getByText("Feedback on a blog post.")).toBeVisible();
+
+  await page.goto("/en/blog");
+  await expect(
+    page.getByText("Browse topic pages to find related articles.")
+  ).toBeVisible();
 });
 
 test("About and Contact pages render instead of 404s", async ({ page }) => {
