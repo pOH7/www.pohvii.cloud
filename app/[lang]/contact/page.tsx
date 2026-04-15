@@ -44,7 +44,7 @@ const copy: Record<SupportedLang, ContactCopy> = {
       "The fastest way to reach me is email. I also keep public profiles on GitHub, X, and LinkedIn for lightweight updates and follow-up conversations.",
     responseTitle: "What to send",
     responseItems: [
-      "Feedback on an article or note.",
+      "Feedback on a blog post.",
       "A technical question about the site or a post.",
       "A collaboration or consulting inquiry.",
     ],
@@ -67,7 +67,7 @@ const copy: Record<SupportedLang, ContactCopy> = {
       "最快的方式是发邮件。我也在 GitHub、X 和 LinkedIn 上保留了公开资料，方便轻量沟通和后续联系。",
     responseTitle: "可以发送什么",
     responseItems: [
-      "对文章或笔记的反馈。",
+      "对文章的反馈。",
       "关于站点或某篇内容的技术问题。",
       "合作或咨询类需求。",
     ],

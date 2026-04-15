@@ -15,7 +15,7 @@ export function TagLinksFooter({ allTags, lang }: TagLinksFooterProps) {
         <div className="mb-5">
           <h3 className="mb-2 text-2xl font-bold">More great resources</h3>
           <p className="text-sm text-muted-foreground">
-            Browse topic pages to find grouped notes and articles.
+            Browse topic pages to find related articles.
           </p>
         </div>
 

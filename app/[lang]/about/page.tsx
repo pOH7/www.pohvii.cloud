@@ -10,11 +10,11 @@ const copy = {
   en: {
     title: "About",
     description:
-      "Learn about Léon Zhang, a software engineer who writes about web development, Java, React, TypeScript, and practical engineering notes.",
+      "Learn about Léon Zhang, a software engineer who writes about web development, Java, React, TypeScript, and practical software engineering.",
     eyebrow: "About this site",
     heading: "I build and document software with a bias toward clarity.",
     intro:
-      "This site is a working notebook for ideas, experiments, and long-form technical notes. The focus stays on durable systems, readable code, and lessons that are useful after the implementation details have changed.",
+      "This site is a working record of ideas, experiments, and long-form technical writing. The focus stays on durable systems, readable code, and lessons that are useful after the implementation details have changed.",
     focusTitle: "What I care about",
     focusItems: [
       "Practical frontend and backend engineering that ships.",
@@ -32,11 +32,11 @@ const copy = {
   zh: {
     title: "关于",
     description:
-      "了解 Léon Zhang，一名关注 Web 开发、Java、React、TypeScript 和实用工程笔记的软件工程师。",
+      "了解 Léon Zhang，一名关注 Web 开发、Java、React、TypeScript 和软件工程实践的软件工程师。",
     eyebrow: "站点简介",
     heading: "我更关注把软件做清楚，而不是把它包装得很复杂。",
     intro:
-      "这个站点更像是一个持续更新的工作手记，记录想法、实验和较长篇幅的技术笔记。重点始终放在可维护的系统、可读的代码，以及在实现细节变化之后仍然有价值的经验。",
+      "这个站点更像是一份持续更新的工作记录，记录想法、实验和较长篇幅的技术写作。重点始终放在可维护的系统、可读的代码，以及在实现细节变化之后仍然有价值的经验。",
     focusTitle: "我在意的事情",
     focusItems: [
       "能真正交付的前端和后端工程实践。",
@@ -114,8 +114,8 @@ export default async function AboutPage(props: PageProps<"/[lang]/about">) {
           </div>
           <p className="text-sm/6 text-muted-foreground">
             {lang === "zh"
-              ? "如果你对我的文章、笔记，或者某个实现细节有疑问，可以直接联系我。"
-              : "If you have a question about an article, a note, or a specific implementation detail, reach out directly."}
+              ? "如果你对我的文章或某个实现细节有疑问，可以直接联系我。"
+              : "If you have a question about an article or a specific implementation detail, reach out directly."}
           </p>
           <Button asChild className="mt-6 w-full">
             <Link href={`/${lang}/contact/`}>

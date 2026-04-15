@@ -2,8 +2,7 @@ import { getBlogFeedItems } from "@/lib/blog-feed";
 
 const siteUrl = "https://www.pohvii.cloud";
 const feedTitle = "Léon Zhang";
-const feedDescription =
-  "Latest blog posts and technical notes from Léon Zhang.";
+const feedDescription = "Latest blog posts from Léon Zhang.";
 
 function escapeXml(value: string) {
   return value
