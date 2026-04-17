@@ -6,6 +6,14 @@ async function expectTargetNearHeaderOffset(page: Page, id: string) {
   const banner = page.getByRole("banner").first();
   await expect(banner).toBeVisible();
 
+  const headerBottom = await banner.evaluate(
+    (header) => header.getBoundingClientRect().bottom
+  );
+  expect(
+    headerBottom,
+    "Expected a banner landmark to be present"
+  ).toBeGreaterThan(0);
+
   const scrollMargin = await page.evaluate((elementId) => {
     const element = document.getElementById(elementId);
     if (!element) return 0;
@@ -25,39 +33,32 @@ async function expectTargetNearHeaderOffset(page: Page, id: string) {
     `Expected #${id} to define non-zero scroll-margin-top/scroll-margin-block-start`
   ).toBeGreaterThan(0);
 
-  const getHeaderBottom = async () => {
-    return banner.evaluate((header) => header.getBoundingClientRect().bottom);
-  };
-
-  const getTargetTop = async () => {
-    return page.evaluate((elementId) => {
-      return (
-        document.getElementById(elementId)?.getBoundingClientRect().top ?? -1
-      );
-    }, id);
-  };
-
-  const getTargetDeltaFromHeader = async () => {
-    const [targetTop, headerBottom] = await Promise.all([
-      getTargetTop(),
-      getHeaderBottom(),
-    ]);
-
-    expect(
-      headerBottom,
-      "Expected a banner landmark header to be present"
-    ).toBeGreaterThan(0);
-
-    return targetTop - headerBottom;
-  };
-
   await expect
-    .poll(async () => getTargetDeltaFromHeader(), { timeout: 5_000 })
-    .toBeGreaterThanOrEqual(-1);
+    .poll(
+      async () => {
+        return page.evaluate(
+          ({ elementId, margin }) => {
+            const target = document.getElementById(elementId);
+            if (!target) return Number.POSITIVE_INFINITY;
 
-  await expect
-    .poll(async () => getTargetDeltaFromHeader(), { timeout: 5_000 })
-    .toBeLessThanOrEqual(scrollMargin + SCROLL_OFFSET_TOLERANCE_PX);
+            const targetTop = target.getBoundingClientRect().top;
+            const targetDocumentTop = window.scrollY + targetTop;
+            const maxScrollY =
+              document.documentElement.scrollHeight - window.innerHeight;
+            const expectedScrollY = Math.min(
+              Math.max(0, targetDocumentTop - margin),
+              maxScrollY
+            );
+            const expectedTop = targetDocumentTop - expectedScrollY;
+
+            return Math.abs(targetTop - expectedTop);
+          },
+          { elementId: id, margin: scrollMargin }
+        );
+      },
+      { timeout: 5_000 }
+    )
+    .toBeLessThanOrEqual(SCROLL_OFFSET_TOLERANCE_PX);
 }
 
 async function typeIntoBlogSearch(page: Page, value: string) {
