@@ -8,4 +8,4 @@ Use a hard cutover approach and never implement backward compatibility.
 
 Dark mode, mobile-first
 
-Content: `content/blog/en`, `content/note/en`
+Content: `content/blog/en`
