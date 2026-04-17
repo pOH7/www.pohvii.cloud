@@ -1,29 +1,63 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const HEADER_SCROLL_MARGIN_TOLERANCE_PX = 64;
+const SCROLL_OFFSET_TOLERANCE_PX = 8;
 
 async function expectTargetNearHeaderOffset(page: Page, id: string) {
-  await page.waitForTimeout(2_000);
+  const banner = page.getByRole("banner").first();
+  await expect(banner).toBeVisible();
 
-  const { headerBottom, top } = await page.evaluate((elementId) => {
-    const header = document.querySelector("header");
-    const headerRect = header?.getBoundingClientRect();
+  const scrollMargin = await page.evaluate((elementId) => {
+    const element = document.getElementById(elementId);
+    if (!element) return 0;
 
-    return {
-      headerBottom: headerRect?.bottom ?? 0,
-      top:
-        document.getElementById(elementId)?.getBoundingClientRect().top ?? -1,
-    };
+    const style = window.getComputedStyle(element);
+    const blockStart = Number.parseFloat(style.scrollMarginBlockStart);
+    const top = Number.parseFloat(style.scrollMarginTop);
+
+    return Math.max(
+      Number.isFinite(blockStart) ? blockStart : 0,
+      Number.isFinite(top) ? top : 0
+    );
   }, id);
 
   expect(
-    headerBottom,
-    "Expected a sticky header element to be present"
+    scrollMargin,
+    `Expected #${id} to define non-zero scroll-margin-top/scroll-margin-block-start`
   ).toBeGreaterThan(0);
-  expect(top).toBeGreaterThanOrEqual(headerBottom - 1);
-  expect(top).toBeLessThanOrEqual(
-    headerBottom + HEADER_SCROLL_MARGIN_TOLERANCE_PX
-  );
+
+  const getHeaderBottom = async () => {
+    return banner.evaluate((header) => header.getBoundingClientRect().bottom);
+  };
+
+  const getTargetTop = async () => {
+    return page.evaluate((elementId) => {
+      return (
+        document.getElementById(elementId)?.getBoundingClientRect().top ?? -1
+      );
+    }, id);
+  };
+
+  const getTargetDeltaFromHeader = async () => {
+    const [targetTop, headerBottom] = await Promise.all([
+      getTargetTop(),
+      getHeaderBottom(),
+    ]);
+
+    expect(
+      headerBottom,
+      "Expected a banner landmark header to be present"
+    ).toBeGreaterThan(0);
+
+    return targetTop - headerBottom;
+  };
+
+  await expect
+    .poll(async () => getTargetDeltaFromHeader(), { timeout: 5_000 })
+    .toBeGreaterThanOrEqual(-1);
+
+  await expect
+    .poll(async () => getTargetDeltaFromHeader(), { timeout: 5_000 })
+    .toBeLessThanOrEqual(scrollMargin + SCROLL_OFFSET_TOLERANCE_PX);
 }
 
 async function typeIntoBlogSearch(page: Page, value: string) {
