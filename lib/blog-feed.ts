@@ -9,7 +9,11 @@ import { combineSlugId, generateSlug } from "./post-id";
 import { getAllPostsWithIds } from "./self-healing-blog";
 
 const siteUrl = "https://www.pohvii.cloud";
-const contentDir = path.join(process.cwd(), "content", "blog");
+const contentDir = path.join(
+  /*turbopackIgnore: true*/ process.cwd(),
+  "content",
+  "blog"
+);
 
 export interface BlogDiscoveryPost {
   slug: string;

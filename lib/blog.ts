@@ -2,14 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import matter from "gray-matter";
-import type { Element, Text } from "hast";
-import { serialize } from "next-mdx-remote/serialize";
 import readingTime from "reading-time";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypePrettyCode from "rehype-pretty-code";
-import rehypeSlug from "rehype-slug";
-// Syntax highlighting
-import remarkGfm from "remark-gfm";
 
 import { normalizeBlogImage } from "./blog-image";
 
@@ -39,7 +32,11 @@ export interface BlogMeta extends Omit<
   video?: string;
 }
 
-const contentDir = path.join(process.cwd(), "content", "blog");
+const contentDir = path.join(
+  /*turbopackIgnore: true*/ process.cwd(),
+  "content",
+  "blog"
+);
 
 function getLangDir(lang: string) {
   return path.join(contentDir, lang);
@@ -94,74 +91,7 @@ export async function getPostBySlug(lang: string, slug: string) {
     readTime: readingTime(content).text,
   };
 
-  const mdxSource = await serialize(content, {
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [
-        [
-          rehypePrettyCode,
-          {
-            keepBackground: false,
-            theme: {
-              light: "github-light-default",
-              dark: "github-dark-default",
-            },
-            onVisitLine(node: Element) {
-              if (node.children.length === 0) {
-                const space: Text = { type: "text", value: " " };
-                node.children = [space];
-              }
-              const first = node.children[0];
-              // oxlint-disable-next-line typescript/no-unnecessary-condition
-              if (first && "type" in first && first.type === "text") {
-                const v = first.value;
-                const mark = v.trimStart().charAt(0);
-                const leading = v.match(/^\s*/)?.[0] || "";
-                if (
-                  mark === "+" ||
-                  mark === "-" ||
-                  mark === "~" ||
-                  mark === "!"
-                ) {
-                  const map: Record<string, string> = {
-                    "+": "add",
-                    "-": "remove",
-                    "~": "change",
-                    "!": "change",
-                  };
-                  // oxlint-disable-next-line typescript/no-unnecessary-condition
-                  if (!node.properties) node.properties = {};
-                  (node.properties as Record<string, unknown>)["data-diff"] =
-                    map[mark];
-                  first.value =
-                    leading + v.trimStart().slice(1).replace(/^\s/, "");
-                }
-              }
-            },
-          },
-        ],
-        rehypeSlug,
-        [
-          rehypeAutolinkHeadings,
-          {
-            behavior: "prepend",
-            properties: {
-              className: ["heading-anchor"],
-              ariaLabel: "Link to this section",
-            },
-            content: {
-              type: "text",
-              value: "",
-            },
-          },
-        ],
-      ],
-      development: process.env.NODE_ENV === "development",
-    },
-    parseFrontmatter: false,
-  });
-
-  return { meta, mdxSource, rawContent: content } as const;
+  return { meta, rawContent: content } as const;
 }
 
 export function getAllPosts(lang: string): BlogMeta[] {
