@@ -18,11 +18,12 @@ id: e38e563a
 ---
 
 If your workflow creates a pull request but does not auto-merge, there are
-usually three things to configure:
+usually four things to configure:
 
 1. Enable auto-merge for the repository
-2. Allow GitHub Actions to create pull requests
-3. Give the workflow write permissions and explicitly merge the PR
+2. Add a required branch rule that makes auto-merge meaningful
+3. Allow GitHub Actions to create pull requests
+4. Give the workflow write permissions and explicitly merge the PR
 
 This is the minimal setup.
 
@@ -36,6 +37,28 @@ Open your repository on GitHub:
 One important detail from GitHub Docs: the **Enable auto-merge** option only
 appears on pull requests that cannot be merged immediately, for example when
 branch protection requires reviews or status checks.
+
+## Add a Required Branch Rule
+
+`gh pr merge --auto` does not just mean "merge this later." It asks GitHub to
+enable auto-merge for the pull request. GitHub only accepts that when the target
+branch has a required branch protection rule or ruleset requirement.
+
+A minimal ruleset that works for bot-created pull requests is:
+
+- `Settings` -> `Rules` -> `Rulesets`
+- Create or edit a branch ruleset that targets the default branch
+- Add `Require a pull request before merging`
+- Set required approvals to `0` if the automation should merge without human
+  review
+
+That rule blocks direct pushes to the protected branch, but still lets the bot
+create a pull request and queue auto-merge.
+
+Do not add a required status check unless a check will actually report on the
+bot-created pull request. Pull requests opened with the repository
+`GITHUB_TOKEN` usually will not trigger follow-up workflow runs, because GitHub
+suppresses most events created by `GITHUB_TOKEN` to avoid recursive workflows.
 
 ## Allow Actions to Create Pull Requests
 
@@ -100,7 +123,24 @@ If your branch protection requires checks or approvals, `--auto` will leave the
 PR waiting until requirements pass. If the PR is already mergeable, GitHub CLI
 can merge it immediately.
 
-## Common Failure
+## Common Failures
+
+If the job fails with:
+
+```text
+GraphQL: Pull request Branch does not have required protected branch rules (enablePullRequestAutoMerge)
+```
+
+or:
+
+```text
+GraphQL: Pull request Protected branch rules not configured for this branch (enablePullRequestAutoMerge)
+```
+
+the repository can allow auto-merge and still be missing the required branch
+rule for `--auto`. Add a ruleset requirement such as `Require a pull request
+before merging`. Rules that only prevent deletion or force pushes are not enough
+for this auto-merge path.
 
 If the job fails with:
 
@@ -118,7 +158,9 @@ the usual fix is repository configuration, not workflow syntax:
 
 - [Managing auto-merge for pull requests in your repository](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository)
 - [Automatically merging a pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/automatically-merging-a-pull-request)
+- [Available rules for rulesets](https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
 - [Managing GitHub Actions settings for a repository](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository)
 - [Use `GITHUB_TOKEN` for authentication in workflows](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token)
+- [Triggering a workflow from a workflow](https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow)
 - [GitHub CLI: `gh pr merge`](https://cli.github.com/manual/gh_pr_merge)
 - [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request)
