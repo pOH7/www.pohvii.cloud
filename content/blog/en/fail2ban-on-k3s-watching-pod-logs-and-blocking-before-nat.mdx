@@ -1,0 +1,323 @@
+---
+title: "Fail2Ban on k3s: Watching Pod Logs and Blocking Before NAT"
+description: >-
+  A practical guide to using Fail2Ban with Kubernetes or k3s logs, preserving
+  client IPs through Traefik, and blocking pod traffic in the raw table
+  PREROUTING chain before Kubernetes service NAT rewrites the packet path.
+date: 2026-05-06
+author: Léon Zhang
+category: Infrastructure
+tags:
+  - Fail2Ban
+  - Kubernetes
+  - k3s
+  - Traefik
+  - iptables
+  - Security
+  - DevOps
+id: 2b6f2b46
+---
+
+Kubernetes does not make brute-force protection disappear. It only changes
+where the evidence is and where the ban needs to happen.
+
+If an application running in k3s logs failed authentication attempts like this:
+
+```text
+crm_auth_failure ip=203.0.113.20 provider=credentials code=PASSWORD_INVALID
+```
+
+Fail2Ban can still protect it. The important detail is that the ban should not
+be treated like a normal local Linux service ban.
+
+For pod traffic, this is the pattern I use:
+
+```yaml
+crm_auth_banaction: 'iptables-multiport[blocktype="DROP", iptables="iptables <lockingopt> -t raw"]'
+crm_auth_chain: PREROUTING
+```
+
+That says: insert the ban in the `raw` table, at `PREROUTING`, before
+Kubernetes service NAT and forwarding rules reshape the packet flow.
+
+## Why INPUT Is the Wrong Mental Model
+
+On a traditional server, Fail2Ban often blocks SSH or Nginx traffic in an
+`INPUT` chain. That works because the packet is destined for a process on the
+host.
+
+Kubernetes is different. A request that arrives at the node may be forwarded to
+a pod, translated through service rules, handled by an ingress controller, or
+routed through kube-proxy-managed chains. It is not necessarily a packet for a
+local host process.
+
+If you ban too late, you may be filtering after Kubernetes has already applied
+DNAT or moved the packet into a forwarding path. The rule can look correct and
+still sit in the wrong place for the traffic you care about.
+
+`PREROUTING` is earlier. In the `raw` table, it happens before connection
+tracking and before NAT decisions. That makes it a useful place to drop a known
+bad source IP before Kubernetes has a chance to translate or forward the
+packet.
+
+The practical rule is:
+
+> For internet traffic entering a Kubernetes node, ban before Kubernetes service
+> NAT, not after it.
+
+## The Assumption You Must Verify
+
+The IP in the application log must match the source IP visible to the node.
+
+If your app logs `203.0.113.20`, but the packet source that reaches the node
+is actually a load balancer, CDN, reverse proxy, or ingress pod, a raw
+`PREROUTING` ban for `203.0.113.20` will not block the packet. The host
+cannot drop a source address it never sees at layer 3.
+
+This pattern works best when one of these is true:
+
+- the node receives the real client source IP
+- your ingress preserves the real source IP at the network layer
+- your application logs the same IP that the host sees as the packet source
+
+If the app only learns the client IP from `X-Forwarded-For`, treat that as a
+separate trust boundary. Fail2Ban can parse the header-derived IP, but iptables
+can only block the packet source that arrives at the node.
+
+## Preserve Client IP in Traefik
+
+For k3s clusters that use the bundled Traefik ingress controller, make sure the
+Traefik Service preserves the external source IP.
+
+In k3s, that usually means a `HelmChartConfig` like this:
+
+```yaml
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    service:
+      spec:
+        externalTrafficPolicy: "Local"
+```
+
+The key setting is:
+
+```yaml
+externalTrafficPolicy: "Local"
+```
+
+Without it, Kubernetes may SNAT traffic as it moves traffic through the Service
+path. Your application may still receive a client-looking value through
+headers, but the host-level firewall may only see a node, load balancer, or
+proxy source address. In that case, Fail2Ban can parse the real IP from the log
+but the raw-table iptables rule will not match the packet that reaches the
+node.
+
+With `externalTrafficPolicy: "Local"`, Kubernetes keeps the original client
+source IP for external traffic sent to local endpoints. That makes the app log,
+the Traefik request path, and the host firewall see the same source address.
+
+There is a deployment trade-off: in a multi-node cluster, `Local` only sends
+traffic to nodes that have a local Traefik endpoint. Make sure your external
+load balancer targets nodes where Traefik is running, or run Traefik on every
+externally reachable node. On a single-node k3s host, this is usually exactly
+what you want.
+
+## Reading k3s Container Logs
+
+k3s writes container logs under the normal Kubernetes log locations. The most
+convenient path for Fail2Ban is usually `/var/log/containers`, where each file
+is a symlink to the pod log:
+
+```text
+/var/log/containers/<pod>_<namespace>_<container>-<container-id>.log
+```
+
+For a CRM app named `project-registration-system` in namespace `crm`, the jail
+can use a glob:
+
+```ini
+logpath = /var/log/containers/project-registration-system-*_crm_project-registration-system-*.log
+```
+
+This is better than pinning a full pod name, because Deployment pods are
+temporary. A name such as
+`project-registration-system-5444bd865-lj5ll` will change after a rollout.
+
+There is one catch: Fail2Ban expands the glob when the jail loads. If the pod
+is replaced later, the running jail can keep watching the old expanded file
+until you reload that jail.
+
+## Filter the Application Signal
+
+Make the application emit one stable log line for each failed credential
+attempt:
+
+```text
+crm_auth_failure ip=203.0.113.20 provider=credentials code=PASSWORD_INVALID
+```
+
+Then keep the Fail2Ban filter narrow:
+
+```ini
+[Definition]
+failregex = ^.*crm_auth_failure ip=<ADDR> provider=credentials code=(EMAIL_INVALID|MICROSOFT_SSO_REQUIRED|PASSWORD_INVALID|USER_NOT_FOUND|PASSWORD_NOT_SET)(?:\s|$).*$
+ignoreregex =
+```
+
+This avoids parsing generic framework logs and gives the application control
+over what counts as an authentication failure.
+
+## Jail Configuration
+
+A minimal jail looks like this:
+
+```ini
+[crm-auth]
+enabled = true
+port = http,https
+filter = crm-auth
+banaction = iptables-multiport[blocktype="DROP", iptables="iptables <lockingopt> -t raw"]
+chain = PREROUTING
+logpath = /var/log/containers/project-registration-system-*_crm_project-registration-system-*.log
+maxretry = 8
+bantime = 1800
+findtime = 900
+```
+
+In Ansible variables, the same intent is clearer as separate values:
+
+```yaml
+crm_auth_logpath: /var/log/containers/project-registration-system-*_crm_project-registration-system-*.log
+crm_auth_banaction: 'iptables-multiport[blocktype="DROP", iptables="iptables <lockingopt> -t raw"]'
+crm_auth_chain: PREROUTING
+crm_auth_maxretry: 8
+crm_auth_bantime: 1800
+crm_auth_findtime: 900
+```
+
+The key part is not the retry count. Tune that for your users. The key part is
+the action and chain:
+
+```ini
+banaction = iptables-multiport[blocktype="DROP", iptables="iptables <lockingopt> -t raw"]
+chain = PREROUTING
+```
+
+`iptables-multiport` still creates port-scoped bans for `http,https`, but it
+does so through the `raw` table. The `chain = PREROUTING` setting places the
+rule where incoming packets can be dropped before Kubernetes service routing
+gets involved.
+
+## Refresh the Jail When Pods Change
+
+After a rollout, check what Fail2Ban is actually watching:
+
+```bash
+sudo fail2ban-client status crm-auth
+```
+
+If the `File list` shows an old pod name, reload only that jail:
+
+```bash
+sudo fail2ban-client reload crm-auth
+```
+
+That is enough to re-expand the `logpath` glob and attach the jail to the
+current pod log.
+
+For a durable setup, add a systemd path unit on the host that watches
+`/var/log/containers` and reloads the jail when Kubernetes changes container
+log symlinks.
+
+Service:
+
+```ini
+[Unit]
+Description=Reload Fail2Ban crm-auth jail when the Kubernetes CRM log symlink changes
+Wants=fail2ban.service
+After=fail2ban.service
+ConditionPathExistsGlob=/var/log/containers/project-registration-system-*_crm_project-registration-system-*.log
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/fail2ban-client reload crm-auth
+```
+
+Path unit:
+
+```ini
+[Unit]
+Description=Watch Kubernetes container log symlink changes for the CRM Fail2Ban jail
+ConditionPathIsDirectory=/var/log/containers
+
+[Path]
+PathChanged=/var/log/containers
+Unit=crm-auth-logpath-refresh.service
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now crm-auth-logpath-refresh.path
+```
+
+Now pod replacement refreshes the jail without restarting the whole Fail2Ban
+service.
+
+## Verify the Whole Path
+
+First, confirm the log line matches the filter:
+
+```bash
+sudo fail2ban-regex \
+  /var/log/containers/project-registration-system-*_crm_project-registration-system-*.log \
+  /etc/fail2ban/filter.d/crm-auth.local
+```
+
+Then check the jail state:
+
+```bash
+sudo fail2ban-client status crm-auth
+```
+
+You should see the current pod log in the `File list`.
+
+To inspect the firewall side:
+
+```bash
+sudo iptables -t raw -S PREROUTING
+```
+
+For a controlled manual test, ban a test IP and inspect the rule:
+
+```bash
+sudo fail2ban-client set crm-auth banip 203.0.113.10
+sudo iptables -t raw -S PREROUTING | grep 203.0.113.10
+sudo fail2ban-client set crm-auth unbanip 203.0.113.10
+```
+
+On newer distributions, `iptables` may be backed by nftables through the
+`iptables-nft` compatibility layer. The operational check is still the same:
+verify that Fail2Ban inserted the ban into the raw-table `PREROUTING` path
+that your node actually uses.
+
+## The Rule
+
+For Kubernetes or k3s workloads, Fail2Ban has three jobs:
+
+1. Preserve the real source IP with Traefik `externalTrafficPolicy: "Local"`.
+2. Read a stable application failure signal from Kubernetes container logs.
+3. Drop the bad source IP before Kubernetes rewrites or forwards the packet.
+
+The first job makes the ban possible. The second is solved with a narrow filter
+and a pod-log glob. The third is why the ban belongs at the raw `PREROUTING`
+chain.
