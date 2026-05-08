@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const SCROLL_OFFSET_TOLERANCE_PX = 8;
+const MERMAID_FIT_RATIO = 0.9;
 
 async function expectTargetNearHeaderOffset(page: Page, id: string) {
   const banner = page.getByRole("banner").first();
@@ -76,6 +77,22 @@ function getSitemapUrlEntry(xml: string, loc: string): string {
 
   expect(entry, `Expected sitemap entry for ${loc}`).toBeTruthy();
   return entry ?? "";
+}
+
+async function getMermaidVisibleWidthRatio(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const svg = document.querySelector('svg[id^="mermaid-"]');
+    const wrapper = svg?.closest(".react-transform-wrapper");
+
+    if (!svg || !wrapper) {
+      return 0;
+    }
+
+    const svgRect = svg.getBoundingClientRect();
+    const wrapperRect = wrapper.getBoundingClientRect();
+
+    return svgRect.width / wrapperRect.width;
+  });
 }
 
 test("English homepage renders the monograph introduction", async ({
@@ -484,6 +501,64 @@ test("Root document does not rely on native smooth scrolling", async ({
       });
     })
     .toBe("auto");
+});
+
+test("Lenis owns root wheel scrolling", async ({ page }) => {
+  await page.goto("/en");
+
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        return document.documentElement.classList.contains("lenis");
+      });
+    })
+    .toBe(true);
+
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        const event = new WheelEvent("wheel", {
+          bubbles: true,
+          cancelable: true,
+          deltaY: 160,
+        });
+
+        window.dispatchEvent(event);
+
+        return event.defaultPrevented;
+      });
+    })
+    .toBe(true);
+});
+
+test("Mermaid diagram remains fitted after fullscreen toggles", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(
+    "/en/blog/file-upload-architecture-control-in-the-app-bytes-in-object-storage-97edd890"
+  );
+
+  await expect(page.locator('svg[id^="mermaid-"]').first()).toBeVisible();
+  await expect
+    .poll(() => getMermaidVisibleWidthRatio(page))
+    .toBeGreaterThan(MERMAID_FIT_RATIO);
+
+  await page.getByRole("button", { name: "Enter fullscreen" }).click();
+  await expect
+    .poll(() => page.evaluate(() => Boolean(document.fullscreenElement)))
+    .toBe(true);
+  await expect
+    .poll(() => getMermaidVisibleWidthRatio(page))
+    .toBeGreaterThan(MERMAID_FIT_RATIO);
+
+  await page.getByRole("button", { name: "Exit fullscreen" }).click();
+  await expect
+    .poll(() => page.evaluate(() => Boolean(document.fullscreenElement)))
+    .toBe(false);
+  await expect
+    .poll(() => getMermaidVisibleWidthRatio(page))
+    .toBeGreaterThan(MERMAID_FIT_RATIO);
 });
 
 test("Comments button lands the comments section below the sticky header", async ({

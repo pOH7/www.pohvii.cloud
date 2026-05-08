@@ -1,8 +1,9 @@
 "use client";
 
-import { sendGAEvent } from "@next/third-parties/google";
 import { useEffect } from "react";
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
+
+import { sendGAEvent } from "./send-ga-event";
 
 export function WebVitals() {
   useEffect(() => {

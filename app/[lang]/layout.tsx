@@ -1,15 +1,15 @@
-import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import Script from "next/script";
-import NextTopLoader from "nextjs-toploader";
 
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import { BackToTop } from "@/components/back-to-top";
 import { Header } from "@/components/header";
 import { LenisProvider } from "@/components/lenis-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TopBar } from "@/components/top-bar";
+import { TopLoader } from "@/components/top-loader";
 
 import "lenis/dist/lenis.css";
 import "../globals.css";
@@ -125,6 +125,8 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
   const { children } = props;
   const dictionary = await getDictionary(lang as "en" | "zh");
   const isProduction = process.env.NODE_ENV === "production";
+  const enableReactDiagnostics =
+    !isProduction && process.env.ENABLE_REACT_DIAGNOSTICS === "true";
   const skipToContentLabel =
     lang === "zh" ? "跳到主要内容" : "Skip to main content";
 
@@ -149,7 +151,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
   return (
     <html lang={lang} suppressHydrationWarning>
       <head>
-        {!isProduction && (
+        {enableReactDiagnostics && (
           <>
             <Script
               src="//unpkg.com/react-scan/dist/auto.global.js"
@@ -176,18 +178,7 @@ export default async function LangLayout(props: LayoutProps<"/[lang]">) {
         >
           {skipToContentLabel}
         </a>
-        <NextTopLoader
-          color="var(--primary)"
-          initialPosition={0.08}
-          crawlSpeed={200}
-          height={3}
-          crawl={true}
-          showSpinner={false}
-          easing="cubic-bezier(0.4, 0, 0.2, 1)"
-          speed={200}
-          shadow="0 0 10px color-mix(in oklab, var(--primary) 55%, transparent)"
-          zIndex={1050}
-        />
+        <TopLoader />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LenisProvider>
             <TopBar />

@@ -10,6 +10,25 @@ type MermaidDiagramProps = {
   chart: string;
 };
 
+function getSvgLayoutSize(svgElement: SVGSVGElement) {
+  const width = svgElement.width.baseVal.value;
+  const height = svgElement.height.baseVal.value;
+
+  if (width > 0 && height > 0) {
+    return { width, height };
+  }
+
+  const viewBox = svgElement.viewBox.baseVal;
+
+  if (viewBox.width > 0 && viewBox.height > 0) {
+    return { width: viewBox.width, height: viewBox.height };
+  }
+
+  const rect = svgElement.getBoundingClientRect();
+
+  return { width: rect.width, height: rect.height };
+}
+
 export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
@@ -148,7 +167,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     let containerHeight = (wrapperDiv as HTMLElement).clientHeight;
 
     if (containerHeight < 100) {
-      containerHeight = isFullscreen ? window.innerHeight : 500;
+      containerHeight = document.fullscreenElement ? window.innerHeight : 500;
     }
 
     // Use stored original SVG dimensions
@@ -168,7 +187,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
         transformRef.current.centerView(finalScale);
       }
     }
-  }, [isFullscreen]);
+  }, []);
 
   // Store original SVG dimensions when SVG first loads
   useEffect(() => {
@@ -190,11 +209,9 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
             const wrapperDiv = container.querySelector("div.rounded-lg.border");
             const svgElement = wrapperDiv?.querySelector('svg[id^="mermaid-"]');
             if (svgElement) {
-              const svgRect = svgElement.getBoundingClientRect();
-              originalSvgSizeRef.current = {
-                width: svgRect.width,
-                height: svgRect.height,
-              };
+              originalSvgSizeRef.current = getSvgLayoutSize(
+                svgElement as SVGSVGElement
+              );
               hasInitializedRef.current = true;
 
               // Initial fit to viewport

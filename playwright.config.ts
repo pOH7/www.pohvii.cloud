@@ -78,8 +78,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    // Build once then start the Next.js server for E2E tests
-    command: `pnpm run build && pnpm exec next start --port ${playwrightPort} --hostname 127.0.0.1`,
+    // Build once then start the vinext production server for E2E tests.
+    command: `pnpm run build && pnpm exec vinext start --port ${playwrightPort} --hostname 127.0.0.1`,
     url: playwrightBaseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
