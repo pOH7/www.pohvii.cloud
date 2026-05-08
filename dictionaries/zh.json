@@ -21,11 +21,5 @@
     "title": "404",
     "message": "未找到您要访问的页面。",
     "cta": "返回首页"
-  },
-  "Auth": {
-    "login": "登录",
-    "logout": "退出",
-    "user": "用户",
-    "signInWithGitHub": "使用 GitHub 登录"
   }
 }

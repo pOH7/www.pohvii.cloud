@@ -21,11 +21,5 @@
     "title": "404",
     "message": "The page you're looking for could not be found.",
     "cta": "Go back home"
-  },
-  "Auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "user": "User",
-    "signInWithGitHub": "Sign in with GitHub"
   }
 }

@@ -19,7 +19,15 @@
 
 # vinext
 /.vinext/
+/.wrangler/
 /dist/
+/bundled/
+/bundled-static/
+
+# generated static metadata
+/public/rss.xml
+/public/sitemap.xml
+/public/robots.txt
 
 # production
 /build

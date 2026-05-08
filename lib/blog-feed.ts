@@ -1,19 +1,10 @@
-import fs from "fs";
-import path from "path";
-
-import matter from "gray-matter";
-
 import { getAllTags, type TagWithCount } from "./blog";
+import { getRawBlogEntries } from "./blog-content";
 import { supportedLangs } from "./i18n";
 import { combineSlugId, generateSlug } from "./post-id";
 import { getAllPostsWithIds } from "./self-healing-blog";
 
 const siteUrl = "https://www.pohvii.cloud";
-const contentDir = path.join(
-  /*turbopackIgnore: true*/ process.cwd(),
-  "content",
-  "blog"
-);
 
 export interface BlogDiscoveryPost {
   slug: string;
@@ -47,10 +38,6 @@ interface BlogFeedFrontmatter {
   tags?: string[];
   image?: string;
   id?: string;
-}
-
-function getLangDir(lang: string) {
-  return path.join(contentDir, lang);
 }
 
 function toValidDate(value: unknown): Date {
@@ -93,18 +80,10 @@ export function getBlogDiscoveryTags(lang: string): TagWithCount[] {
 }
 
 function readFeedItemsForLang(lang: string): BlogFeedItem[] {
-  const dir = getLangDir(lang);
-  if (!fs.existsSync(dir)) return [];
-
-  return fs
-    .readdirSync(dir)
-    .filter((file) => file.endsWith(".mdx") || file.endsWith(".md"))
-    .map((file) => {
-      const filePath = path.join(dir, file);
-      const raw = fs.readFileSync(filePath, "utf8");
-      const { data } = matter(raw);
-      const fm = data as BlogFeedFrontmatter;
-      const title = fm.title?.trim() || file.replace(/\.(mdx?|MDX?)$/, "");
+  return getRawBlogEntries(lang)
+    .map((entry) => {
+      const fm = entry.data as BlogFeedFrontmatter;
+      const title = fm.title?.trim() || entry.slug;
       const id = normalizePostId(fm.id);
       const canonicalSlug = getCanonicalSlug(title, id || undefined);
       const pubDate = toValidDate(fm.lastModified ?? fm.date);

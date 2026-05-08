@@ -480,12 +480,6 @@ test("Contact page uses the updated email and public profile links", async ({
   ).toHaveAttribute("href", "https://www.linkedin.com/in/léon-zhang/");
 });
 
-test("Auth session endpoint no longer returns 404", async ({ request }) => {
-  const response = await request.get("/api/auth/get-session/");
-
-  expect(response.status()).not.toBe(404);
-});
-
 test("Root document does not rely on native smooth scrolling", async ({
   page,
 }) => {

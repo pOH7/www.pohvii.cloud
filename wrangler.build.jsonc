@@ -1,9 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "www-pohvii-cloud",
-  "main": "./worker/static-assets.ts",
+  "name": "www-pohvii-cloud-build",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-05-08",
-  "preview_urls": true,
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist/client",
     "not_found_handling": "none",

@@ -1,18 +1,11 @@
-import type { Element, Text } from "hast";
 import type { Metadata } from "next";
-import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound, redirect } from "next/navigation";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-// Syntax highlighting
-import rehypePrettyCode from "rehype-pretty-code";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
 
 import { BlogArticle, type BlogPost } from "@/components/blog";
 import { mdxComponents } from "@/components/mdx-components";
+import { getBlogMdxComponent } from "@/lib/blog-content";
 import { supportedLangs } from "@/lib/i18n";
 import { parseSlugId, generateSlug } from "@/lib/post-id";
-import rehypeNumberedHeadings from "@/lib/rehypeNumberedHeadings";
 // Remove unused import - we'll use getAllPostsWithIds for related posts
 import {
   getPostBySlugId,
@@ -108,6 +101,8 @@ export default async function BlogDetailPage(
   }
 
   const mdx = selfHealingResult;
+  const MdxContent = getBlogMdxComponent(lang, mdx.sourceSlug);
+  if (!MdxContent) notFound();
 
   const all = getAllPostsWithIds(lang);
   const adjacentPosts = getAdjacentPosts(all, mdx.meta.slug, mdx.meta.id);
@@ -162,82 +157,7 @@ export default async function BlogDetailPage(
         lang={lang}
         markdownSource={mdx.rawContent}
       >
-        <MDXRemote
-          source={mdx.rawContent}
-          components={mdxComponents}
-          options={{
-            mdxOptions: {
-              remarkPlugins: [remarkGfm],
-              rehypePlugins: [
-                // Ensure slug IDs are based on the original text (without numbers)
-                rehypeSlug,
-                // Then prefix visible headings with hierarchical numbers
-                rehypeNumberedHeadings,
-                // Syntax highlighting via Shiki
-                [
-                  rehypePrettyCode,
-                  {
-                    keepBackground: false,
-                    theme: {
-                      light: "github-light-default",
-                      dark: "github-dark-default",
-                    },
-                    onVisitLine(node: Element) {
-                      // Prevent lines from collapsing so copy/select keeps structure
-                      if (node.children.length === 0) {
-                        const space: Text = { type: "text", value: " " };
-                        node.children = [space];
-                      }
-                      // Diff-style detection: + added, - removed, ~ changed
-                      const first = node.children[0];
-                      // oxlint-disable-next-line typescript/no-unnecessary-condition
-                      if (first && "type" in first && first.type === "text") {
-                        const v = first.value;
-                        const mark = v.trimStart().charAt(0);
-                        const leading = v.match(/^\s*/)?.[0] || "";
-                        if (
-                          mark === "+" ||
-                          mark === "-" ||
-                          mark === "~" ||
-                          mark === "!"
-                        ) {
-                          const map: Record<string, string> = {
-                            "+": "add",
-                            "-": "remove",
-                            "~": "change",
-                            "!": "change",
-                          };
-                          // oxlint-disable-next-line typescript/no-unnecessary-condition
-                          if (!node.properties) node.properties = {};
-                          (node.properties as Record<string, unknown>)[
-                            "data-diff"
-                          ] = map[mark];
-                          // remove the marker and following optional space
-                          first.value =
-                            leading + v.trimStart().slice(1).replace(/^\s/, "");
-                        }
-                      }
-                    },
-                  },
-                ],
-                [
-                  rehypeAutolinkHeadings,
-                  {
-                    behavior: "prepend",
-                    properties: {
-                      className: ["heading-anchor"],
-                      ariaLabel: "Link to this section",
-                    },
-                    content: {
-                      type: "text",
-                      value: "",
-                    },
-                  },
-                ],
-              ],
-            },
-          }}
-        />
+        <MdxContent components={mdxComponents} />
       </BlogArticle>
     </>
   );

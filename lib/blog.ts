@@ -1,9 +1,6 @@
-import fs from "fs";
-import path from "path";
-
-import matter from "gray-matter";
 import readingTime from "reading-time";
 
+import { getRawBlogEntries, getRawBlogEntryBySlug } from "./blog-content";
 import { normalizeBlogImage } from "./blog-image";
 
 export interface BlogFrontmatter {
@@ -32,33 +29,15 @@ export interface BlogMeta extends Omit<
   video?: string;
 }
 
-const contentDir = path.join(
-  /*turbopackIgnore: true*/ process.cwd(),
-  "content",
-  "blog"
-);
-
-function getLangDir(lang: string) {
-  return path.join(contentDir, lang);
-}
-
 export function getAllPostSlugs(lang: string): string[] {
-  const dir = getLangDir(lang);
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(".mdx") || f.endsWith(".md"))
-    .map((f) => f.replace(/\.(mdx?|MDX?)$/, ""));
+  return getRawBlogEntries(lang).map((entry) => entry.slug);
 }
 
 export async function getPostBySlug(lang: string, slug: string) {
-  const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
-  if (!fs.existsSync(filePath)) return null;
+  const entry = getRawBlogEntryBySlug(lang, slug);
+  if (!entry) return null;
 
-  const raw = fs.readFileSync(filePath, "utf8");
-  const { content, data } = matter(raw);
-
-  const fm = data as Partial<BlogFrontmatter>;
+  const fm = entry.data as Partial<BlogFrontmatter>;
 
   const formatDate = (value: unknown): string => {
     if (value instanceof Date) {
@@ -88,21 +67,17 @@ export async function getPostBySlug(lang: string, slug: string) {
     tags: fm.tags ?? [],
     image: normalizeBlogImage(fm.image),
     ...(fm.video && { video: fm.video }),
-    readTime: readingTime(content).text,
+    readTime: readingTime(entry.content).text,
   };
 
-  return { meta, rawContent: content } as const;
+  return { meta, rawContent: entry.content } as const;
 }
 
 export function getAllPosts(lang: string): BlogMeta[] {
-  const slugs = getAllPostSlugs(lang);
   const posts: { post: BlogMeta; originalDate: string | Date }[] = [];
 
-  for (const slug of slugs) {
-    const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
-    const raw = fs.readFileSync(filePath, "utf8");
-    const { content, data } = matter(raw);
-    const fm = data as Partial<BlogFrontmatter>;
+  for (const entry of getRawBlogEntries(lang)) {
+    const fm = entry.data as Partial<BlogFrontmatter>;
     const formatDate = (value: unknown): string => {
       if (value instanceof Date) {
         return value.toLocaleDateString(undefined, {
@@ -120,9 +95,9 @@ export function getAllPosts(lang: string): BlogMeta[] {
     };
     posts.push({
       post: {
-        slug,
+        slug: entry.slug,
         lang,
-        title: fm.title ?? slug,
+        title: fm.title ?? entry.slug,
         description: fm.description ?? "",
         date: formatDate(fm.date),
         ...(fm.lastModified && { lastModified: formatDate(fm.lastModified) }),
@@ -131,7 +106,7 @@ export function getAllPosts(lang: string): BlogMeta[] {
         tags: fm.tags ?? [],
         image: normalizeBlogImage(fm.image),
         ...(fm.video && { video: fm.video }),
-        readTime: readingTime(content).text,
+        readTime: readingTime(entry.content).text,
       },
       originalDate: fm.date ?? new Date(),
     });

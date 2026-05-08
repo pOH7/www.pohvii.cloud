@@ -1,9 +1,6 @@
-import fs from "fs";
-import path from "path";
-
-import matter from "gray-matter";
 import readingTime from "reading-time";
 
+import { getRawBlogEntries, getRawBlogEntryBySlug } from "./blog-content";
 import { normalizeBlogImage } from "./blog-image";
 import {
   parseSlugId,
@@ -42,19 +39,10 @@ export interface BlogMeta extends Omit<
 
 export interface SelfHealingResult {
   meta: BlogMeta;
+  sourceSlug: string;
   rawContent: string;
   needsRedirect: boolean;
   canonicalUrl: string;
-}
-
-const contentDir = path.join(
-  /*turbopackIgnore: true*/ process.cwd(),
-  "content",
-  "blog"
-);
-
-function getLangDir(lang: string) {
-  return path.join(contentDir, lang);
 }
 
 function normalizePostId(value: unknown): string {
@@ -66,12 +54,7 @@ function normalizePostId(value: unknown): string {
 }
 
 export function getAllPostSlugs(lang: string): string[] {
-  const dir = getLangDir(lang);
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(".mdx") || f.endsWith(".md"))
-    .map((f) => f.replace(/\.(mdx?|MDX?)$/, ""));
+  return getRawBlogEntries(lang).map((entry) => entry.slug);
 }
 
 /**
@@ -81,21 +64,11 @@ export async function getPostById(
   lang: string,
   id: string
 ): Promise<SelfHealingResult | null> {
-  const dir = getLangDir(lang);
-  if (!fs.existsSync(dir)) return null;
-
-  const files = fs.readdirSync(dir);
-
-  for (const file of files) {
-    if (!file.endsWith(".mdx") && !file.endsWith(".md")) continue;
-
-    const filePath = path.join(dir, file);
-    const raw = fs.readFileSync(filePath, "utf8");
-    const { content, data } = matter(raw);
-    const fm = data as Partial<BlogFrontmatter>;
+  for (const entry of getRawBlogEntries(lang)) {
+    const fm = entry.data as Partial<BlogFrontmatter>;
 
     if (normalizePostId(fm.id) === id) {
-      return await buildSelfHealingResult(lang, content, fm, "");
+      return await buildSelfHealingResult(lang, entry.content, fm, entry.slug);
     }
   }
 
@@ -142,14 +115,12 @@ async function getPostBySlugLegacy(
   lang: string,
   slug: string
 ): Promise<SelfHealingResult | null> {
-  const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
-  if (!fs.existsSync(filePath)) return null;
+  const entry = getRawBlogEntryBySlug(lang, slug);
+  if (!entry) return null;
 
-  const raw = fs.readFileSync(filePath, "utf8");
-  const { content, data } = matter(raw);
-  const fm = data as Partial<BlogFrontmatter>;
+  const fm = entry.data as Partial<BlogFrontmatter>;
 
-  return await buildSelfHealingResult(lang, content, fm, slug);
+  return await buildSelfHealingResult(lang, entry.content, fm, slug);
 }
 
 /**
@@ -203,6 +174,7 @@ async function buildSelfHealingResult(
 
   return {
     meta,
+    sourceSlug: fallbackSlug,
     rawContent: content,
     needsRedirect: false, // Will be set by caller if needed
     canonicalUrl,
@@ -213,14 +185,10 @@ async function buildSelfHealingResult(
  * Get all posts with self-healing URL format
  */
 export function getAllPostsWithIds(lang: string): BlogMeta[] {
-  const slugs = getAllPostSlugs(lang);
   const posts: { post: BlogMeta; originalDate: string | Date }[] = [];
 
-  for (const slug of slugs) {
-    const filePath = path.join(getLangDir(lang), `${slug}.mdx`);
-    const raw = fs.readFileSync(filePath, "utf8");
-    const { content, data } = matter(raw);
-    const fm = data as Partial<BlogFrontmatter>;
+  for (const entry of getRawBlogEntries(lang)) {
+    const fm = entry.data as Partial<BlogFrontmatter>;
 
     const formatDate = (value: unknown): string => {
       if (value instanceof Date) {
@@ -238,7 +206,7 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
       });
     };
 
-    const title = fm.title ?? slug;
+    const title = fm.title ?? entry.slug;
     const currentSlug = generateSlug(title);
     const postId = normalizePostId(fm.id);
 
@@ -255,7 +223,7 @@ export function getAllPostsWithIds(lang: string): BlogMeta[] {
         tags: fm.tags ?? [],
         image: normalizeBlogImage(fm.image),
         ...(fm.video && { video: fm.video }),
-        readTime: readingTime(content).text,
+        readTime: readingTime(entry.content).text,
         id: postId,
       },
       originalDate: fm.date ?? new Date(),

@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import type { Dictionary } from "../app/[lang]/dictionaries";
-import { AuthButton } from "./auth/auth-button";
 import { ThemeToggle } from "./theme-toggle";
 
 const getNavigationItems = (lang: string) => [
@@ -185,7 +184,6 @@ export function Header({ dictionary, lang }: HeaderProps) {
             </DropdownMenu>
 
             <ThemeToggle />
-            <AuthButton dictionary={dictionary} />
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
@@ -219,7 +217,6 @@ export function Header({ dictionary, lang }: HeaderProps) {
             </DropdownMenu>
 
             <ThemeToggle />
-            <AuthButton dictionary={dictionary} />
             <MobileNavigationMenu
               dictionary={dictionary}
               navigationItems={navigationItems}

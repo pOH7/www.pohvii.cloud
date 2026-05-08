@@ -82,6 +82,6 @@ export default defineConfig({
     command: `pnpm run build && pnpm exec vinext start --port ${playwrightPort} --hostname 127.0.0.1`,
     url: playwrightBaseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,
   },
 });
