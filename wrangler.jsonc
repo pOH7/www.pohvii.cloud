@@ -12,6 +12,14 @@
   "images": {
     "binding": "IMAGES",
   },
+  "secrets": {
+    "required": [
+      "BETTER_AUTH_URL",
+      "BETTER_AUTH_SECRET",
+      "AUTH_GITHUB_CLIENT_ID",
+      "AUTH_GITHUB_CLIENT_SECRET",
+    ],
+  },
   "env": {
     "staging": {
       "workers_dev": true,
@@ -21,6 +29,14 @@
       },
       "images": {
         "binding": "IMAGES",
+      },
+      "secrets": {
+        "required": [
+          "BETTER_AUTH_URL",
+          "BETTER_AUTH_SECRET",
+          "AUTH_GITHUB_CLIENT_ID",
+          "AUTH_GITHUB_CLIENT_SECRET",
+        ],
       },
     },
   },
