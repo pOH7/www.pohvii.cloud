@@ -1,36 +1,16 @@
-import type React from "react";
-
-type RouteSegmentParam<Segment extends string> =
-  Segment extends `[...${infer Param}]`
-    ? { [Key in Param]: string[] }
-    : Segment extends `[[...${infer Param}]]`
-      ? { [Key in Param]?: string[] }
-      : Segment extends `[${infer Param}]`
-        ? { [Key in Param]: string }
-        : object;
-
-type RouteParams<Path extends string> = string extends Path
-  ? Record<string, string | string[]>
-  : Path extends `${infer Head}/${infer Tail}`
-    ? RouteSegmentParam<Head> & RouteParams<Tail>
-    : RouteSegmentParam<Path>;
-
-type PageSearchParams = Record<string, string | string[] | undefined>;
-
-declare global {
-  type PageProps<Path extends string = string> = {
-    params: Promise<RouteParams<Path>>;
-    searchParams: Promise<PageSearchParams>;
-  };
-
-  type LayoutProps<Path extends string = string> = {
-    children: React.ReactNode;
-    params: Promise<RouteParams<Path>>;
-  };
-}
-
 declare module "next" {
-  export type { Metadata, Viewport } from "vinext/shims/metadata";
+  import type {
+    Metadata as VinextMetadata,
+    Viewport,
+  } from "vinext/shims/metadata";
+
+  export type Metadata = Omit<VinextMetadata, "openGraph"> & {
+    openGraph?: NonNullable<VinextMetadata["openGraph"]> & {
+      section?: string;
+      tags?: string[];
+    };
+  };
+  export type { Viewport };
   export type { NextConfig } from "vinext";
 
   export namespace MetadataRoute {
@@ -120,5 +100,3 @@ declare module "next/script" {
 declare module "next/server" {
   export * from "vinext/shims/server";
 }
-
-export {};
