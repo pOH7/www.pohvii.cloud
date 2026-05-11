@@ -19,6 +19,7 @@
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "prepare": "husky",
+    "test:worker": "node --experimental-strip-types --test tests/static-assets-worker.test.ts",
     "test:e2e": "playwright test",
     "verify:static-blog": "node scripts/verify-static-blog.mjs"
   },

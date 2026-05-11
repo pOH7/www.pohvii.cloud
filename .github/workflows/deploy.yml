@@ -73,6 +73,9 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
+      - name: Worker tests
+        run: pnpm run test:worker
+
       - name: Build static site
         run: pnpm run build
 
@@ -138,6 +141,9 @@ jobs:
 
       - name: Lint
         run: pnpm run lint
+
+      - name: Worker tests
+        run: pnpm run test:worker
 
       - name: Build static site
         run: pnpm run build
