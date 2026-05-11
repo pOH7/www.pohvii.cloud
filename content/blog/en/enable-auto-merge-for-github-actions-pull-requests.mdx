@@ -1,9 +1,9 @@
 ---
-title: "How to Enable Auto-Merge for GitHub Actions Pull Requests"
+title: "How to Merge GitHub Actions Pull Requests Automatically"
 description: >-
   A concise setup guide for GitHub Actions workflows that open pull requests and
-  merge them automatically, including the repository settings and workflow
-  permissions that are easy to miss.
+  merge them automatically, including when to use GitHub auto-merge and when to
+  merge the pull request immediately.
 date: 2026-03-11
 author: Léon Zhang
 category: Developer Experience
@@ -17,15 +17,39 @@ tags:
 id: e38e563a
 ---
 
-If your workflow creates a pull request but does not auto-merge, there are
-usually four things to configure:
+If your workflow creates a pull request and you want it to land without manual
+clicks, first choose the mode you actually need:
 
-1. Enable auto-merge for the repository
-2. Add a required branch rule that makes auto-merge meaningful
-3. Allow GitHub Actions to create pull requests
-4. Give the workflow write permissions and explicitly merge the PR
+1. **Immediate bot merge**: create the pull request, then merge it right away
+   with `gh pr merge --merge`.
+2. **GitHub auto-merge**: enable auto-merge on a pull request that cannot be
+   merged yet, then let GitHub merge it after required checks or reviews pass.
 
-This is the minimal setup.
+Most maintenance workflows want the first option. `gh pr merge --auto` is only
+for the second option.
+
+## Choose the Merge Command
+
+Use a normal merge command when the pull request is expected to be mergeable as
+soon as it is created:
+
+```bash
+gh pr merge --merge --delete-branch "$PR_URL"
+```
+
+Use `--auto` only when branch protection or a ruleset creates a real pending
+requirement for GitHub to wait on:
+
+```bash
+gh pr merge --auto --merge --delete-branch "$PR_URL"
+```
+
+`--auto` asks GitHub to enable pull request auto-merge. If the pull request is
+already mergeable, GitHub can reject that request with:
+
+```text
+GraphQL: Pull request Pull request is in clean status (enablePullRequestAutoMerge)
+```
 
 ## Enable Auto-Merge in Repository Settings
 
@@ -34,31 +58,29 @@ Open your repository on GitHub:
 - `Settings` -> `General` -> `Pull Requests`
 - Enable `Allow auto-merge`
 
-One important detail from GitHub Docs: the **Enable auto-merge** option only
-appears on pull requests that cannot be merged immediately, for example when
-branch protection requires reviews or status checks.
+This setting is required only for the `--auto` flow. One important detail from
+GitHub Docs: the **Enable auto-merge** option only appears on pull requests that
+cannot be merged immediately, for example when branch protection requires
+reviews or status checks.
 
-## Add a Required Branch Rule
+## Add a Pending Requirement for `--auto`
 
 `gh pr merge --auto` does not just mean "merge this later." It asks GitHub to
-enable auto-merge for the pull request. GitHub only accepts that when the target
-branch has a required branch protection rule or ruleset requirement.
+enable auto-merge for the pull request. GitHub accepts that when the pull
+request has required work to wait for, such as a required review or a required
+status check that has not passed yet.
 
-A minimal ruleset that works for bot-created pull requests is:
-
-- `Settings` -> `Rules` -> `Rulesets`
-- Create or edit a branch ruleset that targets the default branch
-- Add `Require a pull request before merging`
-- Set required approvals to `0` if the automation should merge without human
-  review
-
-That rule blocks direct pushes to the protected branch, but still lets the bot
-create a pull request and queue auto-merge.
+A pull request ruleset with `0` required approvals can block direct pushes, but
+it does not create a pending review requirement. If the pull request is already
+clean, `--auto` can still fail because there is nothing for auto-merge to wait
+on.
 
 Do not add a required status check unless a check will actually report on the
 bot-created pull request. Pull requests opened with the repository
 `GITHUB_TOKEN` usually will not trigger follow-up workflow runs, because GitHub
 suppresses most events created by `GITHUB_TOKEN` to avoid recursive workflows.
+Use a GitHub App token or a personal access token if the bot-created pull
+request must trigger another workflow.
 
 ## Allow Actions to Create Pull Requests
 
@@ -88,7 +110,7 @@ GitHub recommends limiting `GITHUB_TOKEN` to the minimum access the job needs.
 For PR creation and merging, `contents: write` and `pull-requests: write` are
 the useful baseline.
 
-## Create the PR and Merge It
+## Create the PR and Merge It Immediately
 
 Here is a minimal pattern:
 
@@ -112,18 +134,29 @@ jobs:
           title: "chore: automated update"
           commit-message: "chore: automated update"
 
-      - name: Enable merge
+      - name: Merge pull request
         if: steps.cpr.outputs.pull-request-number != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr merge --auto --merge --delete-branch "${{ steps.cpr.outputs.pull-request-url }}"
+        run: gh pr merge --merge --delete-branch "${{ steps.cpr.outputs.pull-request-url }}"
 ```
 
-If your branch protection requires checks or approvals, `--auto` will leave the
-PR waiting until requirements pass. If the PR is already mergeable, GitHub CLI
-can merge it immediately.
+This keeps the pull request workflow and branch cleanup, but avoids the
+`enablePullRequestAutoMerge` API path entirely.
 
 ## Common Failures
+
+If the job fails with:
+
+```text
+GraphQL: Pull request Pull request is in clean status (enablePullRequestAutoMerge)
+```
+
+the pull request is already mergeable. Remove `--auto` and merge it immediately:
+
+```bash
+gh pr merge --merge --delete-branch "$PR_URL"
+```
 
 If the job fails with:
 
@@ -137,10 +170,10 @@ or:
 GraphQL: Pull request Protected branch rules not configured for this branch (enablePullRequestAutoMerge)
 ```
 
-the repository can allow auto-merge and still be missing the required branch
-rule for `--auto`. Add a ruleset requirement such as `Require a pull request
-before merging`. Rules that only prevent deletion or force pushes are not enough
-for this auto-merge path.
+the repository can allow auto-merge and still be missing a real pending
+requirement for `--auto`. Add a required review or required status check, or use
+an immediate merge command if the automation should merge clean pull requests
+right away.
 
 If the job fails with:
 
