@@ -31,6 +31,30 @@ const languages = [
   { code: "zh", name: "中文", flag: "🇨🇳" },
 ];
 
+function getLanguageSwitchPath(
+  pathname: string,
+  currentLang: string,
+  newLang: string
+) {
+  const localizedBlogDetailPattern = new RegExp(
+    `^/${currentLang}/blog/(?!page(?:/|$))[^/]+/?$`
+  );
+
+  if (localizedBlogDetailPattern.test(pathname)) {
+    return `/${newLang}/blog/`;
+  }
+
+  if (pathname === `/${currentLang}`) {
+    return `/${newLang}`;
+  }
+
+  if (pathname.startsWith(`/${currentLang}/`)) {
+    return pathname.replace(`/${currentLang}`, `/${newLang}`);
+  }
+
+  return `/${newLang}/`;
+}
+
 interface HeaderProps {
   dictionary: Dictionary;
   lang: string;
@@ -107,7 +131,7 @@ export function Header({ dictionary, lang }: HeaderProps) {
   const handleLanguageChange = (newLang: string) => {
     if (newLang === currentLang) return;
 
-    const path = pathname.replace(`/${currentLang}`, `/${newLang}`);
+    const path = getLanguageSwitchPath(pathname, currentLang, newLang);
     document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
     router.push(path);
   };

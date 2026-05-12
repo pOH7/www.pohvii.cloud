@@ -173,6 +173,41 @@ test("Language switcher changes from English to Chinese", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("Language switcher avoids a missing translated blog detail page", async ({
+  page,
+}) => {
+  await page.goto("/zh/blog/java-class-lifecycle-a3f7abef");
+  await expect(
+    page.getByRole("heading", { name: "Java Class Lifecycle", level: 1 })
+  ).toBeVisible();
+
+  const languageTrigger = page
+    .locator('header [data-slot="dropdown-menu-trigger"][data-state="closed"]')
+    .filter({ hasText: "Select language" })
+    .first();
+
+  await expect(languageTrigger).toBeVisible();
+  const englishOption = page.getByRole("menuitemcheckbox", {
+    name: "English",
+  });
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await languageTrigger.click();
+    if (await englishOption.isVisible().catch(() => false)) break;
+    await page.waitForTimeout(250);
+  }
+
+  await expect(englishOption).toBeVisible();
+  await englishOption.click();
+
+  await expect(page).toHaveURL(/\/en\/blog\/?$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(
+    page.getByRole("heading", { name: "Blog", level: 1 }).first()
+  ).toBeVisible();
+  await expect(page.getByText("Post Not Found")).toHaveCount(0);
+});
+
 test("Blog page is reachable", async ({ page }) => {
   await page.goto("/en/blog");
 
