@@ -55,6 +55,7 @@ export function RelatedPosts({
                     width={400}
                     height={200}
                     className="size-full object-cover"
+                    unoptimized
                   />
                 </div>
               ) : null}

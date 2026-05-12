@@ -56,6 +56,7 @@ export function BlogCard({
             width={isListLayout ? 400 : 800}
             height={isListLayout ? 400 : 400}
             className="size-full object-cover"
+            unoptimized
           />
         </div>
       ) : null}

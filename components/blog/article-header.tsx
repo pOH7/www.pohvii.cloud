@@ -138,6 +138,7 @@ export function ArticleHeader({
               height={600}
               className="size-full object-cover"
               priority
+              unoptimized
             />
           ) : null}
         </div>

@@ -247,6 +247,20 @@ function assertBuildProducesStaticAssets() {
     "English blog RSC payload must include blog article data"
   );
 
+  const htmlFilesWithImageOptimizerUrls = walk(
+    path.join(root, "dist", "client"),
+    (filePath) =>
+      filePath.endsWith(".html") &&
+      fs.readFileSync(filePath, "utf8").includes("/_vinext/image")
+  ).map((filePath) => path.relative(root, filePath));
+
+  assert(
+    htmlFilesWithImageOptimizerUrls.length === 0,
+    `static export must not emit vinext image optimizer URLs because the static worker cannot serve them:\n${htmlFilesWithImageOptimizerUrls.join(
+      "\n"
+    )}`
+  );
+
   const codePost = getEnglishCodePostFixture();
   if (!codePost) {
     fail("English content must include a code-block article fixture");
