@@ -108,13 +108,8 @@ export function Header({ dictionary, lang }: HeaderProps) {
     if (newLang === currentLang) return;
 
     const path = pathname.replace(`/${currentLang}`, `/${newLang}`);
+    document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
     router.push(path);
-
-    void Promise.resolve().then(() => {
-      document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
-    });
-
-    router.refresh();
   };
 
   return (

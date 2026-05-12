@@ -143,6 +143,36 @@ test("Chinese homepage renders the monograph introduction", async ({
   await expect(page.getByRole("link", { name: "中文" })).toHaveCount(0);
 });
 
+test("Language switcher changes from English to Chinese", async ({ page }) => {
+  await page.goto("/en");
+
+  const languageTrigger = page
+    .locator('header [data-slot="dropdown-menu-trigger"][data-state="closed"]')
+    .filter({ hasText: "Select language" })
+    .first();
+
+  await expect(languageTrigger).toBeVisible();
+  const chineseOption = page.getByRole("menuitemcheckbox", { name: "中文" });
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    await languageTrigger.click();
+    if (await chineseOption.isVisible().catch(() => false)) break;
+    await page.waitForTimeout(250);
+  }
+
+  await expect(chineseOption).toBeVisible();
+  await chineseOption.click();
+
+  await expect(page).toHaveURL(/\/zh\/?$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+  await expect(
+    page.getByRole("heading", {
+      name: "我更在意系统在第一次上线之后，是否仍然容易理解和修改。",
+      level: 1,
+    })
+  ).toBeVisible();
+});
+
 test("Blog page is reachable", async ({ page }) => {
   await page.goto("/en/blog");
 
