@@ -208,6 +208,35 @@ test("Language switcher avoids a missing translated blog detail page", async ({
   await expect(page.getByText("Post Not Found")).toHaveCount(0);
 });
 
+test("Nested ordered lists in blog markdown keep marker spacing intact", async ({
+  page,
+}) => {
+  await page.goto("/zh/blog/java-class-lifecycle-a3f7abef");
+
+  const executionOrderItem = page
+    .locator(".blog-article-content ul > li", { hasText: "执行顺序" })
+    .first();
+  const nestedOrderedList = executionOrderItem.locator("ol").first();
+  await expect(nestedOrderedList).toBeVisible();
+
+  const indentation = await nestedOrderedList.evaluate((list) => {
+    const firstItem = list.querySelector("li");
+    if (!firstItem) {
+      throw new Error("Expected nested ordered list to contain an item");
+    }
+
+    return {
+      listTextIndent: window.getComputedStyle(list).textIndent,
+      firstItemTextIndent: window.getComputedStyle(firstItem).textIndent,
+    };
+  });
+
+  expect(indentation).toEqual({
+    listTextIndent: "0px",
+    firstItemTextIndent: "0px",
+  });
+});
+
 test("Blog page is reachable", async ({ page }) => {
   await page.goto("/en/blog");
 

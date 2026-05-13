@@ -408,6 +408,11 @@
   padding-inline-start: 2ch;
 }
 
+.blog-article-content li > :is(ol, ul),
+.prose li > :is(ol, ul) {
+  text-indent: 0;
+}
+
 .blog-article-content blockquote,
 .prose blockquote {
   border-inline-start: 3px solid var(--border);
