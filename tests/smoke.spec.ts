@@ -3,6 +3,24 @@ import { expect, test, type Page } from "@playwright/test";
 const SCROLL_OFFSET_TOLERANCE_PX = 8;
 const MERMAID_FIT_RATIO = 0.9;
 
+async function expectLenisReady(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.documentElement.classList.contains("lenis"))
+    )
+    .toBe(true);
+}
+
+async function expectLenisSmooth(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        document.documentElement.classList.contains("lenis-smooth")
+      )
+    )
+    .toBe(true);
+}
+
 async function expectTargetNearHeaderOffset(page: Page, id: string) {
   const banner = page.getByRole("banner").first();
   await expect(banner).toBeVisible();
@@ -591,32 +609,42 @@ test("Root document does not rely on native smooth scrolling", async ({
     .toBe("auto");
 });
 
-test("Lenis owns root wheel scrolling", async ({ page }) => {
-  await page.goto("/en");
+test("Root wheel scrolling remains native while Lenis is available", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 480 });
 
-  await expect
-    .poll(async () => {
-      return page.evaluate(() => {
-        return document.documentElement.classList.contains("lenis");
-      });
-    })
-    .toBe(true);
+  for (const path of [
+    "/en/",
+    "/en/blog/",
+    "/en/about/",
+    "/en/blog/how-to-write-a-tech-blog-a-comprehensive-guide-0c74e0ba/",
+  ]) {
+    await page.goto(path);
+    await expectLenisReady(page);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => document.documentElement.scrollHeight > window.innerHeight
+        )
+      )
+      .toBe(true);
 
-  await expect
-    .poll(async () => {
-      return page.evaluate(() => {
-        const event = new WheelEvent("wheel", {
-          bubbles: true,
-          cancelable: true,
-          deltaY: 160,
-        });
+    await page.mouse.move(640, 240);
+    await page.mouse.wheel(0, 160);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY))
+      .toBeGreaterThan(0);
 
-        window.dispatchEvent(event);
+    const scrollYAfterWheel = await page.evaluate(() => window.scrollY);
+    await page.waitForTimeout(250);
+    const scrollYAfterSettle = await page.evaluate(() => window.scrollY);
 
-        return event.defaultPrevented;
-      });
-    })
-    .toBe(true);
+    expect(
+      Math.abs(scrollYAfterSettle - scrollYAfterWheel),
+      `Expected native wheel scrolling without an animation tail on ${path}`
+    ).toBeLessThanOrEqual(1);
+  }
 });
 
 test("Mermaid diagram remains fitted after fullscreen toggles", async ({
@@ -653,8 +681,10 @@ test("Comments button lands the comments section below the sticky header", async
   page,
 }) => {
   await page.goto("/en/blog/testing-comment-system-795aade4");
+  await expectLenisReady(page);
 
   await page.getByRole("button", { name: "Comments" }).click();
+  await expectLenisSmooth(page);
 
   await expectTargetNearHeaderOffset(page, "comments");
 });
@@ -663,8 +693,10 @@ test("TOC navigation lands headings below the sticky header", async ({
   page,
 }) => {
   await page.goto("/en/blog/testing-comment-system-795aade4");
+  await expectLenisReady(page);
 
   await page.getByRole("button", { name: "Comments" }).click();
+  await expectLenisSmooth(page);
   await expectTargetNearHeaderOffset(page, "comments");
 
   const desktopTocItem = page.locator(
@@ -675,8 +707,25 @@ test("TOC navigation lands headings below the sticky header", async ({
   await desktopTocItem.evaluate((button) => {
     (button as HTMLButtonElement).click();
   });
+  await expectLenisSmooth(page);
 
   await expectTargetNearHeaderOffset(page, "testing-our-comment-system");
+});
+
+test("Back to top keeps Lenis programmatic scrolling", async ({ page }) => {
+  await page.goto(
+    "/en/blog/how-to-write-a-tech-blog-a-comprehensive-guide-0c74e0ba/"
+  );
+  await expectLenisReady(page);
+  await page.evaluate(() =>
+    window.scrollTo(0, document.documentElement.scrollHeight)
+  );
+
+  const backToTop = page.getByRole("button", { name: "Back to top" });
+  await expect(backToTop).toBeVisible();
+  await backToTop.click();
+  await expectLenisSmooth(page);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });
 
 test("Article pages provide adjacent reading navigation without self-linking", async ({

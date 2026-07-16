@@ -12,7 +12,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
         anchors: true,
         orientation: "vertical",
         gestureOrientation: "vertical",
-        smoothWheel: true,
+        smoothWheel: false,
         wheelMultiplier: 1,
         touchMultiplier: 2,
         infinite: false,
