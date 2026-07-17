@@ -11,6 +11,17 @@ type MermaidDiagramProps = {
 };
 
 function getSvgLayoutSize(svgElement: SVGSVGElement) {
+  const widthAttribute = svgElement.getAttribute("width")?.trim();
+  const heightAttribute = svgElement.getAttribute("height")?.trim();
+
+  if (widthAttribute?.endsWith("%") || heightAttribute?.endsWith("%")) {
+    const rect = svgElement.getBoundingClientRect();
+
+    if (rect.width > 0 && rect.height > 0) {
+      return { width: rect.width, height: rect.height };
+    }
+  }
+
   const width = svgElement.width.baseVal.value;
   const height = svgElement.height.baseVal.value;
 
