@@ -56,31 +56,33 @@ function toValidDate(value) {
   return new Date(0);
 }
 
-function getEnglishCodePostFixture() {
+function getEnglishPostFixtures() {
   const dir = path.join(root, "content", "blog", "en");
 
   return fs
     .readdirSync(dir)
     .filter((file) => file.endsWith(".mdx") || file.endsWith(".md"))
-    .flatMap((file) => {
+    .map((file) => {
       const raw = fs.readFileSync(path.join(dir, file), "utf8");
-      if (!raw.includes("```")) return [];
-
       const fallbackSlug = file.replace(/\.(mdx?|MDX?)$/, "");
       const { data } = matter(raw);
       const title = data.title?.trim() || fallbackSlug;
       const id = normalizePostId(data.id);
-      const slug = id ? `${generateSlug(title)}-${id}` : generateSlug(title);
 
-      return [
-        {
-          title,
-          slug,
-          date: toValidDate(data.lastModified ?? data.date),
-        },
-      ];
-    })
-    .sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+      return {
+        title,
+        slug: id ? `${generateSlug(title)}-${id}` : generateSlug(title),
+        publishedAt: toValidDate(data.date),
+        updatedAt: toValidDate(data.lastModified ?? data.date),
+        hasCodeBlock: raw.includes("```"),
+      };
+    });
+}
+
+function getEnglishCodePostFixture(posts) {
+  return posts
+    .filter((post) => post.hasCodeBlock)
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())[0];
 }
 
 function walk(dir, predicate, acc = []) {
@@ -200,9 +202,11 @@ function run(command, args) {
 }
 
 function assertBuildProducesStaticAssets() {
+  const expectedPostsPerPage = 10;
   const buildOutput = run("pnpm", ["run", "build"]);
   const englishBlogIndex = "dist/client/en/blog/index.html";
   const englishBlogRsc = "dist/client/en/blog.rsc";
+  const englishBlogPageTwo = "dist/client/en/blog/page/2/index.html";
 
   assert(
     buildOutput.includes("Pre-rendering all routes (output: 'export')"),
@@ -221,10 +225,19 @@ function assertBuildProducesStaticAssets() {
     "static export must emit HTML and metadata assets into dist/client"
   );
 
-  const expectedArticleCount = fs
-    .readdirSync(path.join(root, "content", "blog", "en"))
-    .filter((file) => file.endsWith(".mdx") || file.endsWith(".md")).length;
-  const expectedVisibleArticles = Math.min(expectedArticleCount, 10);
+  const englishPostFixtures = getEnglishPostFixtures();
+  const englishPostOrder = englishPostFixtures.toSorted(
+    (a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()
+  );
+  const expectedArticleCount = englishPostOrder.length;
+  const expectedVisibleArticles = Math.min(
+    expectedArticleCount,
+    expectedPostsPerPage
+  );
+  const expectedPageTwoArticles = Math.min(
+    Math.max(expectedArticleCount - expectedPostsPerPage, 0),
+    expectedPostsPerPage
+  );
   const blogHtml = readText(englishBlogIndex);
   const blogRsc = readText(englishBlogRsc);
   const renderedArticleCount = (blogHtml.match(/<article data-index=/g) ?? [])
@@ -247,6 +260,56 @@ function assertBuildProducesStaticAssets() {
     "English blog RSC payload must include blog article data"
   );
 
+  if (expectedPageTwoArticles > 0) {
+    assert(
+      exists(englishBlogPageTwo),
+      "static export must emit the second English blog index page"
+    );
+
+    if (exists(englishBlogPageTwo)) {
+      const pageTwoHtml = readText(englishBlogPageTwo);
+      const renderedPageTwoArticleCount = (
+        pageTwoHtml.match(/<article data-index=/g) ?? []
+      ).length;
+      const expectedPageTwoPosts = englishPostOrder.slice(
+        expectedPostsPerPage,
+        expectedPostsPerPage * 2
+      );
+      const expectedPageOnePosts = englishPostOrder.slice(
+        0,
+        expectedPostsPerPage
+      );
+
+      assert(
+        renderedPageTwoArticleCount === expectedPageTwoArticles,
+        `Second English blog index page must render ${expectedPageTwoArticles} article cards; got ${renderedPageTwoArticleCount}`
+      );
+      let previousArticleIndex = -1;
+      for (const post of expectedPageTwoPosts) {
+        const articleIndex = pageTwoHtml.indexOf(
+          `href="/en/blog/${post.slug}"`
+        );
+        assert(
+          articleIndex > previousArticleIndex,
+          `Second English blog index page must render ${post.slug} in published-date order`
+        );
+        previousArticleIndex = articleIndex;
+      }
+      for (const post of expectedPageOnePosts) {
+        assert(
+          !pageTwoHtml.includes(`href="/en/blog/${post.slug}"`),
+          `Second English blog index page must not repeat first-page post ${post.slug}`
+        );
+      }
+      assert(
+        pageTwoHtml.includes(
+          `Showing ${expectedPostsPerPage + 1}-${expectedPostsPerPage + expectedPageTwoArticles} of ${expectedArticleCount} articles`
+        ),
+        "Second English blog index page must render the article count summary"
+      );
+    }
+  }
+
   const htmlFilesWithImageOptimizerUrls = walk(
     path.join(root, "dist", "client"),
     (filePath) =>
@@ -261,7 +324,7 @@ function assertBuildProducesStaticAssets() {
     )}`
   );
 
-  const codePost = getEnglishCodePostFixture();
+  const codePost = getEnglishCodePostFixture(englishPostFixtures);
   if (!codePost) {
     fail("English content must include a code-block article fixture");
     return;

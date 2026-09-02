@@ -16,6 +16,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { BlogDiscoveryPost, BlogDiscoveryTag } from "@/lib/blog-feed";
+import { BLOG_POSTS_PER_PAGE } from "@/lib/blog-pagination";
 
 interface BlogIndexClientProps {
   lang: string;
@@ -24,7 +25,6 @@ interface BlogIndexClientProps {
   currentPage?: number;
 }
 
-export const BLOG_POSTS_PER_PAGE = 10;
 const TAG_SUGGESTION_LIMIT = 6;
 const POST_SUGGESTION_LIMIT = 3;
 

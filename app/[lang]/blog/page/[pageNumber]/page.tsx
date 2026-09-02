@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import {
-  BlogIndexClient,
-  BLOG_POSTS_PER_PAGE,
-} from "@/components/blog/blog-index-client";
+import { BlogIndexClient } from "@/components/blog/blog-index-client";
 import { TagLinksFooter } from "@/components/footer";
 import { getBlogDiscoveryPosts, getBlogDiscoveryTags } from "@/lib/blog-feed";
+import { BLOG_POSTS_PER_PAGE } from "@/lib/blog-pagination";
 import { supportedLangs } from "@/lib/i18n";
 import { getAllPostsWithIds } from "@/lib/self-healing-blog";
 import { buildLanguageAlternates, buildListingMetadata } from "@/lib/seo";
