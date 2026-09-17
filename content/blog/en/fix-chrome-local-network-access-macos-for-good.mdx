@@ -1,0 +1,107 @@
+---
+title: Fix Chrome's Local Network Access on macOS for Good
+description: >-
+  Fix Chrome's ERR_ADDRESS_UNREACHABLE on macOS when local network permission
+  is already enabled, using a persistent IP exception and a full restart.
+date: 2026-09-17
+author: Léon Zhang
+category: Infrastructure
+tags:
+  - Chrome
+  - macOS
+  - Networking
+  - Troubleshooting
+  - Proxmox
+  - Home Lab
+id: 36bcf31c
+---
+
+Chrome could not open my Proxmox web interface, reporting
+`ERR_ADDRESS_UNREACHABLE`. A direct request from the same Mac returned HTTP 200
+with a valid HTTPS certificate.
+
+Chrome's **Local Network** permission was already enabled. Toggling it and
+restarting Chrome or macOS had not helped. The system log showed why:
+
+```text
+Local network denied by preference for Google Chrome (com.google.Chrome)
+```
+
+**A persistent network exception followed by a full Mac restart restored access.**
+This bypasses the affected permission check; it does not repair the broken
+permission records.
+
+## The Fix
+
+On **macOS 15.5 or later**, Apple supports exceptions for specific IP ranges.
+They apply to **all applications**, so choose the smallest range you need.
+[Apple's documentation](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy)
+
+First check and record any existing Wi-Fi exceptions:
+
+```bash
+sudo defaults read com.apple.network.local-network \
+  AllowedWiFiLocalNetworkAddresses
+```
+
+If the key does not exist, no exception list is saved there yet.
+
+For **Wi-Fi**, add your LAN subnet:
+
+```bash
+sudo defaults write com.apple.network.local-network \
+  AllowedWiFiLocalNetworkAddresses -array-add "192.168.120.0/24"
+```
+
+For **Ethernet**, inspect and update its separate list:
+
+```bash
+sudo defaults read com.apple.network.local-network \
+  AllowedEthernetLocalNetworkAddresses
+
+sudo defaults write com.apple.network.local-network \
+  AllowedEthernetLocalNetworkAddresses -array-add "192.168.120.0/24"
+```
+
+Use the setting for your connection type, or both if needed. Replace the example
+range with your own:
+
+| CIDR                | Scope                         |
+| ------------------- | ----------------------------- |
+| `192.168.120.0/24`  | Entire `192.168.120.x` subnet |
+| `192.168.120.51/32` | One server only               |
+
+Use `192.168.120.0/24` as the canonical subnet notation. For one server, substitute
+its `/32` address in the command. These exceptions follow the IP range, not a
+particular Wi-Fi network name.
+
+`-array-add` preserves existing entries but can append duplicates if repeated.
+
+## Restart the Mac
+
+**The change requires a full macOS restart. Restarting Chrome is not enough.**
+[Apple's documentation](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy)
+
+My first test immediately after writing the setting still failed. After saving
+work and restarting the Mac, the same Proxmox URL loaded in Chrome.
+
+If it still fails after restarting, check that the saved range covers the
+server's current IP and matches the connection type. This fix addresses macOS
+permission denials; an unreachable server, incorrect route, or DNS failure needs
+separate investigation.
+
+## Undo It
+
+If the Wi-Fi list contains only the exception you added:
+
+```bash
+sudo defaults delete com.apple.network.local-network \
+  AllowedWiFiLocalNetworkAddresses
+```
+
+For Ethernet, use `AllowedEthernetLocalNetworkAddresses` instead. These commands
+remove the **entire list** for that connection type. If other entries exist,
+rewrite the remaining values with `defaults write ... -array` instead of deleting
+the key.
+
+Restart macOS after reverting.
