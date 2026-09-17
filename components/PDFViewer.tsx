@@ -236,7 +236,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({
         setLoading(true);
         setError(null);
 
-        const task = pdfjsLib.getDocument(src);
+        const task = pdfjsLib.getDocument({ url: src });
         const pdf = await task.promise;
 
         setPdfDoc(pdf);

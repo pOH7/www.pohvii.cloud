@@ -78,8 +78,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    // Build once then start the vinext production server for E2E tests.
-    command: `pnpm run build && pnpm exec vinext start --port ${playwrightPort} --hostname 127.0.0.1`,
+    // Exercise the static Worker and assets used by the deployment workflow.
+    command: `pnpm run build && pnpm run prepare:static-deploy && pnpm exec wrangler dev --config wrangler.jsonc --env="" --local --port ${playwrightPort} --ip 127.0.0.1`,
     url: playwrightBaseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

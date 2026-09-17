@@ -630,20 +630,30 @@ test("Root wheel scrolling remains native while Lenis is available", async ({
       )
       .toBe(true);
 
+    // Observe after Lenis handles the event. Native scrolling can continue
+    // asynchronously in WebKit, so elapsed time is not evidence of smoothing.
+    await page.evaluate(() => {
+      window.addEventListener(
+        "wheel",
+        (event) => {
+          document.documentElement.dataset.wheelDefaultPrevented = String(
+            event.defaultPrevented
+          );
+        },
+        { once: true }
+      );
+    });
+
     await page.mouse.move(640, 240);
     await page.mouse.wheel(0, 160);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-wheel-default-prevented",
+      "false"
+    );
     await expect
       .poll(() => page.evaluate(() => window.scrollY))
       .toBeGreaterThan(0);
-
-    const scrollYAfterWheel = await page.evaluate(() => window.scrollY);
-    await page.waitForTimeout(250);
-    const scrollYAfterSettle = await page.evaluate(() => window.scrollY);
-
-    expect(
-      Math.abs(scrollYAfterSettle - scrollYAfterWheel),
-      `Expected native wheel scrolling without an animation tail on ${path}`
-    ).toBeLessThanOrEqual(1);
+    await expect(page.locator("html")).not.toHaveClass(/lenis-smooth/);
   }
 });
 
@@ -731,7 +741,9 @@ test("Back to top keeps Lenis programmatic scrolling", async ({ page }) => {
 test("Article pages provide adjacent reading navigation without self-linking", async ({
   page,
 }) => {
-  await page.goto("/en/blog/tech-blog-writing-guide-0c74e0ba");
+  await page.goto(
+    "/en/blog/how-to-write-a-tech-blog-a-comprehensive-guide-0c74e0ba/"
+  );
 
   await expect(
     page.getByRole("heading", { name: "Keep Reading", level: 2 })
@@ -747,7 +759,5 @@ test("Article pages provide adjacent reading navigation without self-linking", a
   );
 
   expect(hrefs.every((href) => href !== null)).toBe(true);
-  expect(
-    hrefs.every((href) => !href?.includes("tech-blog-writing-guide-0c74e0ba"))
-  ).toBe(true);
+  expect(hrefs.every((href) => !href?.includes("0c74e0ba"))).toBe(true);
 });
