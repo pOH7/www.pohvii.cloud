@@ -237,6 +237,28 @@ Common categories observed in the codebase:
 - Standard dimensions: 1200x600 work well when you do include a hero or thumbnail
 - Omit `image` entirely when the post does not need one
 
+## Code Diffs
+
+Use ``<CodeDiff patch={`...`} />`` for code changes. The component renders a
+single-file unified patch with `@pierre/diffs` from [diffs.com](https://diffs.com/),
+including line numbers, addition/deletion markers, and the site's color theme.
+Include the file headers and valid hunk line counts:
+
+```mdx
+<CodeDiff
+  patch={`diff --git a/example.js b/example.js
+--- a/example.js
++++ b/example.js
+@@ -1 +1 @@
+-console.log("before");
++console.log("after");
+`}
+/>
+```
+
+Escape literal backticks and `${` in the JavaScript template string. Keep ordinary
+shell commands and complete replacement snippets in fenced code blocks.
+
 ## Processing Pipeline
 
 1. **Reading**: Files are read using Node.js `fs` module

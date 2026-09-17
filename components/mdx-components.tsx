@@ -1,12 +1,14 @@
 import React from "react";
 
 import CodeBlock from "@/components/mdx/CodeBlock";
+import CodeDiff from "@/components/mdx/CodeDiff";
 import { ExcalidrawViewer } from "@/components/mdx/ExcalidrawViewer";
 import HlsVideoPlayer from "@/components/mdx/HlsVideoPlayer";
 import PDFViewerWrapper from "@/components/PDFViewerWrapper";
 
 // Optional: map/augment elements for MDX rendering
 export const mdxComponents = {
+  CodeDiff,
   // Example: style anchors/headings subtly
   a: (props: React.ComponentProps<"a">) => {
     const href = typeof props.href === "string" ? props.href : "";

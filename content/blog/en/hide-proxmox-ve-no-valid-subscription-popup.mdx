@@ -1,0 +1,94 @@
+---
+title: Hide the Proxmox VE No Valid Subscription Popup
+description: >-
+  Hide the Proxmox VE subscription reminder with a small JavaScript edit,
+  a backup, and rollback steps. Tested on PVE 9.2.18.
+date: 2026-09-17
+author: Léon Zhang
+category: Infrastructure
+tags:
+  - Proxmox
+  - Virtualization
+  - Linux
+id: 07b0801b
+---
+
+The **No valid subscription** popup appears when a node has no active subscription.
+Switching to `pve-no-subscription` repositories [does not remove it](https://forum.proxmox.com/threads/cannot-set-installation-to-no-subscription.108040/).
+
+Tested on **PVE 9.2.18** with **proxmox-widget-toolkit 5.2.8**. This installation
+serves `proxmoxlib.js`; the steps below target that file.
+
+## Back Up and Edit
+
+Run as root on the PVE host:
+
+```bash
+pve_ui_file=/usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+pve_ui_backup="/root/proxmoxlib.js.$(date +%Y%m%d-%H%M%S).bak"
+cp -p "$pve_ui_file" "$pve_ui_backup" && nano "$pve_ui_file"
+```
+
+Find `checked_command` and simplify its `success` callback:
+
+<CodeDiff
+  patch={`diff --git a/proxmoxlib.js b/proxmoxlib.js
+--- a/proxmoxlib.js
++++ b/proxmoxlib.js
+@@ -619,28 +619,7 @@
+                     Ext.Msg.alert(gettext('Error'), response.htmlStatus);
+                 },
+                 success: function (response, opts) {
+-                    let res = response.result;
+-                    if (
+-                        res === null ||
+-                        res === undefined ||
+-                        !res ||
+-                        res.data.status.toLowerCase() !== 'active'
+-                    ) {
+-                        Ext.Msg.show({
+-                            title: gettext('No valid subscription'),
+-                            icon: Ext.Msg.WARNING,
+-                            message: Proxmox.Utils.getNoSubKeyHtml(res.data.url),
+-                            buttons: Ext.Msg.OK,
+-                            callback: function (btn) {
+-                                if (btn !== 'ok') {
+-                                    return;
+-                                }
+-                                orig_cmd();
+-                            },
+-                        });
+-                    } else {
+-                        orig_cmd();
+-                    }
++                    orig_cmd();
+                 },
+             });
+         },
+`}
+/>
+
+Successful requests now continue immediately; API errors still appear.
+Subscription status stays unchanged.
+
+## Reload
+
+Save the file, then hard-refresh the browser with **Cmd+Shift+R** on macOS or
+**Ctrl+Shift+R** on Windows/Linux. Log in again to verify the popup is gone.
+
+The edited file was served immediately in the tested setup, without restarting
+`pveproxy` or any VM. If the reminder persists, check the browser's Network panel
+for a cached response or a different bundle such as `proxmoxlib.min.js`.
+
+## Undo
+
+In the same shell:
+
+```bash
+cp -p "$pve_ui_backup" "$pve_ui_file"
+```
+
+Hard-refresh again. In a new shell, use the saved backup's full path.
+
+Toolkit upgrades can overwrite this local patch. Recheck the new code before
+reapplying it, and never restore an older bundle over an upgraded package.
